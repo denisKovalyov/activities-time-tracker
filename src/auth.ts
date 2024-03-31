@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth';
 import { authConfig } from './auth.config';
 import Credentials from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import { sql } from '@vercel/postgres';
 import type { User, Credentials as CredentialsType } from '@/lib/definitions';
 import bcrypt from 'bcrypt';
@@ -29,5 +30,9 @@ export const { auth, signIn, signOut } = NextAuth({
         return passwordsMatch ? user : null;
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    })
   ],
 });
