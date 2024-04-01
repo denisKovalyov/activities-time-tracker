@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import { ThemeProvider } from '@/ui/providers/theme-provider';
+import { AuthProvider } from '@/ui/providers/auth-provider';
 import { Inter } from 'next/font/google';
 import '../globals.css';
 
@@ -29,9 +30,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
-      </body>
-    </html>
-  );
-}
+    </body>
+  </html>
+)};

@@ -1,9 +1,9 @@
 import NextAuth from 'next-auth';
 import { authConfig } from './auth.config';
-import Credentials from 'next-auth/providers/credentials';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { sql } from '@vercel/postgres';
-import type { User, Credentials as CredentialsType } from '@/lib/definitions';
+import type { User, Credentials } from '@/lib/definitions';
 import bcrypt from 'bcrypt';
 
 async function getUser(email: string): Promise<User | undefined> {
@@ -16,12 +16,12 @@ async function getUser(email: string): Promise<User | undefined> {
   }
 }
 
-export const { auth, signIn, signOut } = NextAuth({
+export const { handlers: { GET, POST }, auth, signIn, signOut, unstable_update: update } = NextAuth({
   ...authConfig,
   providers: [
-    Credentials({
+    CredentialsProvider({
       async authorize(credentials) {
-        const { email, password } = credentials as CredentialsType;
+        const { email, password } = credentials as Credentials;
         const user = await getUser(email);
         if (!user) return null;
 
@@ -31,8 +31,24 @@ export const { auth, signIn, signOut } = NextAuth({
       },
     }),
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     })
   ],
+  callbacks: {
+    async session({session, token, user}) {
+      session.user = token.user as User;
+      return session;
+    },
+    async jwt({token, user, trigger, session}) {
+      if (user) {
+        token.user = user;
+      }
+      if (trigger === "update" && session) {
+        token = {...token, user: session}
+        return token;
+      }
+      return token;
+    },
+  },
 });

@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Credentials } from '@/lib/definitions';
 import { LoginSchema } from '@/lib/validationSchemas';
-import { authenticate } from '@/lib/actions';
+import { authenticate, googleAuthenticate } from '@/lib/actions';
 import { Button } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 
@@ -47,6 +47,7 @@ export default function LoginForm() {
         <FormFieldInput name="password" label="Password" inputType="password" />
         {loginError && <FormMessage>{loginError}</FormMessage>}
         <Button type="submit">Submit</Button>
+        <Button type="button" onClick={() => googleAuthenticate()}>Google Sign In</Button>
       </form>
     </Form>
   );

@@ -6,9 +6,10 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
+    "start": "next start",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
-    "start": "next start"
+    "clean": "rm -r .next node_modules"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
