@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import LoginForm from '@/ui/auth/login-form';
+import { LoginForm } from '@/ui/auth/login-form';
 
 export default function Home() {
   return (

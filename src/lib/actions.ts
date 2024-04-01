@@ -31,7 +31,7 @@ export async function authenticate(values: Credentials) {
   }
 }
 
-export async function googleAuthenticate() {
+export async function googleAuthenticate(prevState: string | undefined, formData: FormData) {
   try {
     await signIn('google');
   } catch (error) {
