@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from '@/ui/common/form/form';
 import { Input } from '@/ui/common/form/input';
+import { InputPassword } from '@/ui/common/form/input-password';
 
 export const FormFieldInput = ({
   name,
@@ -24,6 +25,7 @@ export const FormFieldInput = ({
   description?: string;
 }) => {
   const { control } = useFormContext();
+  const InputComponent = inputType === 'password' ? InputPassword : Input;
 
   return (
     <FormField
@@ -33,7 +35,7 @@ export const FormFieldInput = ({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input placeholder={placeholder} type={inputType} {...field} />
+            <InputComponent placeholder={placeholder} type={inputType} {...field} />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />
