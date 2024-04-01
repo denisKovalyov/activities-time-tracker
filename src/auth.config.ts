@@ -4,7 +4,7 @@ const PROTECTED_PAGE_URL = '/activities';
 
 export const authConfig = {
   pages: {
-    signIn: '/login',
+    signIn: '/sign-in',
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {

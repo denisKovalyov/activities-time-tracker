@@ -1,4 +1,5 @@
 import React, { HTMLInputTypeAttribute } from 'react';
+import { clsx } from 'clsx';
 import { useFormContext } from 'react-hook-form';
 import {
   FormField,
@@ -24,8 +25,12 @@ export const FormFieldInput = ({
   placeholder?: string;
   description?: string;
 }) => {
-  const { control } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
   const InputComponent = inputType === 'password' ? InputPassword : Input;
+  const hasError = name in errors;
 
   return (
     <FormField
@@ -35,7 +40,14 @@ export const FormFieldInput = ({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <InputComponent placeholder={placeholder} type={inputType} {...field} />
+            <InputComponent
+              className={clsx({
+                'border-destructive [&+button>svg]:text-destructive': hasError,
+              })}
+              placeholder={placeholder}
+              type={inputType}
+              {...field}
+            />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />

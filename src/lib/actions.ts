@@ -31,12 +31,15 @@ export async function authenticate(values: Credentials) {
   }
 }
 
-export async function googleAuthenticate(prevState: string | undefined, formData: FormData) {
+export async function googleAuthenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
   try {
     await signIn('google');
   } catch (error) {
     if (error instanceof AuthError) {
-      return 'google log in failed'
+      return 'Google log is failed.';
     }
     throw error;
   }

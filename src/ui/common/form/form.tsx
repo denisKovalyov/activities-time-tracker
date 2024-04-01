@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
 import { Label } from '@/ui/common/form/label';
+import { WarningCircle } from '@phosphor-icons/react';
 import {
   Controller,
   ControllerProps,
@@ -152,14 +153,21 @@ const FormMessage = React.forwardRef<
   }
 
   return (
-    <p
-      ref={ref}
-      id={formMessageId}
-      className={cn('text-[0.8rem] font-medium text-destructive', className)}
-      {...props}
-    >
-      {body}
-    </p>
+    <div className="flex items-center">
+      <WarningCircle
+        weight="duotone"
+        size="16"
+        className="mr-1 text-destructive"
+      />
+      <p
+        ref={ref}
+        id={formMessageId}
+        className={cn('text-[0.8rem] font-medium text-destructive', className)}
+        {...props}
+      >
+        {body}
+      </p>
+    </div>
   );
 });
 FormMessage.displayName = 'FormMessage';

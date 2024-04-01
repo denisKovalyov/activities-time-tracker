@@ -16,7 +16,13 @@ async function getUser(email: string): Promise<User | undefined> {
   }
 }
 
-export const { handlers: { GET, POST }, auth, signIn, signOut, unstable_update: update } = NextAuth({
+export const {
+  handlers: { GET, POST },
+  auth,
+  signIn,
+  signOut,
+  unstable_update: update,
+} = NextAuth({
   ...authConfig,
   providers: [
     CredentialsProvider({
@@ -33,19 +39,19 @@ export const { handlers: { GET, POST }, auth, signIn, signOut, unstable_update: 
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    })
+    }),
   ],
   callbacks: {
-    async session({session, token, user}) {
+    async session({ session, token, user }) {
       session.user = token.user as User;
       return session;
     },
-    async jwt({token, user, trigger, session}) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.user = user;
       }
-      if (trigger === "update" && session) {
-        token = {...token, user: session}
+      if (trigger === 'update' && session) {
+        token = { ...token, user: session };
         return token;
       }
       return token;

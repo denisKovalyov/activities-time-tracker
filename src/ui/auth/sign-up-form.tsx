@@ -13,7 +13,10 @@ import { GoogleSignIn } from './google-sign-in';
 
 export function SignUpForm() {
   const [registerError, setRegisterError] = useState<string | null>(null);
-  const [errorMsgGoogle, dispatchGoogle] = useFormState(googleAuthenticate, undefined);
+  const [errorMsgGoogle, dispatchGoogle] = useFormState(
+    googleAuthenticate,
+    undefined,
+  );
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -39,24 +42,5 @@ export function SignUpForm() {
     // });
   };
 
-  return (
-    <div className="space-y-8">
-      <Form {...form}>
-        {registerError && <FormMessage>{registerError}</FormMessage>}
-        {errorMsgGoogle && <FormMessage>{errorMsgGoogle}</FormMessage>}
-
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="min-w-80 max-w-96 space-y-8"
-        >
-          <FormFieldInput name="email" label="Email"/>
-          <FormFieldInput name="password" label="Password" inputType="password"/>
-          <Button type="submit">Submit</Button>
-        </form>
-      </Form>
-      <form action={dispatchGoogle}>
-        <GoogleSignIn />
-      </form>
-    </div>
-  );
+  return <div className="space-y-8"></div>;
 }
