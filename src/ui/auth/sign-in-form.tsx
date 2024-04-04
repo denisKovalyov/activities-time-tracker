@@ -80,7 +80,7 @@ export function SignInForm() {
       </form>
 
       <div className="mt-4 flex items-center justify-center">
-        <span className="mr-2 text-sm">Don't have an account yet?</span>
+        <span className="mr-2 text-sm">Don&apos;t have an account yet?</span>
         <Link
           className={cn(
             buttonVariants({

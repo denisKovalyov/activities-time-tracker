@@ -37,4 +37,6 @@ const InputPassword = React.forwardRef<HTMLInputElement, InputProps>(
   },
 );
 
+InputPassword.displayName = 'InputPassword';
+
 export { InputPassword };
