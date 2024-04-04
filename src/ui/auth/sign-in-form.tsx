@@ -2,17 +2,17 @@
 
 import { useState } from 'react';
 import { useFormState } from 'react-dom';
-import { clsx } from 'clsx';
 import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Credentials } from '@/lib/definitions';
-import { LoginSchema } from '@/lib/validationSchemas';
+import { LoginSchema } from '@/lib/validation';
 import { authenticate, googleAuthenticate } from '@/lib/actions';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 import { TextSeparator } from '@/ui/common/separator';
+import { cn } from '@/lib/utils';
 import { GoogleSignIn } from './google-sign-in';
 
 export function SignInForm() {
@@ -50,6 +50,8 @@ export function SignInForm() {
 
   return (
     <div className="min-w-80 max-w-96 rounded-md bg-white p-6">
+      <h2 className="prose-xl mb-4 text-center">Sign In</h2>
+
       <Form {...form}>
         {hasErrors && (
           <div className="mb-4 [&>div]:mb-2">
@@ -80,10 +82,10 @@ export function SignInForm() {
       <div className="mt-4 flex items-center justify-center">
         <span className="mr-2 text-sm">Don't have an account yet?</span>
         <Link
-          className={buttonVariants({
+          className={cn(buttonVariants({
             variant: 'link',
             className: 'h-auto px-0 py-0',
-          })}
+          }))}
           href="/sign-up"
         >
           Sign Up

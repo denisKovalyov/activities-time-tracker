@@ -3,7 +3,7 @@
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { Credentials } from '@/lib/definitions';
-import { LoginSchema } from '@/lib/validationSchemas';
+import { LoginSchema } from '@/lib/validation';
 
 export async function authenticate(values: Credentials) {
   const validatedFields = LoginSchema.safeParse({

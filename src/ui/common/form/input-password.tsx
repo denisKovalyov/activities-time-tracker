@@ -20,6 +20,7 @@ const InputPassword = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           className={cn('pr-9', className)}
           {...props}
+          autoComplete="off"
           type={isVisible ? 'text' : 'password'}
         />
         <Button

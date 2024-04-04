@@ -157,7 +157,7 @@ const FormMessage = React.forwardRef<
       <WarningCircle
         weight="duotone"
         size="16"
-        className="mr-1 text-destructive"
+        className="mr-1 text-destructive flex-none"
       />
       <p
         ref={ref}

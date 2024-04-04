@@ -1,7 +1,7 @@
 import React from 'react';
+import { useFormStatus } from 'react-dom';
 import { GoogleLogo } from '@/ui/common/google-logo';
 import { Button } from '@/ui/common/button';
-import { useFormStatus } from 'react-dom';
 
 export function GoogleSignIn() {
   const { pending } = useFormStatus();
