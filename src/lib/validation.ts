@@ -68,6 +68,7 @@ export type Requirement =
   | typeof UPPER_LOWER_CASE_REQUIREMENT
   | typeof NUMBER_REQUIREMENT
   | typeof SPECIAL_CHAR_REQUIREMENT;
+
 export const validatePassword = (password: string) => {
   const validatedFields = PasswordComplexity.safeParse(password);
 
