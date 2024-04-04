@@ -11,7 +11,7 @@ import { SignUpSchema, validatePassword } from '@/lib/validation';
 import { authenticate, googleAuthenticate } from '@/lib/actions';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
-import { PasswordTooltipContent } from '@/ui/auth/password-tooltip'
+import { PasswordTooltipContent } from '@/ui/auth/password-tooltip';
 import { TextSeparator } from '@/ui/common/separator';
 import { cn } from '@/lib/utils';
 import { GoogleSignIn } from './google-sign-in';
@@ -23,7 +23,8 @@ export function SignUpForm() {
     undefined,
   );
   const [showTooltip, setShowTooltip] = useState(false);
-  const [passwordRequirements, setPasswordRequirements] = useState<ReactNode>(null);
+  const [passwordRequirements, setPasswordRequirements] =
+    useState<ReactNode>(null);
 
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
@@ -42,8 +43,8 @@ export function SignUpForm() {
     setPasswordRequirements(
       <PasswordTooltipContent
         requirements={errors}
-        error={Boolean(passwordFieldError)}
-      />
+        markAsError={Boolean(passwordFieldError)}
+      />,
     );
   }, [password, passwordFieldError]);
 
@@ -69,7 +70,7 @@ export function SignUpForm() {
   const hasErrors = signUpError || errorMsgGoogle;
 
   return (
-    <div className="min-w-80 max-w-96 rounded-md bg-white p-6">
+    <div className="w-80 rounded-md bg-white p-6">
       <h2 className="prose-xl mb-4 text-center">Sign Up</h2>
 
       <Form {...form}>
@@ -81,7 +82,7 @@ export function SignUpForm() {
         )}
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="[&>div]:mb-4">
-          <FormFieldInput name="email" label="Email"/>
+          <FormFieldInput name="email" label="Email" />
           <FormFieldInput
             name="password"
             label="Password"
@@ -98,19 +99,21 @@ export function SignUpForm() {
         </form>
       </Form>
 
-      <TextSeparator className="my-3" text="or"/>
+      <TextSeparator className="my-3" text="or" />
 
       <form action={dispatchGoogle}>
-        <GoogleSignIn/>
+        <GoogleSignIn />
       </form>
 
       <div className="mt-4 flex items-center justify-center">
         <span className="mr-2 text-sm">Already an have account?</span>
         <Link
-          className={cn(buttonVariants({
-            variant: 'link',
-            className: 'h-auto px-0 py-0',
-          }))}
+          className={cn(
+            buttonVariants({
+              variant: 'link',
+              className: 'h-auto px-0 py-0',
+            }),
+          )}
           href="/sign-in"
         >
           Sign In

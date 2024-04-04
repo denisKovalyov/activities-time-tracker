@@ -2,7 +2,7 @@
 
 import React, { HTMLInputTypeAttribute, ReactNode } from 'react';
 import { clsx } from 'clsx';
-import  { ControllerRenderProps, useFormContext } from 'react-hook-form';
+import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import {
   FormField,
   FormItem,
@@ -22,8 +22,8 @@ interface FormFieldInputProps extends InputProps {
   placeholder?: string;
   description?: string;
   showTooltip?: boolean;
-  tooltipContent?: ReactNode,
-};
+  tooltipContent?: ReactNode;
+}
 
 export const FormFieldInput = ({
   name,
@@ -61,8 +61,10 @@ export const FormFieldInput = ({
         trigger={input}
         content={tooltipContent}
       />
-    ) : input;
-  }
+    ) : (
+      input
+    );
+  };
 
   return (
     <FormField
@@ -71,11 +73,9 @@ export const FormFieldInput = ({
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
-          <FormControl>
-            {renderInput(field)}
-          </FormControl>
+          <FormControl>{renderInput(field)}</FormControl>
           {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage/>
+          <FormMessage />
         </FormItem>
       )}
     />

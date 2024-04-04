@@ -82,10 +82,12 @@ export function SignInForm() {
       <div className="mt-4 flex items-center justify-center">
         <span className="mr-2 text-sm">Don't have an account yet?</span>
         <Link
-          className={cn(buttonVariants({
-            variant: 'link',
-            className: 'h-auto px-0 py-0',
-          }))}
+          className={cn(
+            buttonVariants({
+              variant: 'link',
+              className: 'h-auto px-0 py-0',
+            }),
+          )}
           href="/sign-up"
         >
           Sign Up

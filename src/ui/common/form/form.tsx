@@ -153,16 +153,15 @@ const FormMessage = React.forwardRef<
   }
 
   return (
-    <div className="flex items-center">
-      <WarningCircle
-        weight="duotone"
-        size="16"
-        className="mr-1 text-destructive flex-none"
-      />
+    <div className="flex items-center text-destructive">
+      <WarningCircle weight="duotone" size="16" className="mr-1 flex-none" />
       <p
         ref={ref}
         id={formMessageId}
-        className={cn('text-[0.8rem] font-medium text-destructive', className)}
+        className={cn(
+          'text-[0.8rem] font-medium leading-tight text-destructive',
+          className,
+        )}
         {...props}
       >
         {body}
