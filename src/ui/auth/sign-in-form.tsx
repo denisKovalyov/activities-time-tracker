@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { useFormState } from 'react-dom';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Credentials } from '@/lib/definitions';
-import { LoginSchema } from '@/lib/validation';
-import { authenticate, googleAuthenticate } from '@/lib/actions';
+import { SignInSchema } from '@/lib/validation';
+import { authenticate, googleAuthenticate } from '@/lib/actions/auth';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 import { TextSeparator } from '@/ui/common/separator';
@@ -22,20 +23,25 @@ export function SignInForm() {
     undefined,
   );
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof SignInSchema>>({
+    resolver: zodResolver(SignInSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (values: z.infer<typeof SignInSchema>) => {
     setLoginError(null);
 
     authenticate(values).then((value) => {
       if (!value) return;
-      if (value.message) setLoginError(value.message);
+      if (value.emailVerificationError) {
+        redirect(`/email/verify/send?email=${values.email}`);
+      }
+      if (value.message) {
+        setLoginError(value.message);
+      }
       if (value.errors) {
         (
           Object.entries(value.errors) as [keyof Credentials, string[]][]

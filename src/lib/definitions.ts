@@ -3,6 +3,7 @@ export type User = {
   name: string;
   email: string;
   emailVerified: Date | null;
+  emailVerificationToken: string | null;
   password: string;
 };
 

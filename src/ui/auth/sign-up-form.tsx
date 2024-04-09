@@ -8,7 +8,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { Credentials } from '@/lib/definitions';
 import { SignUpSchema, validatePassword } from '@/lib/validation';
-import { authenticate, googleAuthenticate } from '@/lib/actions';
+import { signUp, googleAuthenticate } from '@/lib/actions/auth';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 import { PasswordTooltipContent } from '@/ui/auth/password-tooltip';
@@ -51,17 +51,17 @@ export function SignUpForm() {
   const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
     setSignUpError(null);
 
-    // authenticate(values).then((value) => {
-    //   if (!value) return;
-    //   if (value.message) setSignUpError(value.message);
-    //   if (value.errors) {
-    //     (
-    //       Object.entries(value.errors) as [keyof Credentials, string[]][]
-    //     ).forEach(([field, [message]]) => {
-    //       form.setError(field, { message, type: 'custom' });
-    //     });
-    //   }
-    // });
+    signUp(values).then((value) => {
+      if (!value) return;
+      if (value.message) setSignUpError(value.message);
+      if (value.errors) {
+        (
+          Object.entries(value.errors) as [keyof Credentials, string[]][]
+        ).forEach(([field, [message]]) => {
+          form.setError(field, { message, type: 'custom' });
+        });
+      }
+    });
   };
 
   const handlePasswordFocus = () => setShowTooltip(true);
