@@ -5,6 +5,7 @@
   "scripts": {
     "build": "next build",
     "clean": "rm -r .next node_modules",
+    "db:setup": "node -r dotenv/config ./scripts/db-setup.js",
     "db:reset": "node -r dotenv/config ./scripts/db-reset.js",
     "dev": "next dev -p 4000",
     "lint": "next lint",
