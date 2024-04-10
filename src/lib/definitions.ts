@@ -2,8 +2,8 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  emailVerified: Date | null;
-  emailVerificationToken: string | null;
+  email_verified: Date | null;
+  email_verification_token: string | null;
   password: string;
 };
 

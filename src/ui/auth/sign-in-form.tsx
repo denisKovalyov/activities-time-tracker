@@ -36,9 +36,6 @@ export function SignInForm() {
 
     authenticate(values).then((value) => {
       if (!value) return;
-      if (value.emailVerificationError) {
-        redirect(`/email/verify/send?email=${values.email}`);
-      }
       if (value.message) {
         setLoginError(value.message);
       }
@@ -55,7 +52,7 @@ export function SignInForm() {
   const hasErrors = loginError || errorMsgGoogle;
 
   return (
-    <div className="min-w-80 max-w-96 rounded-md bg-white p-6">
+    <div className="w-80 rounded-md bg-white p-6">
       <h2 className="prose-xl mb-4 text-center">Sign In</h2>
 
       <Form {...form}>

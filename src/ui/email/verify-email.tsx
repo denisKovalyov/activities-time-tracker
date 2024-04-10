@@ -13,37 +13,36 @@ export default function VerifyEmail() {
   const token = searchParams.get('token');
 
   const [isLoading, setIsLoading] = useState(true);
-  const [result, setResult] = useState('Error verifying your email');
+  const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     verifyEmail(email, token)
-      .then(() => {
-        setResult('Email verified successfully. Please re-login.');
-        setIsLoading(false);
+      .then((message) => {
+        setSuccess(message);
       })
       .catch((error) => {
         setError(error.message);
-      });
+      })
+      .finally(() => setIsLoading(false));
   }, [email, token]);
 
   return (
-    <>
-      <div className="mb-4">{isLoading ? 'Please wait ...' : result}</div>
+    <div className="w-96 rounded-md bg-white p-6 text-center">
+      {isLoading && <div className="mb-4">Please wait...</div>}
+      {success && <div className="mb-4 text-green-500">{success}</div>}
       {error && <div className="mb-4 text-destructive">{error}</div>}
-      <div className="my-4">
-        <Link
-          className={cn(
-            buttonVariants({
-              variant: 'link',
-              className: 'h-auto px-0 py-0',
-            }),
-          )}
-          href="/sign-in"
-        >
-          Back to Login
-        </Link>
-      </div>
-    </>
+      <Link
+        className={cn(
+          buttonVariants({
+            variant: 'link',
+            className: 'h-auto px-0 py-0',
+          }),
+        )}
+        href="/sign-in"
+      >
+        Back to Login
+      </Link>
+    </div>
   );
 }

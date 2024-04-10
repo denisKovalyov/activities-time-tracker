@@ -21,22 +21,24 @@ export function EmailVerificationRequestForm() {
   const successMessage = formState?.success && formState?.message;
 
   return (
-    <>
+    <div className="w-96 rounded-md bg-white p-6 text-center">
+      <div className="prose-base mb-4">Please verify your email first</div>
+
       {errorMessage && (
         <div className="mb-4 text-destructive">{errorMessage}</div>
       )}
 
-      {verificationSent && !errorMessage && (
-        <div className="mb-4 text-green-500">
-          {successMessage || DEFAULT_MESSAGE}
-        </div>
+      {successMessage && (
+        <div className="mb-4 text-green-500">{successMessage}</div>
       )}
 
-      <div>
-        <form action={action}>
-          <ResendButton />
-        </form>
-      </div>
-    </>
+      {verificationSent && !errorMessage && !successMessage && (
+        <div className="mb-4 text-green-500">{DEFAULT_MESSAGE}</div>
+      )}
+
+      <form action={action}>
+        <ResendButton />
+      </form>
+    </div>
   );
 }

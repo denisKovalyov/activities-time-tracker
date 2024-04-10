@@ -18,7 +18,7 @@ export async function createUser({
 }: Credentials & { emailVerificationToken: string }): Promise<void> {
   try {
     await sql`
-      INSERT INTO users(name, email, password, emailVerificationToken)
+      INSERT INTO users(name, email, password, email_verification_token)
       VALUES ('', ${email}, ${hashedPassword}, ${emailVerificationToken})`;
   } catch (error) {
     console.error('Failed to create user:', error);
@@ -32,10 +32,14 @@ export async function updateUser(
 ): Promise<void> {
   try {
     const fieldsString = Object.entries(fields).reduce(
-      (str, [field, value]) => `${str ? str + ', ' : ''}${field}='${value}'`,
-      '');
+      (str, [field, value], i) => `${str ? str + ', ' : ''}${field}=$${i + 1}`,
+      '',
+    );
 
-    await sql`UPDATE users SET ${fieldsString} WHERE email = ${email}`;
+    await sql.query(
+      `UPDATE users SET ${fieldsString} WHERE email='${email}'`,
+      Object.values(fields),
+    );
   } catch (error) {
     console.error('Failed to update user:', error);
     throw new Error('Failed to update user.');

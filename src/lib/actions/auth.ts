@@ -20,7 +20,7 @@ export const isUsersEmailVerified = async (email: string) => {
   const user = await getUser(email);
 
   if (!user) return true;
-  if (!user?.emailVerified)
+  if (!user?.email_verified)
     throw new EmailNotVerifiedError(`EMAIL_NOT_VERIFIED: ${email}`);
 
   return true;
@@ -42,7 +42,7 @@ export async function authenticate(values: Credentials) {
     await signIn('credentials', values);
   } catch (error) {
     if (error instanceof EmailNotVerifiedError) {
-      return { message: error?.message, emailVerificationError: true };
+      redirect(`/email/verify/send?email=${values.email}`);
     }
 
     if (error instanceof AuthError) {
@@ -124,11 +124,14 @@ export async function resendVerificationEmail(email: string) {
   const emailVerificationToken = generateEmailVerificationToken();
 
   try {
-    await updateUser(email, { emailVerificationToken });
+    await updateUser(email, {
+      email_verification_token: emailVerificationToken,
+    });
     await sendVerificationEmail(email, emailVerificationToken);
   } catch (error) {
     return { error: 'Something went wrong.' };
   }
+
   return {
     success: true,
     message: 'Email verification successfully sent.',
@@ -142,18 +145,21 @@ export async function verifyEmail(email: string | null, token: string | null) {
     }
 
     const user = await getUser(email);
-    if (!user) {
-      throw new Error('Invalid verification token');
+
+    if (user?.email_verified) {
+      return 'Email already verified. Please, re-login.';
     }
 
-    if (token !== user.emailVerificationToken) {
+    if (!user || token !== user.email_verification_token) {
       throw new Error('Invalid verification token');
     }
 
     await updateUser(email, {
-      emailVerified: new Date(),
-      emailVerificationToken: null,
+      email_verified: new Date(),
+      email_verification_token: null,
     });
+
+    return 'Email verified successfully. Please re-login.';
   } catch (error) {
     console.error('Error verifying email:', error);
     throw error;

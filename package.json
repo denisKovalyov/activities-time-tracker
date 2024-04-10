@@ -5,11 +5,11 @@
   "scripts": {
     "build": "next build",
     "clean": "rm -r .next node_modules",
-    "dev": "next dev",
+    "db:reset": "node -r dotenv/config ./scripts/db-reset.js",
+    "dev": "next dev -p 4000",
     "lint": "next lint",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
-    "seed": "node -r dotenv/config ./scripts/seed.js",
     "start": "next start"
   },
   "dependencies": {
