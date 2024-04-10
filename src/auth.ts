@@ -3,8 +3,9 @@ import { authConfig } from './auth.config';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { getUser } from './lib/data';
-import type { User, Credentials } from '@/lib/definitions';
+import type { Credentials } from '@/lib/definitions';
 import bcrypt from 'bcrypt';
+import {AdapterUser} from '@auth/core/adapters';
 
 export const {
   handlers: { GET, POST },
@@ -33,7 +34,7 @@ export const {
   ],
   callbacks: {
     async session({ session, token, user }) {
-      session.user = token.user as User;
+      session.user = token.user as AdapterUser;
       return session;
     },
     async jwt({ token, user, trigger, session }) {
