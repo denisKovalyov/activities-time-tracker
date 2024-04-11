@@ -5,7 +5,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import { getUser } from './lib/data';
 import type { Credentials } from '@/lib/definitions';
 import bcrypt from 'bcrypt';
-import {AdapterUser} from '@auth/core/adapters';
+import { AdapterUser } from '@auth/core/adapters';
 
 export const {
   handlers: { GET, POST },

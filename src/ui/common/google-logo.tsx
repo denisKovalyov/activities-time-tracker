@@ -1,5 +1,3 @@
-import React from 'react';
-
 type GoogleLogoProps = {
   size?: string;
   className?: string;

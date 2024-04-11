@@ -8,9 +8,11 @@ import { randomBytes } from 'crypto';
 import { Credentials } from '@/lib/definitions';
 import { SignInSchema, SignUpSchema } from '@/lib/validation';
 import { EmailNotVerifiedError } from '@/errors';
-import { EmailVerificationTemplate } from '@/ui/email/templates/email-verification';
+import { EmailVerificationTemplate } from '@/ui/email-templates/email-verification';
 import { createUser, getUser, updateUser } from '../data';
 import { sendEmail } from './email';
+
+const FIVE_MINUTES_IN_MILLISECONDS = 1000 * 60 * 5;
 
 const generateEmailVerificationToken = () => {
   return randomBytes(32).toString('hex');
@@ -121,7 +123,14 @@ export async function signUp({ email, password }: Credentials) {
 }
 
 export async function resendVerificationEmail(email: string) {
+  const user = await getUser(email);
   const emailVerificationToken = generateEmailVerificationToken();
+
+  if (Date.now() - +new Date(user!.updated_at) < FIVE_MINUTES_IN_MILLISECONDS) {
+    return {
+      error: 'Email was sent less than 5 minutes age. Please, try again later.',
+    };
+  }
 
   try {
     await updateUser(email, {

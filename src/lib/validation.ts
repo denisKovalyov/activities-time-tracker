@@ -81,3 +81,5 @@ export const validatePassword = (password: string) => {
       ) as Requirement[];
   }
 };
+
+export const ResetPasswordSchema = SignUpSchema.omit({ password: true });

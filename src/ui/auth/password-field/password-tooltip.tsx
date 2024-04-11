@@ -1,4 +1,3 @@
-import React from 'react';
 import { clsx } from 'clsx';
 import { CheckCircle, Minus, WarningCircle } from '@phosphor-icons/react';
 import {

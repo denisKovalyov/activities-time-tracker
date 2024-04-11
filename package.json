@@ -5,8 +5,9 @@
   "scripts": {
     "build": "next build",
     "clean": "rm -r .next node_modules",
-    "db:setup": "node -r dotenv/config ./scripts/db-setup.js",
     "db:reset": "node -r dotenv/config ./scripts/db-reset.js",
+    "db:restart": "npm run db:reset && npm run db:setup",
+    "db:setup": "node -r dotenv/config ./scripts/db-setup.js",
     "dev": "next dev -p 4000",
     "lint": "next lint",
     "prettier": "prettier --write --ignore-unknown .",

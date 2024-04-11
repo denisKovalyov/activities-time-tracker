@@ -5,6 +5,8 @@ export type User = {
   email_verified: Date | null;
   email_verification_token: string | null;
   password: string;
+  created_at: Date;
+  updated_at: Date;
 };
 
 export type Credentials = {

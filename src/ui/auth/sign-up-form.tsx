@@ -1,19 +1,19 @@
 'use client';
 
-import { useEffect, useState, ReactNode } from 'react';
+import { useState } from 'react';
 import { useFormState } from 'react-dom';
 import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Credentials } from '@/lib/definitions';
-import { SignUpSchema, validatePassword } from '@/lib/validation';
+import { SignUpSchema } from '@/lib/validation';
 import { signUp, googleAuthenticate } from '@/lib/actions/auth';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
-import { PasswordTooltipContent } from '@/ui/auth/password-tooltip';
 import { TextSeparator } from '@/ui/common/separator';
 import { cn } from '@/lib/utils';
+import { PasswordField } from './password-field';
 import { GoogleSignIn } from './google-sign-in';
 
 export function SignUpForm() {
@@ -22,9 +22,6 @@ export function SignUpForm() {
     googleAuthenticate,
     undefined,
   );
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [passwordRequirements, setPasswordRequirements] =
-    useState<ReactNode>(null);
 
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
@@ -33,20 +30,6 @@ export function SignUpForm() {
       password: '',
     },
   });
-
-  const password = useWatch({ control: form.control, name: 'password' });
-  const passwordFieldError = form.formState.errors.password;
-
-  useEffect(() => {
-    const errors = validatePassword(password) || [];
-
-    setPasswordRequirements(
-      <PasswordTooltipContent
-        requirements={errors}
-        markAsError={Boolean(passwordFieldError)}
-      />,
-    );
-  }, [password, passwordFieldError]);
 
   const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
     setSignUpError(null);
@@ -64,9 +47,6 @@ export function SignUpForm() {
     });
   };
 
-  const handlePasswordFocus = () => setShowTooltip(true);
-  const handlePasswordBlur = () => setShowTooltip(false);
-
   const hasErrors = signUpError || errorMsgGoogle;
 
   return (
@@ -83,15 +63,7 @@ export function SignUpForm() {
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="[&>div]:mb-4">
           <FormFieldInput name="email" label="Email" />
-          <FormFieldInput
-            name="password"
-            label="Password"
-            inputType="password"
-            onFocus={handlePasswordFocus}
-            onBlur={handlePasswordBlur}
-            showTooltip={showTooltip}
-            tooltipContent={passwordRequirements}
-          />
+          <PasswordField />
 
           <Button type="submit" className="mt-2 w-full">
             Sign Up

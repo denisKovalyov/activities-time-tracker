@@ -17,9 +17,11 @@ export async function createUser({
   emailVerificationToken,
 }: Credentials & { emailVerificationToken: string }): Promise<void> {
   try {
+    const date = new Date().toISOString();
+
     await sql`
-      INSERT INTO users(name, email, password, email_verification_token)
-      VALUES ('', ${email}, ${hashedPassword}, ${emailVerificationToken})`;
+      INSERT INTO users(name, email, password, email_verification_token, created_at, updated_at)
+      VALUES ('', ${email}, ${hashedPassword}, ${emailVerificationToken}, ${date}, ${date})`;
   } catch (error) {
     console.error('Failed to create user:', error);
     throw new Error('Failed to create user.');
@@ -31,14 +33,19 @@ export async function updateUser(
   fields: Partial<User>,
 ): Promise<void> {
   try {
-    const fieldsString = Object.entries(fields).reduce(
-      (str, [field, value], i) => `${str ? str + ', ' : ''}${field}=$${i + 1}`,
+    const updatedFields = {
+      ...fields,
+      updated_at: new Date().toISOString(),
+    };
+
+    const fieldsString = Object.keys(updatedFields).reduce(
+      (str, field, i) => `${str ? str + ', ' : ''}${field}=$${i + 1}`,
       '',
     );
 
     await sql.query(
       `UPDATE users SET ${fieldsString} WHERE email='${email}'`,
-      Object.values(fields),
+      Object.values(updatedFields),
     );
   } catch (error) {
     console.error('Failed to update user:', error);

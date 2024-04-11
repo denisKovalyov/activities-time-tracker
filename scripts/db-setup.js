@@ -10,7 +10,9 @@ async function resetDB(client) {
         email TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         email_verification_token TEXT,
-        email_verified TIMESTAMP
+        email_verified TIMESTAMP,
+        created_at TIMESTAMP WITH TIME ZONE,
+        updated_at TIMESTAMP WITH TIME ZONE
       );
     `;
 
