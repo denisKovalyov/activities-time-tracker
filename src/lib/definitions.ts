@@ -7,6 +7,7 @@ export type User = {
   password: string;
   created_at: Date;
   updated_at: Date;
+  last_email_sent_at: Date | string;
 };
 
 export type Credentials = {

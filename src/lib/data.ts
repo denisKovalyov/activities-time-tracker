@@ -15,13 +15,14 @@ export async function createUser({
   email,
   password: hashedPassword,
   emailVerificationToken,
-}: Credentials & { emailVerificationToken: string }): Promise<void> {
+  lastEmailSentDateStr,
+}: Credentials & { emailVerificationToken: string; lastEmailSentDateStr: string }): Promise<void> {
   try {
     const date = new Date().toISOString();
 
     await sql`
-      INSERT INTO users(name, email, password, email_verification_token, created_at, updated_at)
-      VALUES ('', ${email}, ${hashedPassword}, ${emailVerificationToken}, ${date}, ${date})`;
+      INSERT INTO users(name, email, password, email_verification_token, created_at, updated_at, last_email_sent_at)
+      VALUES ('', ${email}, ${hashedPassword}, ${emailVerificationToken}, ${date}, ${date}, ${lastEmailSentDateStr})`;
   } catch (error) {
     console.error('Failed to create user:', error);
     throw new Error('Failed to create user.');

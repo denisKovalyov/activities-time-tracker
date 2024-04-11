@@ -106,14 +106,17 @@ export async function signUp({ email, password }: Credentials) {
   const emailVerificationToken = generateEmailVerificationToken();
 
   try {
-    await createUser({
-      email: email,
-      password: hashedPassword,
-      emailVerificationToken,
-    });
+    const lastEmailSentDateStr = new Date().toISOString();
 
-    // Sending email verification
-    await sendVerificationEmail(email, emailVerificationToken);
+    await Promise.all([
+      createUser({
+        email: email,
+        password: hashedPassword,
+        emailVerificationToken,
+        lastEmailSentDateStr,
+      }),
+      sendVerificationEmail(email, emailVerificationToken),
+    ]);
   } catch (error: unknown) {
     return { message: 'Something went wrong.' };
   }
@@ -124,19 +127,24 @@ export async function signUp({ email, password }: Credentials) {
 
 export async function resendVerificationEmail(email: string) {
   const user = await getUser(email);
-  const emailVerificationToken = generateEmailVerificationToken();
 
-  if (Date.now() - +new Date(user!.updated_at) < FIVE_MINUTES_IN_MILLISECONDS) {
+  if (Date.now() - +new Date(user!.last_email_sent_at) < FIVE_MINUTES_IN_MILLISECONDS) {
     return {
       error: 'Email was sent less than 5 minutes age. Please, try again later.',
     };
   }
 
   try {
-    await updateUser(email, {
-      email_verification_token: emailVerificationToken,
-    });
-    await sendVerificationEmail(email, emailVerificationToken);
+    const emailVerificationToken = generateEmailVerificationToken();
+    const lastEmailSentDateStr = new Date().toISOString();
+
+    await Promise.all([
+      updateUser(email, {
+        email_verification_token: emailVerificationToken,
+        last_email_sent_at: lastEmailSentDateStr,
+      }),
+      sendVerificationEmail(email, emailVerificationToken)
+    ])
   } catch (error) {
     return { error: 'Something went wrong.' };
   }
