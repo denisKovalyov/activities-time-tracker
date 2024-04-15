@@ -7,15 +7,33 @@ import bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { Credentials } from '@/lib/definitions';
 import { SignInSchema, SignUpSchema } from '@/lib/validation';
-import { EmailNotVerifiedError } from '@/errors';
+import { EmailNotVerifiedError, EmailRateLimit } from '@/errors';
 import { EmailVerificationTemplate } from '@/ui/email-templates/email-verification';
+import { ResetPasswordTemplate } from '@/ui/email-templates/reset-password';
+import { setDelay } from '@/lib/utils';
 import { createUser, getUser, updateUser } from '../data';
 import { sendEmail } from './email';
 
-const FIVE_MINUTES_IN_MILLISECONDS = 1000 * 60 * 5;
+const SENDING_RESET_LINK_MS = 1000;
 
 const generateEmailVerificationToken = () => {
   return randomBytes(32).toString('hex');
+};
+
+const sendVerificationEmail = (email: string, token: string) => {
+  return sendEmail({
+    email,
+    subject: 'Email Verification',
+    body: EmailVerificationTemplate({ email, token }),
+  });
+};
+
+const sendResetPasswordEmail = (email: string, token: string) => {
+  return sendEmail({
+    email,
+    subject: 'Reset Password',
+    body: ResetPasswordTemplate({ email, token }),
+  });
 };
 
 export const isUsersEmailVerified = async (email: string) => {
@@ -74,14 +92,6 @@ export async function googleAuthenticate(
   }
 }
 
-function sendVerificationEmail(email: string, token: string) {
-  return sendEmail({
-    email,
-    subject: 'Email Verification',
-    body: EmailVerificationTemplate({ email, token }),
-  });
-}
-
 export async function signUp({ email, password }: Credentials) {
   const validatedFields = SignUpSchema.safeParse({
     email: email,
@@ -106,19 +116,20 @@ export async function signUp({ email, password }: Credentials) {
   const emailVerificationToken = generateEmailVerificationToken();
 
   try {
-    const lastEmailSentDateStr = new Date().toISOString();
-
-    await Promise.all([
-      createUser({
-        email: email,
-        password: hashedPassword,
-        emailVerificationToken,
-        lastEmailSentDateStr,
-      }),
-      sendVerificationEmail(email, emailVerificationToken),
-    ]);
+    // First we need to try to send email, to prevent storing invalid tokens in db in case it fails
+    await sendVerificationEmail(email, emailVerificationToken);
+    await createUser({
+      email: email,
+      password: hashedPassword,
+      emailVerificationToken,
+    });
   } catch (error: unknown) {
-    return { message: 'Something went wrong.' };
+    return {
+      message:
+        error instanceof EmailRateLimit
+          ? error.message
+          : 'Something went wrong.',
+    };
   }
 
   // Redirecting to the email verification page
@@ -126,27 +137,21 @@ export async function signUp({ email, password }: Credentials) {
 }
 
 export async function resendVerificationEmail(email: string) {
-  const user = await getUser(email);
-
-  if (Date.now() - +new Date(user!.last_email_sent_at) < FIVE_MINUTES_IN_MILLISECONDS) {
-    return {
-      error: 'Email was sent less than 5 minutes age. Please, try again later.',
-    };
-  }
-
   try {
     const emailVerificationToken = generateEmailVerificationToken();
-    const lastEmailSentDateStr = new Date().toISOString();
 
-    await Promise.all([
-      updateUser(email, {
-        email_verification_token: emailVerificationToken,
-        last_email_sent_at: lastEmailSentDateStr,
-      }),
-      sendVerificationEmail(email, emailVerificationToken)
-    ])
+    // First we need to try to send email, to prevent storing invalid tokens in db in case it fails
+    await sendVerificationEmail(email, emailVerificationToken);
+    await updateUser(email, {
+      email_verification_token: emailVerificationToken,
+    });
   } catch (error) {
-    return { error: 'Something went wrong.' };
+    return {
+      message:
+        error instanceof EmailRateLimit
+          ? error.message
+          : 'Something went wrong.',
+    };
   }
 
   return {
@@ -181,4 +186,38 @@ export async function verifyEmail(email: string | null, token: string | null) {
     console.error('Error verifying email:', error);
     throw error;
   }
+}
+
+export async function sendResetPasswordLink(email: string) {
+  const executionStart = Date.now();
+  const successLink = `/reset-password/sent?email=${email}`;
+  const user = await getUser(email);
+
+  // In case there is no user with entered email we should not show error to improve the level of security
+  if (!user) {
+    const delay = SENDING_RESET_LINK_MS - (Date.now() - executionStart);
+    await setDelay(delay);
+    return redirect(successLink);
+  }
+
+  try {
+    const emailVerificationToken = generateEmailVerificationToken();
+
+    // First we need to try to send email, to prevent storing invalid tokens in db in case it fails
+    await sendResetPasswordEmail(email, emailVerificationToken);
+    await updateUser(email, {
+      email_verification_token: emailVerificationToken,
+    });
+  } catch (error) {
+    return {
+      message:
+        error instanceof EmailRateLimit
+          ? error.message
+          : 'Something went wrong.',
+    };
+  }
+
+  const delay = SENDING_RESET_LINK_MS - (Date.now() - executionStart);
+  if (delay >= 50) await setDelay(delay);
+  redirect(successLink);
 }

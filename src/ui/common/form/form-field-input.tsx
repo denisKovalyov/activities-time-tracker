@@ -20,7 +20,7 @@ interface FormFieldInputProps extends InputProps {
   label: string;
   inputType?: HTMLInputTypeAttribute;
   placeholder?: string;
-  description?: string;
+  description?: ReactNode;
   showTooltip?: boolean;
   tooltipContent?: ReactNode;
 }
@@ -74,8 +74,8 @@ export const FormFieldInput = ({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>{renderInput(field)}</FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />
+          {description && <FormDescription>{description}</FormDescription>}
         </FormItem>
       )}
     />

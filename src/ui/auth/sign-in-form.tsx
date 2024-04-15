@@ -68,6 +68,20 @@ export function SignInForm() {
             name="password"
             label="Password"
             inputType="password"
+            description={
+              <Link
+                className={cn(
+                  buttonVariants({
+                    variant: 'link',
+                    className: 'h-auto px-0 py-0',
+                    size: 'sm',
+                  }),
+                )}
+                href="/reset-password/request"
+              >
+                Forgot password?
+              </Link>
+            }
           />
           <Button type="submit" className="mt-2 w-full">
             Sign In

@@ -1,5 +1,3 @@
-import { ResetPasswordForm } from '@/ui/auth/reset-password-form';
-
 export default function ResetPassword() {
-  return <ResetPasswordForm />;
+  return <div>form to save new password</div>;
 }

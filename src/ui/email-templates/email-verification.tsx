@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { ReactElement } from 'react';
 import { headers } from 'next/headers';
 
 type EmailVerificationTemplateProps = {
@@ -9,7 +9,7 @@ type EmailVerificationTemplateProps = {
 export const EmailVerificationTemplate = ({
   email,
   token,
-}: EmailVerificationTemplateProps): React.ReactElement => {
+}: EmailVerificationTemplateProps): ReactElement => {
   const headersList = headers();
   const origin = headersList.get('origin');
 
