@@ -82,4 +82,7 @@ export const validatePassword = (password: string) => {
   }
 };
 
-export const ResetPasswordSchema = SignUpSchema.omit({ password: true });
+export const SendResetPasswordLinkSchema = SignUpSchema.omit({
+  password: true,
+});
+export const SaveNewPasswordSchema = SignUpSchema.omit({ email: true });

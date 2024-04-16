@@ -1,3 +1,10 @@
+import { Suspense } from 'react';
+import { PasswordSaveForm } from '@/ui/auth/password-reset/password-save-form';
+
 export default function ResetPassword() {
-  return <div>form to save new password</div>;
+  return (
+    <Suspense>
+      <PasswordSaveForm />
+    </Suspense>
+  );
 }

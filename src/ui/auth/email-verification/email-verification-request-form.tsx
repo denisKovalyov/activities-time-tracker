@@ -16,7 +16,7 @@ export function EmailVerificationRequestForm() {
     resendVerificationEmail.bind(null, email!),
     undefined,
   );
-  console.log('formState', formState);
+
   const errorMessage = !formState?.success && formState?.message;
   const successMessage = formState?.success && formState?.message;
 

@@ -5,13 +5,13 @@ import { useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/ui/common/button';
 
-const TITLE = 'Check your mailbox!';
+const TITLE = 'Check Your Mailbox!';
 const TEXT_SUCCESS = `We've successfully sent a password reset link to the email address associated with your account.
   Please check your inbox for an email from us.`;
 const TEXT_WARNING = `If you don't receive the email within the next few minutes,
   please check spam or junk folder or make sure you’ve typed email address used for app account and `;
 
-export function PasswordResetEmailSent() {
+export function EmailSentMessage() {
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
   const href = `/reset-password/request?email=${email}`;

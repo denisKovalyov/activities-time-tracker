@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
-import { ResetPasswordForm } from '@/ui/auth/password-reset/reset-password-form';
+import { SendLinkForm } from '@/ui/auth/password-reset/send-link-form';
 
 export default function ResetPasswordSendEmail() {
   return (
     <Suspense>
-      <ResetPasswordForm />
+      <SendLinkForm />
     </Suspense>
   );
 }

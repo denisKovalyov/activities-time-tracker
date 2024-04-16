@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
-import { PasswordResetEmailSent } from '@/ui/auth/password-reset/password-reset-email-sent';
+import { EmailSentMessage } from '@/ui/auth/password-reset/email-sent-message';
 
 export default function ResetPasswordSendEmail() {
   return (
     <Suspense>
-      <PasswordResetEmailSent />
+      <EmailSentMessage />
     </Suspense>
   );
 }
