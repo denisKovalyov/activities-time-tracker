@@ -9,11 +9,8 @@ import { PasswordField } from '@/ui/auth/password-field';
 import { Button } from '@/ui/common/button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SaveNewPasswordSchema } from '@/lib/validation';
-import {
-  authenticate,
-  checkResetPasswordLink,
-  saveNewPassword,
-} from '@/lib/actions/auth';
+import { authenticate } from '@/lib/actions/auth/sign-in';
+import { checkResetPasswordLink, saveNewPassword } from '@/lib/actions/auth/reset-password';
 
 const TITLE = 'Save New Password';
 const TEXT = 'Please enter your new password below.';

@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 
-export default function Activities() {
+export default function Dashboard() {
   const { data: session, update } = useSession();
   console.log('session', session);
 

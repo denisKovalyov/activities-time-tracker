@@ -2,7 +2,7 @@
 
 import { useFormState } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
-import { resendVerificationEmail } from '@/lib/actions/auth';
+import { resendVerificationEmail } from '@/lib/actions/auth/email-verification';
 import { ResendButton } from './resend-button';
 
 const DEFAULT_MESSAGE = 'A verification link has been sent to your email.';

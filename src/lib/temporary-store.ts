@@ -2,6 +2,8 @@ type Value = string | number | boolean | Object;
 type Store = { [key: string]: Value };
 type CleanUpCallbackFn = (key: string, value: Value) => boolean;
 
+// Creates "key-value" store in memory with calling passed callback in set interval
+// In case callback returns truthy value, key to be removed from the store
 export const initNewStore = (
   cleanUpInterval: number,
   cleanUpCallback: CleanUpCallbackFn,

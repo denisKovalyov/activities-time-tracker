@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+const ERROR_CODE_CUSTOM = z.ZodIssueCode.custom;
+const ERR0R_PREFIX = 'Should have';
+export const LENGTH_REQUIREMENT = 'length between 8 and 36 symbols';
+export const UPPER_LOWER_CASE_REQUIREMENT =
+  'at least one upper and lower case letter';
+export const NUMBER_REQUIREMENT = 'at least one number';
+export const SPECIAL_CHAR_REQUIREMENT = 'at least one special character';
+
 export const SignInSchema = z.object({
   email: z.string().email({
     message: 'Please use valid email',
@@ -8,15 +16,6 @@ export const SignInSchema = z.object({
     message: 'Password should have at least 8 symbols',
   }),
 });
-
-const ERROR_CODE_CUSTOM = z.ZodIssueCode.custom;
-
-const ERR0R_PREFIX = 'Should have';
-export const LENGTH_REQUIREMENT = 'length between 8 and 36 symbols';
-export const UPPER_LOWER_CASE_REQUIREMENT =
-  'at least one upper and lower case letter';
-export const NUMBER_REQUIREMENT = 'at least one number';
-export const SPECIAL_CHAR_REQUIREMENT = 'at least one special character';
 
 const PasswordComplexity = z.string().superRefine((password, ctx) => {
   const length = password.length >= 8 && password.length <= 36;

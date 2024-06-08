@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Credentials } from '@/lib/definitions';
 import { SignInSchema } from '@/lib/validation';
-import { authenticate, googleAuthenticate } from '@/lib/actions/auth';
+import { authenticate, googleAuthenticate } from '@/lib/actions/auth/sign-in';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 import { TextSeparator } from '@/ui/common/separator';

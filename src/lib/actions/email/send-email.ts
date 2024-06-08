@@ -1,11 +1,7 @@
-import { Resend } from 'resend';
 import { ReactElement } from 'react';
-import { EmailRateLimit } from '@/errors';
-import { initNewStore } from '@/lib/temporary-store';
+import { emailProvider, emailSendDomain } from './email-provider';
 
-const FROM_TITLE = 'Activities Time Tracker';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+const FROM_TITLE = process.env.APP_NAME;
 
 type SendEmailParameters = {
   email: string;
@@ -14,8 +10,8 @@ type SendEmailParameters = {
 };
 
 export async function sendEmail({ email, subject, body }: SendEmailParameters) {
-  const { data, error } = await resend.emails.send({
-    from: `"${FROM_TITLE}" <onboarding@resend.dev>`,
+  const { data, error } = await emailProvider.emails.send({
+    from: `"${FROM_TITLE}" <${emailSendDomain}>`,
     to: email,
     subject: `${FROM_TITLE}: ${subject}`,
     react: body,

@@ -7,7 +7,7 @@ import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SendResetPasswordLinkSchema } from '@/lib/validation';
-import { sendResetPasswordLink } from '@/lib/actions/auth';
+import { sendResetPasswordLink } from '@/lib/actions/auth/reset-password';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const TITLE = 'Reset your password';

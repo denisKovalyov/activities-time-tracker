@@ -1,11 +1,12 @@
+import bcrypt from 'bcrypt';
 import NextAuth from 'next-auth';
-import { authConfig } from './auth.config';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-import { getUser } from './lib/data';
+
 import type { Credentials } from '@/lib/definitions';
-import bcrypt from 'bcrypt';
 import { AdapterUser } from '@auth/core/adapters';
+import { authConfig } from './auth.config';
+import { getUser } from './lib/data';
 
 export const {
   handlers: { GET, POST },
