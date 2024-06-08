@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { emailProvider, emailSendDomain } from './email-provider';
+import { emailProvider, emailSendFrom } from './email-provider';
 
 const FROM_TITLE = process.env.APP_NAME;
 
@@ -11,7 +11,7 @@ type SendEmailParameters = {
 
 export async function sendEmail({ email, subject, body }: SendEmailParameters) {
   const { data, error } = await emailProvider.emails.send({
-    from: `"${FROM_TITLE}" <${emailSendDomain}>`,
+    from: `"${FROM_TITLE}" <${emailSendFrom}>`,
     to: email,
     subject: `${FROM_TITLE}: ${subject}`,
     react: body,

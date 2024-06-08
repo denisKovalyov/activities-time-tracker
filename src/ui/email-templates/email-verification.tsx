@@ -15,7 +15,7 @@ export const EmailVerificationTemplate = ({
 
   return (
     <div>
-      <h1>Welcome to Activities Time Tracker app!</h1>
+      <h1>{`Welcome to ${process.env.APP_NAME} app!`}</h1>
       <p>Click the link below to verify your email:</p>
       <a href={`${origin}/email/verify?email=${email}&token=${token}`}>
         Verify Email

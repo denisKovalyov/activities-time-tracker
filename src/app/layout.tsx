@@ -9,10 +9,10 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | ATT',
-    default: 'Activities Time Tracker',
+    template: `%s | ${process.env.APP_SHORT_NAME}`,
+    default: process.env.APP_NAME as string,
   },
-  description: 'Web application to track time spent on various activities.',
+  description: `${process.env.APP_DESCRIPTION}`,
   metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
 };
 

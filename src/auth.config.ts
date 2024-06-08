@@ -1,6 +1,6 @@
 import type { NextAuthConfig } from 'next-auth';
 
-const PROTECTED_PAGE_URL = '/activities';
+const PROTECTED_PAGE_URL = '/dashboard';
 
 export const authConfig = {
   pages: {
