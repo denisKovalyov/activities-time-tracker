@@ -1,20 +1,12 @@
-'use server';
-
+import { emailSentCache, CLEAN_UP_INTERVAL } from '@/lib/actions/email/email-cache';
 import { EmailRateLimit } from '@/lib/errors';
-import { initNewStore } from '@/lib/temporary-store';
 
-const FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
 const EMAIL_RATE_LIMIT_MESSAGE =
   'Seems like an email has already been sent. Please wait a few minutes and try again.';
 
-const emailSentCache = initNewStore(
-  FIVE_MINUTES_IN_MS,
-  (_, timestamp) => Date.now() - +timestamp >= FIVE_MINUTES_IN_MS,
-);
-
 export const checkEmailSendingFrequency = (email: string) => {
   if (email in emailSentCache) {
-    if (Date.now() - Number(emailSentCache[email]) < FIVE_MINUTES_IN_MS) {
+    if (Date.now() - Number(emailSentCache[email]) < CLEAN_UP_INTERVAL) {
       console.error(`EMAIL RATE LIMIT BREACH: ${email}`);
       throw new EmailRateLimit(EMAIL_RATE_LIMIT_MESSAGE);
     }

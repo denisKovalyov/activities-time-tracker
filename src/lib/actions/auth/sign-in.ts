@@ -2,12 +2,14 @@
 
 import { AuthError } from 'next-auth';
 import { redirect } from 'next/navigation';
+import { isRedirectError } from 'next/dist/client/components/redirect';
 
 import { EmailNotVerifiedError } from '@/lib/errors';
 import { Credentials } from '@/lib/definitions';
 import { SignInSchema } from '@/lib/validation';
 import { isUsersEmailVerified } from '@/lib/actions/auth/email-verification';
 import { signIn } from '@/auth';
+import { PROTECTED_PAGE_PATH } from '@/auth.config';
 
 export async function googleAuthenticate(
   prevState: string | undefined,
@@ -34,12 +36,12 @@ export async function authenticate(values: Credentials) {
     return { errors: validatedFields.error.flatten().fieldErrors };
   }
 
+  let isEmailVerified = false;
+
   try {
-    await isUsersEmailVerified(values.email);
+    isEmailVerified = await isUsersEmailVerified(values.email);
     await signIn('credentials', values);
   } catch (error) {
-    console.error(error);
-
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':
@@ -49,10 +51,15 @@ export async function authenticate(values: Credentials) {
       }
     }
 
-    if (!(error instanceof EmailNotVerifiedError)) {
+    if (!(error instanceof EmailNotVerifiedError) && !isRedirectError(error)) {
+      console.error(error);
       throw error;
     }
   }
 
-  redirect(`/email/verify/send?email=${values.email}`);
+  if (isEmailVerified) {
+    redirect(PROTECTED_PAGE_PATH);
+  } else {
+    redirect(`/email/verify/send?email=${values.email}`);
+  }
 }

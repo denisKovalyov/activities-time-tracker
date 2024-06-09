@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 
 import { User } from '@/lib/definitions';
-import { EmailRateLimit } from '@/lib/errors';;
+import { EmailRateLimit } from '@/lib/errors';
 import { ResetPasswordTemplate } from '@/ui/email-templates/reset-password';
 import { setDelay } from '@/lib/utils';
 import { getUser, updateUser } from '@/lib/data';
@@ -41,6 +41,8 @@ export async function sendResetPasswordLink(email: string) {
       ]);
     }
   } catch (error) {
+    console.error(error);
+
     return {
       message:
         error instanceof EmailRateLimit

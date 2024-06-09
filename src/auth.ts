@@ -34,6 +34,7 @@ export const {
     }),
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async session({ session, token, user }) {
       session.user = token.user as AdapterUser;
       return session;
