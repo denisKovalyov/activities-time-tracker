@@ -1,10 +1,10 @@
 const { db: dbReset } = require('@vercel/postgres');
 
-async function resetDB(client) {
+async function setupUsers(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
     await client.sql`
-      CREATE TABLE users (
+      CREATE TABLE IF NOT EXISTS users (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email TEXT NOT NULL UNIQUE,
@@ -23,9 +23,32 @@ async function resetDB(client) {
   }
 }
 
+async function setupActivities(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+    await client.sql`
+      CREATE TABLE IF NOT EXISTS activities (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        color CHAR(6) NOT NULL,
+        icon VARCHAR(20) NOT NULL,
+        is_archived BOOLEAN NOT NULL DEFAULT false,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+      );
+    `;
+
+    console.log(`Created "activities" table`);
+  } catch (error) {
+    console.error('Error on creating "activities" table:', error);
+    throw error;
+  }
+}
+
 async function main() {
   const client = await dbReset.connect();
-  await resetDB(client);
+  await setupUsers(client);
+  await setupActivities(client);
   await client.end();
 }
 
