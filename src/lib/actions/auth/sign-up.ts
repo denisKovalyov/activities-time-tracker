@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { Credentials } from '@/lib/definitions';
 import { SignUpSchema } from '@/lib/validation';
-import { createUser, getUser } from '@/lib/data';
+import { createUser, getUser } from '@/lib/actions/data/user';
 import { sendVerificationEmail } from '@/lib/actions/auth/email-verification';
 import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
 import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';

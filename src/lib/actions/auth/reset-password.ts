@@ -6,7 +6,7 @@ import { User } from '@/lib/definitions';
 import { EmailRateLimit } from '@/lib/errors';
 import { ResetPasswordTemplate } from '@/ui/email-templates/reset-password';
 import { setDelay } from '@/lib/utils';
-import { getUser, updateUser } from '@/lib/data';
+import { getUser, updateUser } from '@/lib/actions/data/user';
 import { sendEmail } from '@/lib/actions/email/send-email';
 import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
 import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';

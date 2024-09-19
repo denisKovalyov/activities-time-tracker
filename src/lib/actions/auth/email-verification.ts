@@ -4,7 +4,7 @@ import { sendEmail } from '@/lib/actions/email/send-email';
 import { EmailVerificationTemplate } from '@/ui/email-templates/email-verification';
 import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
 import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';
-import { getUser, updateUser } from '@/lib/data';
+import { getUser, updateUser } from '@/lib/actions/data/user';
 import { EmailNotVerifiedError, EmailRateLimit } from '@/lib/errors';
 
 export const isUsersEmailVerified = async (email: string) => {
