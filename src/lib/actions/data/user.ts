@@ -1,5 +1,6 @@
 import type { Credentials, User } from '@/lib/definitions';
 import { sql } from '@vercel/postgres';
+import { getUpdatedFields } from '@/lib/actions/data/utils';
 
 export async function getUser(email: string): Promise<User | undefined> {
   try {
@@ -38,10 +39,7 @@ export async function updateUser(
       updated_at: new Date().toISOString(),
     };
 
-    const fieldsString = Object.keys(updatedFields).reduce(
-      (str, field, i) => `${str ? str + ', ' : ''}${field}=$${i + 1}`,
-      '',
-    );
+    const fieldsString = getUpdatedFields(updatedFields);
 
     await sql.query(
       `UPDATE users SET ${fieldsString} WHERE email='${email}'`,

@@ -13,3 +13,14 @@ export type Credentials = {
   email: string;
   password: string;
 };
+
+export type Activity = {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  icon: string;
+  is_archived?: boolean;
+  created_at: Date;
+  updated_at: Date;
+}

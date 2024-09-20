@@ -8,6 +8,8 @@ export const UPPER_LOWER_CASE_REQUIREMENT =
 export const NUMBER_REQUIREMENT = 'at least one number';
 export const SPECIAL_CHAR_REQUIREMENT = 'at least one special character';
 
+const REQUIRED_MESSAGE = 'Field should not be empty';
+
 export const SignInSchema = z.object({
   email: z.string().email({
     message: 'Please use valid email',
@@ -85,3 +87,15 @@ export const SendResetPasswordLinkSchema = SignUpSchema.omit({
   password: true,
 });
 export const SaveNewPasswordSchema = SignUpSchema.omit({ email: true });
+
+export const CreateActivitySchema = z.object({
+  name: z.string().min(1, {
+    message: REQUIRED_MESSAGE,
+  }),
+  color: z.string().min(6, {
+    message: REQUIRED_MESSAGE,
+  }),
+  icon: z.string().min(2, {
+    message: REQUIRED_MESSAGE,
+  }),
+});
