@@ -1,10 +1,10 @@
 const { db: dbReset } = require('@vercel/postgres');
 
-async function setupUsers(client) {
+async function setupUser(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
     await client.sql`
-      CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE IF NOT EXISTS "user" (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email TEXT NOT NULL UNIQUE,
@@ -16,18 +16,18 @@ async function setupUsers(client) {
       );
     `;
 
-    console.log(`Created "users" table`);
+    console.log(`Created "user" table`);
   } catch (error) {
-    console.error('Error on creating "users" table:', error);
+    console.error('Error on creating "user" table:', error);
     throw error;
   }
 }
 
-async function setupActivities(client) {
+async function setupActivity(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
     await client.sql`
-      CREATE TABLE IF NOT EXISTS activities (
+      CREATE TABLE IF NOT EXISTS activity (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         user_id UUID,
         name VARCHAR(255) NOT NULL UNIQUE,
@@ -36,42 +36,42 @@ async function setupActivities(client) {
         is_archived BOOLEAN NOT NULL DEFAULT false,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,
         updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-        CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES users(id)
+        CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES "user"(id)
       );
     `;
 
-    console.log(`Created "activities" table`);
+    console.log(`Created "activity" table`);
   } catch (error) {
-    console.error('Error on creating "activities" table:', error);
+    console.error('Error on creating "activity" table:', error);
     throw error;
   }
 }
 
-async function setupRecords(client) {
+async function setupRecord(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
     await client.sql`
-      CREATE TABLE IF NOT EXISTS records (
+      CREATE TABLE IF NOT EXISTS record (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         user_id UUID,
         date TIMESTAMP WITH TIME ZONE NOT NULL,
         activities JSONB NOT NULL,
-        CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES users(id)
+        CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES "user"(id)
       );
     `;
 
-    console.log(`Created "records" table`);
+    console.log(`Created "record" table`);
   } catch (error) {
-    console.error('Error on creating "records" table:', error);
+    console.error('Error on creating "record" table:', error);
     throw error;
   }
 }
 
 async function main() {
   const client = await dbReset.connect();
-  await setupUsers(client);
-  await setupActivities(client);
-  await setupRecords(client);
+  await setupUser(client);
+  await setupActivity(client);
+  await setupRecord(client);
   await client.end();
 }
 

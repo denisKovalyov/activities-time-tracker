@@ -2,12 +2,12 @@ const { db: dbReset } = require('@vercel/postgres');
 
 async function resetDB(client) {
   try {
-    await client.sql`DROP TABLE IF EXISTS activities`;
-    console.log(`Drop "activities" table`);
-    await client.sql`DROP TABLE IF EXISTS records`;
-    console.log(`Drop "records" table`);
-    await client.sql`DROP TABLE IF EXISTS users`;
-    console.log(`Drop "users" table`);
+    await client.sql`DROP TABLE IF EXISTS activity`;
+    console.log(`Drop "activity" table`);
+    await client.sql`DROP TABLE IF EXISTS record`;
+    console.log(`Drop "record" table`);
+    await client.sql`DROP TABLE IF EXISTS "user"`;
+    console.log(`Drop "user" table`);
   } catch (error) {
     console.error('Error on dropping table:', error);
     throw error;
