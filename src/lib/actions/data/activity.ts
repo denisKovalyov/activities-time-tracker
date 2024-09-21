@@ -4,7 +4,8 @@ import { getUpdatedFields } from '@/lib/actions/data/utils';
 
 export async function getActivities(userId: string): Promise<Activity[] | []> {
   try {
-    const activities = await sql<Activity>`SELECT * FROM activity WHERE user_id=${userId}`;
+    const activities = await sql<Activity>
+      `SELECT * FROM activity WHERE user_id=${userId} ORDER BY "order" ASC`;
     return activities.rows;
   } catch (error) {
     console.error('DB: Failed to fetch activities:', error);
@@ -52,7 +53,7 @@ export async function updateActivity(id: string, activity: Partial<Activity>): P
 
 export async function deleteActivity(id: string): Promise<void> {
   try {
-    await sql.query(`DELETE FROM TABLE activity WHERE id='${id}'`);
+    await sql`DELETE FROM TABLE activity WHERE id='${id}'`;
   } catch (error) {
     console.error('DB: failed to delete activity:', error);
     throw new Error('Failed to delete activity.');

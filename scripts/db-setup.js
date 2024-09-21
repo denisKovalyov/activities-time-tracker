@@ -2,7 +2,6 @@ const { db: dbReset } = require('@vercel/postgres');
 
 async function setupUser(client) {
   try {
-    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
     await client.sql`
       CREATE TABLE IF NOT EXISTS "user" (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -25,7 +24,6 @@ async function setupUser(client) {
 
 async function setupActivity(client) {
   try {
-    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
     await client.sql`
       CREATE TABLE IF NOT EXISTS activity (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -49,12 +47,11 @@ async function setupActivity(client) {
 
 async function setupRecord(client) {
   try {
-    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
     await client.sql`
       CREATE TABLE IF NOT EXISTS record (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         user_id UUID,
-        date TIMESTAMP WITH TIME ZONE NOT NULL,
+        date DATE NOT NULL DEFAULT CURRENT_DATE,
         activities JSONB NOT NULL,
         CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES "user"(id)
       );
@@ -69,6 +66,7 @@ async function setupRecord(client) {
 
 async function main() {
   const client = await dbReset.connect();
+  await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
   await setupUser(client);
   await setupActivity(client);
   await setupRecord(client);

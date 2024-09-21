@@ -25,3 +25,10 @@ export type Activity = {
   created_at: Date;
   updated_at: Date;
 }
+
+export type Record = {
+  id: string;
+  user_id: string;
+  date: Date;
+  activities: { [id: string]: number };
+}
