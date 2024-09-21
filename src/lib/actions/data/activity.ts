@@ -17,13 +17,14 @@ export async function createActivity({
   name,
   color,
   icon,
+  order,
 }: Partial<Activity>): Promise<void> {
   try {
     const date = new Date().toISOString();
 
     await sql`
-      INSERT INTO activity(user_id, name, color, icon, created_at, updated_at)
-      VALUES (${user_id}, ${name}, ${color}, ${icon}, ${date}, ${date})`;
+      INSERT INTO activity(user_id, name, color, icon, "order", created_at, updated_at)
+      VALUES (${user_id}, ${name}, ${color}, ${icon}, ${order}, ${date}, ${date})`;
   } catch (error) {
     console.error('DB: Failed to create activity:', error);
     throw new Error('Failed to create activity.');

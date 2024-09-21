@@ -20,7 +20,8 @@ export type Activity = {
   name: string;
   color: string;
   icon: string;
-  is_archived?: boolean;
+  is_archived: boolean;
+  order: number;
   created_at: Date;
   updated_at: Date;
 }
