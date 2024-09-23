@@ -60,6 +60,7 @@ export const FormFieldInput = ({
         show={showTooltip}
         trigger={input}
         content={tooltipContent}
+        offset={12}
       />
     ) : (
       input

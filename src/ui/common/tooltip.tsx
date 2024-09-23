@@ -12,7 +12,7 @@ const TooltipTrigger = TooltipPrimitive.Trigger;
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 12, ...props }, ref) => (
+>(({ className, sideOffset = 4, ...props }, ref) => (
   <TooltipPrimitive.Content
     ref={ref}
     sideOffset={sideOffset}
@@ -29,13 +29,14 @@ type TooltipWrapperProps = {
   show: boolean;
   trigger: ReactNode;
   content: ReactNode;
+  offset?: number;
 };
 
-const TooltipWrapper = ({ show, trigger, content }: TooltipWrapperProps) => (
+const TooltipWrapper = ({ show, trigger, content, offset }: TooltipWrapperProps) => (
   <TooltipProvider delayDuration={300}>
     <Tooltip open={show}>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-      <TooltipContent>
+      <TooltipContent sideOffset={offset}>
         <div>{content}</div>
       </TooltipContent>
     </Tooltip>
