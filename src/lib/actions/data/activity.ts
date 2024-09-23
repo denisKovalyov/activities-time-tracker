@@ -25,7 +25,8 @@ export async function createActivity({
 
     await sql`
       INSERT INTO activity(user_id, name, color, icon, "order", created_at, updated_at)
-      VALUES (${user_id}, ${name}, ${color}, ${icon}, ${order}, ${date}, ${date})`;
+      VALUES (${user_id}, ${name}, ${color}, ${icon}, ${order}, ${date}, ${date})
+      RETURNING *`;
   } catch (error) {
     console.error('DB: Failed to create activity:', error);
     throw new Error('Failed to create activity.');
@@ -42,7 +43,7 @@ export async function updateActivity(id: string, activity: Partial<Activity>): P
     const fieldsString = getUpdatedFields(updatedFields);
 
     await sql.query(
-      `UPDATE activity SET ${fieldsString} WHERE id='${id}'`,
+      `UPDATE activity SET ${fieldsString} WHERE id='${id}' RETURNING *`,
       Object.values(updatedFields),
     );
   } catch (error) {
@@ -53,7 +54,7 @@ export async function updateActivity(id: string, activity: Partial<Activity>): P
 
 export async function deleteActivity(id: string): Promise<void> {
   try {
-    await sql`DELETE FROM TABLE activity WHERE id='${id}'`;
+    await sql`DELETE FROM activity WHERE id='${id}'`;
   } catch (error) {
     console.error('DB: failed to delete activity:', error);
     throw new Error('Failed to delete activity.');

@@ -52,7 +52,7 @@ export async function updateRecord(userId: string, activityId: string, value: nu
   }
 }
 
-export async function deleteActivityField(userId: string, activityId: string): Promise<void> {
+export async function deleteActivityRecords(userId: string, activityId: string): Promise<void> {
   try {
     await sql`UPDATE record
       SET activities=activities - ${activityId}

@@ -8,13 +8,26 @@ import {
   updateActivity as dbUpdateActivity,
   deleteActivity as dbDeleteActivity,
 } from '@/lib/actions/data/activity';
+import {
+  getRecord as dbGetRecord,
+  deleteActivityRecords as dbDeleteActivityRecords,
+} from '@/lib/actions/data/record';
 
 const DEFAULT_ERROR_MESSAGE = 'Something went wrong.';
 
 export async function getActivities(userId: string) {
   try {
-    const activities = await dbGetActivities(userId);
-    return activities;
+    const [record, activities] = await Promise.all([
+      dbGetRecord(userId),
+      dbGetActivities(userId),
+    ]);
+
+    if (!record) return activities;
+
+    return activities.map((activity) => ({
+      ...activity,
+      timeSpent: record.activities[activity.id] || null,
+    }));
   } catch (error: unknown) {
     return { message: 'Something went wrong.' };
   }
@@ -29,8 +42,7 @@ export async function createActivity(activity: Partial<Activity>) {
   }
 
   try {
-    await dbCreateActivity(activity);
-    return true;
+    return await dbCreateActivity(activity);
   } catch (error: unknown) {
     return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
   }
@@ -45,16 +57,18 @@ export async function updateActivity(id: string, activity: Partial<Activity>) {
   }
 
   try {
-    await dbUpdateActivity(id, activity);
-    return true;
+    return await dbUpdateActivity(id, activity);
   } catch (error: unknown) {
     return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
   }
 }
 
-export async function deleteActivity(id: string) {
+export async function deleteActivity(userId: string, activityId: string) {
   try {
-    await dbDeleteActivity(id);
+    await Promise.all([
+      dbDeleteActivity(activityId),
+      dbDeleteActivityRecords(userId, activityId),
+    ])
     return true;
   } catch (error: unknown) {
     return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };

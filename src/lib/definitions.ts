@@ -26,6 +26,10 @@ export type Activity = {
   updated_at: Date;
 }
 
+export type ActivityExtended = Activity & {
+  timeSpent?: number;
+}
+
 export type Record = {
   id: string;
   user_id: string;
