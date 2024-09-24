@@ -71,6 +71,7 @@ const config = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'bounce-finished': 'bounce 1s cubic-bezier(0.25, 1, 0.5, 1);',
       },
     },
   },
