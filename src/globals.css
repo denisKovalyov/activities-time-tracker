@@ -4,59 +4,49 @@
 
 /* Change color schema: https://zippystarter.com/tools/shadcn-ui-theme-generator */
 
-@layer base {
-  :root {
-    --background: 214 49% 95%;
-    --foreground: 214 5% 10%;
-    --card: 214 49% 90%;
-    --card-foreground: 214 5% 15%;
-    --popover: 214 49% 95%;
-    --popover-foreground: 214 95% 10%;
-    --primary: 214 93% 48%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 214 30% 70%;
-    --secondary-foreground: 0 0% 0%;
-    --muted: 176 30% 85%;
-    --muted-foreground: 214 5% 40%;
-    --accent: 176 30% 80%;
-    --accent-foreground: 214 5% 15%;
-    --destructive: 0 50% 50%;
-    --destructive-foreground: 214 5% 90%;
-    --border: 214 30% 67%;
-    --input: 214 30% 50%;
-    --ring: 214 93% 48%;
-    --radius: 0.5rem;
-  }
 
-  .dark {
-    --background: 214 49% 10%;
-    --foreground: 214 5% 90%;
-    --card: 214 49% 10%;
-    --card-foreground: 214 5% 90%;
-    --popover: 214 49% 5%;
-    --popover-foreground: 214 5% 90%;
-    --primary: 214 93% 48%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 214 30% 20%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 176 30% 25%;
-    --muted-foreground: 214 5% 65%;
-    --accent: 176 30% 25%;
-    --accent-foreground: 214 5% 90%;
-    --destructive: 0 50% 50%;
-    --destructive-foreground: 214 5% 90%;
-    --border: 214 30% 50%;
-    --input: 214 30% 50%;
-    --ring: 214 93% 48%;
-    --radius: 0.5rem;
-  }
+:root  {
+  --background: 153 18% 95%;
+  --foreground: 153 5% 0%;
+  --card: 153 18% 90%;
+  --card-foreground: 153 5% 10%;
+  --popover: 153 18% 95%;
+  --popover-foreground: 153 95% 0%;
+  --primary: 153 35% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 153 18% 70%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 115 18% 85%;
+  --muted-foreground: 153 5% 35%;
+  --accent: 115 18% 80%;
+  --accent-foreground: 153 5% 10%;
+  --destructive: 0 50% 30%;
+  --destructive-foreground: 153 5% 90%;
+  --border: 153 20% 50%;
+  --input: 153 20% 18%;
+  --ring: 153 35% 33%;
+  --radius: 0.5rem;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+.dark  {
+  --background: 153 18% 5%;
+  --foreground: 153 5% 90%;
+  --card: 153 18% 0%;
+  --card-foreground: 153 5% 90%;
+  --popover: 153 18% 5%;
+  --popover-foreground: 153 5% 90%;
+  --primary: 153 35% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 153 18% 10%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 115 18% 15%;
+  --muted-foreground: 153 5% 60%;
+  --accent: 115 18% 15%;
+  --accent-foreground: 153 5% 90%;
+  --destructive: 0 50% 30%;
+  --destructive-foreground: 153 5% 90%;
+  --border: 153 20% 18%;
+  --input: 153 20% 18%;
+  --ring: 153 35% 33%;
+  --radius: 0.5rem;
 }
