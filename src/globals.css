@@ -50,3 +50,9 @@
   --ring: 153 35% 33%;
   --radius: 0.5rem;
 }
+
+@layer components {
+  h1, h2, h3 {
+    font-family: theme('fontFamily.header');
+  }
+}

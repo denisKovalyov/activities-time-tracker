@@ -51,8 +51,8 @@ export function SignInForm() {
   const hasErrors = loginError || errorMsgGoogle;
 
   return (
-    <div className="w-80 rounded-md bg-white p-6">
-      <h2 className="prose-xl mb-4 text-center">Sign In</h2>
+    <div className="w-80 p-6 rounded-md bg-white text-secondary">
+      <h2 className="prose-xl mb-4 text-center text-primary">Sign In</h2>
 
       <Form {...form}>
         {hasErrors && (

@@ -6,7 +6,7 @@ export function GoogleSignIn() {
   const { pending } = useFormStatus();
 
   return (
-    <Button variant="outline" className="w-full">
+    <Button variant="outline" className="w-full dark:text-primary-foreground">
       <GoogleLogo className="mr-2.5" />
       <span>Sign in with Google{pending ? '...' : ''}</span>
     </Button>

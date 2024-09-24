@@ -43,8 +43,8 @@ export function SendLinkForm() {
   const buttonText = notFoundLink ? 'Resend email' : 'Send email';
 
   return (
-    <div className="w-80 rounded-md bg-white p-6">
-      <div className="prose-lg mb-4 text-center">{title}</div>
+    <div className="w-80 p-6 rounded-md bg-white text-secondary">
+      <div className="prose-lg mb-4 text-center text-primary">{title}</div>
       <div className="prose-sm mb-4">{text}</div>
 
       <Form {...form}>

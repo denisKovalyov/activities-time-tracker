@@ -35,9 +35,9 @@ const TextSeparator = ({
   className?: string;
 }) => (
   <div className={cn('flex items-center', className)}>
-    <Separator className="my-4 shrink" />
-    <p className="mx-2 shrink-0 uppercase text-secondary">{text}</p>
-    <Separator className="my-4 shrink" />
+    <Separator className="my-4 shrink bg-primary" />
+    <p className="mx-2 shrink-0 uppercase text-primary">{text}</p>
+    <Separator className="my-4 shrink bg-primary" />
   </div>
 );
 

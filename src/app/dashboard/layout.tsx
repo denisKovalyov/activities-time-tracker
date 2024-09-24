@@ -13,22 +13,22 @@ export default function Layout({ children }: { children: ReactNode }) {
       </aside>
       <div className="h-full flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <header
-          className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-secondary bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+          className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-secondary dark:border-primary bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
           <span
             className="sm:hidden flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base">
             Logo
           </span>
           <div className="hidden sm:block w-20 pr-2">
-            <PageName/>
+            <PageName />
           </div>
           <InputSearch/>
           <UserMenu/>
         </header>
-        <main className="h-[calc(100vh-28rem)]">
+        <main className="p-4 md:px-8 h-[calc(100vh-28rem)]">
           {children}
         </main>
       </div>
-      <footer className="sm:hidden h-14 px-4 bg-background border-t border-secondary">
+      <footer className="sm:hidden h-14 px-4 bg-background border-t border-secondary dark:border-primary">
         <MobileNavigation />
       </footer>
     </div>

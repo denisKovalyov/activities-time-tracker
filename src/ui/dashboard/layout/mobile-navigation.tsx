@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import type { Icon } from '@phosphor-icons/react';
 import { MENU_ITEMS } from '@/ui/dashboard/layout/constants';
 import { TooltipProvider , Tooltip, TooltipContent, TooltipTrigger } from '@/ui/common/tooltip';
 import { cn } from '@/lib/utils';
-import {useState} from 'react';
 
 const MenuItem = ({
   text,
@@ -21,8 +21,11 @@ const MenuItem = ({
 }) => {
   const [animationCompleted, setAnimationCompleted] = useState(false);
 
-  const handleAnimationStart = () => setAnimationCompleted(false);
-  const handleAnimationEnd = () => setAnimationCompleted(true);
+  const handleAnimationEnd = () =>  setAnimationCompleted(true);
+
+  useEffect(() => {
+    setAnimationCompleted(false);
+  }, [active]);
 
   const Item = (
     <Tooltip>
@@ -39,7 +42,7 @@ const MenuItem = ({
   const className = cn('flex items-end mx-4 p-4 rounded-full text-muted-foreground',
     active
       ? 'bg-secondary text-white relative outline outline-8 outline-background animate-bounce-finished relative'
-      : 'hover:text-primary',
+      : 'hover:text-foreground',
   );
 
   return (
@@ -47,11 +50,10 @@ const MenuItem = ({
       ? (
         <div
           className={className}
-          onAnimationStart={handleAnimationStart}
-          onAnimationEnd={handleAnimationEnd}
+          onAnimationEndCapture={handleAnimationEnd}
         >
           {animationCompleted && (
-            <span className="absolute -z-10 top-[-9.5px] left-[-9px] w-[calc(100%+18px)] h-full rounded-t-full bg-secondary" />
+            <span className="absolute -z-10 top-[-9.5px] left-[-9px] w-[calc(100%+18px)] h-full rounded-t-full bg-secondary dark:bg-primary" />
           )}
           {Item}
         </div>
@@ -59,6 +61,7 @@ const MenuItem = ({
         <Link
           href={`/dashboard/${path}`}
           className={className}
+          onClick={handleAnimationEnd}
         >
           {Item}
         </Link>

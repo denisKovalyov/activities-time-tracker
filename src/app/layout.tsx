@@ -2,10 +2,8 @@ import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import { ThemeProvider } from '@/ui/providers/theme-provider';
 import { AuthProvider } from '@/ui/providers/auth-provider';
-import { Inter } from 'next/font/google';
+import { montserrat, rosarivo } from '@/app/fonts';
 import '../globals.css';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
@@ -23,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${montserrat.variable} font-sans ${rosarivo.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

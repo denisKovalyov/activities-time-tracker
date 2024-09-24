@@ -17,8 +17,8 @@ export function EmailSentMessage() {
   const href = `/reset-password/request?email=${email}`;
 
   return (
-    <div className="w-80 rounded-md bg-white p-6">
-      <div className="prose-lg mb-4 text-center">{TITLE}</div>
+    <div className="w-80 p-6 rounded-md bg-white text-secondary">
+      <div className="prose-lg mb-4 text-center text-primary">{TITLE}</div>
       <div className="prose-sm mb-4">{TEXT_SUCCESS}</div>
       <div className="prose-sm mb-4">
         {TEXT_WARNING}

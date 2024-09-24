@@ -73,7 +73,7 @@ export const FormFieldInput = ({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel className="text-primary">{label}</FormLabel>
           <FormControl>{renderInput(field)}</FormControl>
           <FormMessage />
           {description && <FormDescription>{description}</FormDescription>}
