@@ -14,9 +14,9 @@ import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 import { TextSeparator } from '@/ui/common/separator';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/ui/dashboard/layout/logo';
 import { PasswordField } from './password-field';
 import { GoogleSignIn } from './google-sign-in';
-import {Logo} from '@/ui/dashboard/layout/logo';
 
 export function SignUpForm() {
   const [signUpError, setSignUpError] = useState<string | null>(null);

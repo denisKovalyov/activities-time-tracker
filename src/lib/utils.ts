@@ -13,3 +13,12 @@ export function setDelay(milliseconds: number) {
     }, milliseconds);
   });
 }
+
+const applyZero = (value: number) => value < 10 ? `0${value}` : `${value}`;
+
+export function calculateTimeValues(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  return [hours, minutes, seconds - hours * 3600 - minutes * 60].map(applyZero);
+};

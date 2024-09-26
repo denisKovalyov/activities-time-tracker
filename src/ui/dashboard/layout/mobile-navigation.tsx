@@ -31,7 +31,7 @@ const MenuItem = ({
     <Tooltip>
       <TooltipTrigger asChild>
         <span>
-          <IconComponent size="24" />
+          <IconComponent size="22" />
           <span className="sr-only">{text}</span>
         </span>
       </TooltipTrigger>
@@ -73,7 +73,7 @@ export const MobileNavigation = () => {
   const pathname = usePathname().slice('/dashboard/'.length);
 
   return (
-    <nav className="w-full h-full flex justify-center items-center relative">
+    <nav className="w-full h-full pb-1 flex justify-center items-center relative">
       <TooltipProvider delayDuration={300}>
         {MENU_ITEMS
           .toSorted((a, b) => a.order - b.order)
