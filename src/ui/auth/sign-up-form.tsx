@@ -16,6 +16,7 @@ import { TextSeparator } from '@/ui/common/separator';
 import { cn } from '@/lib/utils';
 import { PasswordField } from './password-field';
 import { GoogleSignIn } from './google-sign-in';
+import {Logo} from '@/ui/dashboard/layout/logo';
 
 export function SignUpForm() {
   const [signUpError, setSignUpError] = useState<string | null>(null);
@@ -52,6 +53,10 @@ export function SignUpForm() {
 
   return (
     <div className="w-80 p-6 rounded-md bg-white text-secondary">
+      <div className="h-14 flex justify-center mb-2">
+        <Logo/>
+      </div>
+
       <h2 className="prose-xl mb-4 text-center text-primary">Sign Up</h2>
 
       <Form {...form}>
@@ -63,8 +68,8 @@ export function SignUpForm() {
         )}
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="[&>div]:mb-4">
-          <FormFieldInput name="email" label="Email" />
-          <PasswordField />
+          <FormFieldInput name="email" label="Email"/>
+          <PasswordField/>
 
           <Button type="submit" className="mt-2 w-full">
             Sign Up
@@ -72,10 +77,10 @@ export function SignUpForm() {
         </form>
       </Form>
 
-      <TextSeparator className="my-3" text="or" />
+      <TextSeparator className="my-3" text="or"/>
 
       <form action={dispatchGoogle}>
-        <GoogleSignIn />
+        <GoogleSignIn/>
       </form>
 
       <div className="mt-4 flex items-center justify-center">

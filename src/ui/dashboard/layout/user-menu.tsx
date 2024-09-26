@@ -17,11 +17,11 @@ export const UserMenu = () => (
       <Button
         variant="outline"
         size="icon"
-        className="overflow-hidden rounded-full"
+        className="overflow-hidden rounded-full border-primary dark:border-white"
       >
         <User
           size="18"
-          className="overflow-hidden rounded-full"
+          className="overflow-hidden rounded-full text-primary dark:text-white"
         />
       </Button>
     </DropdownMenuTrigger>

@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import {lato} from '@/app/fonts';
 
 const config = {
   darkMode: ['class'],
@@ -19,8 +20,8 @@ const config = {
     },
     extend: {
       fontFamily: {
-        header: ['var(--font-rosarivo)'],
-        sans: ['var(--font-montserrat)'],
+        header: ['var(--font-montserrat)'],
+        sans: ['var(--font-lato)'],
       },
       colors: {
         border: 'hsl(var(--border))',

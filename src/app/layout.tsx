@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { ReactNode } from 'react';
 import { ThemeProvider } from '@/ui/providers/theme-provider';
 import { AuthProvider } from '@/ui/providers/auth-provider';
-import { montserrat, rosarivo } from '@/app/fonts';
+import { montserrat, lato } from '@/app/fonts';
 import '../globals.css';
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${montserrat.variable} font-sans ${rosarivo.variable}`}>
+      <body className={`${lato.variable} ${montserrat.variable} font-sans`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

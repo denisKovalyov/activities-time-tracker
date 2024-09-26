@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from '@/ui/common/tooltip';
 import { SignOutButton } from '@/ui/dashboard/layout/sign-out-button';
+import { Logo } from '@/ui/dashboard/layout/logo';
 import { MENU_ITEMS } from '@/ui/dashboard/layout/constants';
 
 const MenuItem = ({
@@ -42,9 +43,10 @@ export function MainNavigation() {
       <TooltipProvider delayDuration={300}>
         <Link
           href="/dashboard"
-          className="flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
+          className="h-9 w-9 relative"
         >
-          <span className="text-xs">Logo</span>
+          <span className="absolute w-full h-full" />
+          <Logo />
         </Link>
 
         {MENU_ITEMS.map((props) => (

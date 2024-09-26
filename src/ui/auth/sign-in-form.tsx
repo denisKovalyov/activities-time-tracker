@@ -11,9 +11,10 @@ import { SignInSchema } from '@/lib/validation';
 import { authenticate, googleAuthenticate } from '@/lib/actions/auth/sign-in';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
+import { Logo } from "@/ui/dashboard/layout/logo";
 import { TextSeparator } from '@/ui/common/separator';
-import { cn } from '@/lib/utils';
 import { GoogleSignIn } from './google-sign-in';
+import { cn } from '@/lib/utils';
 
 export function SignInForm() {
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -52,6 +53,10 @@ export function SignInForm() {
 
   return (
     <div className="w-80 p-6 rounded-md bg-white text-secondary">
+      <div className="h-14 flex justify-center mb-2">
+        <Logo />
+      </div>
+
       <h2 className="prose-xl mb-4 text-center text-primary">Sign In</h2>
 
       <Form {...form}>
