@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { DialogWrapper } from '@/ui/common/dialog';
-import { Button } from '@/ui/common/button';
+import { AddActivityForm } from '@/ui/dashboard/add-activity-form';
 
 export const AddActivityDialog = () => {
   const router = useRouter();
@@ -17,14 +17,9 @@ export const AddActivityDialog = () => {
     <DialogWrapper
       show={showDialog}
       onOpenChange={redirect}
-      header="Add Activity"
-      subheader="Add New Activity To Your Dashboard"
-      content={<div>test</div>}
-      footer={(
-        <Button onClick={redirect}>
-          Add Activity
-        </Button>
-      )}
+      header={<span className="prose-xl mb-4 text-center text-primary">Add Activity</span>}
+      subheader="Create an Activity to Monitor and Optimize Your Time"
+      content={<AddActivityForm onSubmit={redirect} />}
     />
   );
 }

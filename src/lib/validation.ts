@@ -93,7 +93,7 @@ export const ActivitySchema = z.object({
     message: REQUIRED_MESSAGE,
   }),
   color: z.string().min(6, {
-    message: REQUIRED_MESSAGE,
+    message: 'Hex color must be 6 characters long (e.g., FF5733)',
   }),
   icon: z.string().min(2, {
     message: REQUIRED_MESSAGE,

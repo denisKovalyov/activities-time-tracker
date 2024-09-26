@@ -1,6 +1,6 @@
 'use client';
 
-import { HTMLInputTypeAttribute, ReactNode } from 'react';
+import { FC, HTMLInputTypeAttribute, ReactNode } from 'react';
 import { clsx } from 'clsx';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import {
@@ -12,34 +12,39 @@ import {
   FormMessage,
 } from '@/ui/common/form/form';
 import { Input, InputProps } from '@/ui/common/form/input';
-import { InputPassword } from '@/ui/common/form/input-password';
 import { TooltipWrapper } from '@/ui/common/tooltip';
+import * as React from 'react';
 
-interface FormFieldInputProps extends InputProps {
+export interface FormFieldInputProps extends InputProps {
   name: string;
   label: string;
-  inputType?: HTMLInputTypeAttribute;
+  type?: HTMLInputTypeAttribute;
   placeholder?: string;
   description?: ReactNode;
   showTooltip?: boolean;
+  inputComponent?: FC<React.InputHTMLAttributes<HTMLInputElement>>;
   tooltipContent?: ReactNode;
+  allowedSymbols?: RegExp;
 }
 
 export const FormFieldInput = ({
   name,
   label,
   placeholder = '',
-  inputType = 'text',
+  type = 'text',
   description,
   showTooltip = false,
+  inputComponent = Input,
   tooltipContent,
+  allowedSymbols,
   ...props
 }: FormFieldInputProps) => {
   const {
     control,
     formState: { errors },
   } = useFormContext();
-  const InputComponent = inputType === 'password' ? InputPassword : Input;
+
+  const InputComponent = inputComponent;
   const hasError = name in errors;
 
   const renderInput = (field: ControllerRenderProps) => {
@@ -49,7 +54,11 @@ export const FormFieldInput = ({
           'border-destructive [&+button>svg]:text-destructive': hasError,
         })}
         placeholder={placeholder}
-        type={inputType}
+        type={type}
+        onKeyDown={allowedSymbols ? (e) => {
+          if (e.key.length > 1 || e.metaKey) return;
+          if (!allowedSymbols.test(e.key)) e.preventDefault();
+        } : undefined}
         {...field}
         {...props}
       />

@@ -11,6 +11,7 @@ import { SignInSchema } from '@/lib/validation';
 import { authenticate, googleAuthenticate } from '@/lib/actions/auth/sign-in';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
+import { InputPassword } from '@/ui/common/form/input-password';
 import { Logo } from "@/ui/dashboard/layout/logo";
 import { TextSeparator } from '@/ui/common/separator';
 import { GoogleSignIn } from './google-sign-in';
@@ -72,7 +73,7 @@ export function SignInForm() {
           <FormFieldInput
             name="password"
             label="Password"
-            inputType="password"
+            inputComponent={InputPassword}
             description={
               <Link
                 className={cn(

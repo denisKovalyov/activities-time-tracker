@@ -1,4 +1,5 @@
 import { auth } from '@/auth';
+import type { NextApiRequest } from 'next';
 import { ActivitiesHeader } from '@/ui/dashboard/activities-header';
 import { AddActivityDialog } from '@/ui/dashboard/add-activity-dialog';
 import { getActivities } from '@/lib/actions/activity';
@@ -23,3 +24,5 @@ export default async function ActivitiesList() {
     </div>
   );
 }
+
+export async function POST(req: NextApiRequest) {}
