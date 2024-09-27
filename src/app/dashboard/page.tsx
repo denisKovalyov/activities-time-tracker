@@ -15,7 +15,7 @@ export default async function ActivitiesList() {
       <ActivitiesHeader activities={activities} />
 
       {activities.length === 0 ? (
-        <span>You don't have any activities yet</span>
+        <span>{'You don\'t have any activities yet'}</span>
       ) : (
         <span>Activities length</span>
       )}
@@ -24,5 +24,3 @@ export default async function ActivitiesList() {
     </div>
   );
 }
-
-export async function POST(req: NextApiRequest) {}

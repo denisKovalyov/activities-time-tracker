@@ -2,14 +2,14 @@
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Button } from '@/ui/common/button';
-import { createQueryString } from '@/ui/hooks/create-query-string';
+import { useCreateQueryString } from '@/ui/hooks/use-create-query-string';
 
 export const AddActivityButton = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const getSearchParams = createQueryString(searchParams);
+  const getSearchParams = useCreateQueryString(searchParams);
 
   const handleClick = () => router.push(`${pathname}?${getSearchParams('addNew', 'true')}`);
 
