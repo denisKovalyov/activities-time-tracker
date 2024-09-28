@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, HTMLInputTypeAttribute, ReactNode } from 'react';
+import { FC, HTMLInputTypeAttribute, ReactNode, ElementType } from 'react';
 import { clsx } from 'clsx';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import {
@@ -13,7 +13,6 @@ import {
 } from '@/ui/common/form/form';
 import { Input, InputProps } from '@/ui/common/form/input';
 import { TooltipWrapper } from '@/ui/common/tooltip';
-import * as React from 'react';
 
 export interface FormFieldInputProps extends InputProps {
   name: string;
@@ -22,7 +21,8 @@ export interface FormFieldInputProps extends InputProps {
   placeholder?: string;
   description?: ReactNode;
   showTooltip?: boolean;
-  inputComponent?: FC<React.InputHTMLAttributes<HTMLInputElement>>;
+  inputComponent?: ElementType | FC<InputProps>;
+  inputProps?: {[key: string]: unknown};
   tooltipContent?: ReactNode;
   allowedSymbols?: RegExp;
 }
@@ -34,9 +34,10 @@ export const FormFieldInput = ({
   type = 'text',
   description,
   showTooltip = false,
-  inputComponent = Input,
+  inputComponent: InputComponent = Input,
   tooltipContent,
   allowedSymbols,
+  inputProps = {},
   ...props
 }: FormFieldInputProps) => {
   const {
@@ -44,7 +45,6 @@ export const FormFieldInput = ({
     formState: { errors },
   } = useFormContext();
 
-  const InputComponent = inputComponent;
   const hasError = name in errors;
 
   const renderInput = (field: ControllerRenderProps) => {
@@ -55,12 +55,13 @@ export const FormFieldInput = ({
         })}
         placeholder={placeholder}
         type={type}
-        onKeyDown={allowedSymbols ? (e) => {
+        onKeyDown={allowedSymbols ? (e: KeyboardEvent) => {
           if (e.key.length > 1 || e.metaKey) return;
           if (!allowedSymbols.test(e.key)) e.preventDefault();
         } : undefined}
         {...field}
         {...props}
+        {...inputProps}
       />
     );
 

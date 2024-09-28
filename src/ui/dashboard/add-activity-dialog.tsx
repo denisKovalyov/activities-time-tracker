@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { DialogWrapper } from '@/ui/common/dialog';
-import { AddActivityForm } from '@/ui/dashboard/add-activity-form';
+import { AddActivityForm } from '@/ui/dashboard/activity-form/add-activity-form';
 
 export const AddActivityDialog = () => {
   const router = useRouter();

@@ -1,15 +1,18 @@
 'use client';
 
-import { useEffect} from 'react';
+import { useEffect, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useForm, useWatch } from 'react-hook-form';
-import { HexColorPicker } from 'react-colorful';
+import { HexColorPicker  } from 'react-colorful';
+import { Palette } from '@phosphor-icons/react';
 
 import { ActivityForm } from '@/lib/definitions';
 import { ActivitySchema } from '@/lib/validation';
 import { Button } from '@/ui/common/button';
 import { Form, FormFieldInput } from '@/ui/common/form';
+import { IconPicker } from '@/ui/dashboard/activity-form/icon-picker/icon-picker';
+import { InputIcon } from '@/ui/common/form/input-icon';
 import { createActivity } from '@/lib/actions/activity';
 import { getRandomValue } from '@/lib/utils';
 import './hex-color-picker.css';
@@ -32,6 +35,7 @@ const BASIC_COLORS = [
   "#33FFAD", // Mint Green
 ];
 
+
 export function AddActivityForm({
   onSubmit,
 }: {
@@ -42,20 +46,25 @@ export function AddActivityForm({
     defaultValues: {
       name: '',
       color: '',
-      icon: '',
+      icon: 'airplay',
     },
   });
 
   const color = useWatch({ name: 'color', control: form.control });
+  const icon = useWatch({ name: 'icon', control: form.control });
 
-  const handleColorChange = (value: string) => {
+  const handleColorChange = useCallback((value: string) => {
     form.setValue('color', value.slice(1));
     void form.trigger('color');
-  };
+  }, [form]);
 
   useEffect(() => {
     handleColorChange(getRandomValue(BASIC_COLORS));
-  }, []);
+  }, [handleColorChange]);
+
+  const handleIconChange = (iconName: string) => {
+    form.setValue('icon', iconName);
+  }
 
   const handleSubmit = (values: z.infer<typeof ActivitySchema>) => {
     createActivity(values).then((value) => {
@@ -72,6 +81,8 @@ export function AddActivityForm({
     })
   };
 
+  const selectedColorPicker = color.length === 6 ? color : '';
+
   return (
     <div className="w-2/3 min-w-64 mx-auto">
       <Form {...form}>
@@ -83,8 +94,27 @@ export function AddActivityForm({
             label="Color"
             maxLength={6}
             allowedSymbols={/^[a-fA-F0-9]*$/}
+            inputComponent={InputIcon}
+            inputProps={{
+              icon: (
+                <Palette
+                  size="16"
+                  weight="fill"
+                  style={{
+                    color: color.length === 6 ? color : '000000',
+                  }}
+                />
+              ),
+            }}
           />
-          <HexColorPicker color={color} onChange={handleColorChange} className="hexColorPicker" />
+          <HexColorPicker color={selectedColorPicker} onChange={handleColorChange} className="hexColorPicker" />
+
+          <div className="h-28">
+            <IconPicker
+              selected={icon}
+              onSelect={handleIconChange}
+            />
+          </div>
 
           <Button type="submit" className="mt-auto w-full">
             Create Activity
