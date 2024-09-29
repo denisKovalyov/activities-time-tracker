@@ -4,7 +4,11 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { DialogWrapper } from '@/ui/common/dialog';
 import { AddActivityForm } from '@/ui/dashboard/activity-form/add-activity-form';
 
-export const AddActivityDialog = () => {
+export const AddActivityDialog = ({
+  activitiesNumber,
+}: {
+  activitiesNumber: number,
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -19,7 +23,12 @@ export const AddActivityDialog = () => {
       onOpenChange={redirect}
       header={<span className="prose-xl mb-4 text-center text-primary">Add Activity</span>}
       subheader="Create an Activity to Monitor and Optimize Your Time"
-      content={<AddActivityForm onSubmit={redirect} />}
+      content={(
+        <AddActivityForm
+          activitiesNumber={activitiesNumber}
+          onSubmit={redirect}
+        />
+      )}
     />
   );
 }

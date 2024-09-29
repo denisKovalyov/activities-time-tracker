@@ -13,9 +13,10 @@ import { Button } from '@/ui/common/button';
 import { Form, FormFieldInput } from '@/ui/common/form';
 import { IconPicker } from '@/ui/dashboard/activity-form/icon-picker/icon-picker';
 import { InputIcon } from '@/ui/common/form/input-icon';
-import { createActivity } from '@/lib/actions/activity';
+import { createActivity, getActivities } from '@/lib/actions/activity';
 import { getRandomValue } from '@/lib/utils';
 import './hex-color-picker.css';
+import {useSession} from 'next-auth/react';
 
 const BASIC_COLORS = [
   "#FF5733", // Bright Orange
@@ -38,9 +39,13 @@ const BASIC_COLORS = [
 
 export function AddActivityForm({
   onSubmit,
+  activitiesNumber,
 }: {
   onSubmit: () => void;
+  activitiesNumber: number;
 }) {
+  const { data: session } = useSession();
+
   const form = useForm<z.infer<typeof ActivitySchema>>({
     resolver: zodResolver(ActivitySchema),
     defaultValues: {
@@ -74,19 +79,26 @@ export function AddActivityForm({
     void trigger('icon');
   }
 
-  const handleSubmit = (values: z.infer<typeof ActivitySchema>) => {
-    createActivity(values).then((value) => {
-      if (!value) return;
-      if (typeof value === 'object' && 'errors' in value) {
-        (
-          Object.entries(value.errors!) as [keyof Pick<ActivityForm, 'name' | 'color' | 'icon'>, string[]][]
-        ).forEach(([field, [message]]) => {
-          setError(field, { message, type: 'custom' });
-        });
+  const handleSubmit = async (values: z.infer<typeof ActivitySchema>) => {
+    const userId = session?.user?.id!;
 
-        return onSubmit();
-      }
-    })
+    const result = await createActivity({
+      ...values,
+      user_id: userId,
+      order: activitiesNumber,
+    });
+
+    if (result && typeof result === 'object' && 'errors' in result) {
+      (
+        Object.entries(result.errors!) as [keyof Pick<ActivityForm, 'name' | 'color' | 'icon'>, string[]][]
+      ).forEach(([field, [message]]) => {
+        setError(field, { message, type: 'custom' });
+      });
+    } else {
+      await getActivities(userId);
+    }
+
+    onSubmit();
   };
 
   const selectedColorPicker = color.length === 6 ? color : '';

@@ -33,7 +33,7 @@ export async function getActivities(userId: string) {
   }
 }
 
-export async function createActivity(activity: Partial<Activity>) {
+export async function createActivity(activity: Pick<Activity, 'user_id' | 'name' | 'color' | 'icon' | 'order'>) {
   const validatedFields = ActivitySchema.safeParse(activity);
 
   // If form validation fails, return field errors early.

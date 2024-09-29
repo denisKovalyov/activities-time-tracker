@@ -20,7 +20,9 @@ export default async function ActivitiesList() {
         <span>Activities length</span>
       )}
 
-      <AddActivityDialog />
+      <AddActivityDialog
+        activitiesNumber={activities?.length || 0}
+      />
     </div>
   );
 }

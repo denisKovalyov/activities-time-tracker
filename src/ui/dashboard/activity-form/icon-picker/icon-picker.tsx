@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
 import { useMediaQuery } from '@raddix/use-media-query';
-import { icons as iconsMap } from 'lucide-react';
 import { CaretUpDown } from '@phosphor-icons/react';
 
 import { Button } from '@/ui/common/button';
@@ -13,7 +12,6 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
-  CommandLoading,
 } from '@/ui/common/command';
 import {
   Drawer,
@@ -25,10 +23,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/ui/common/popover';
-import { IconLucide } from '@/ui/common/icon-lucide';
+import { Icon, icons as iconsMap } from '@/ui/common/icon';
 import { cn } from '@/lib/utils';
 
-const icons: string[] = Object.keys(iconsMap).slice(500);
+const icons: string[] = Object.keys(iconsMap);
 
 export function IconPicker({
   selected,
@@ -51,7 +49,7 @@ export function IconPicker({
       {selected ? (
         <>
           <span className="mr-2">Selected icon:</span>
-          <IconLucide name={selected} size="18" />
+          <Icon name={selected} size="18" />
         </>
       ) : (
         <span>Select icon</span>
@@ -96,45 +94,24 @@ function IconGrid({
   onSelect: (status: string) => void;
   selectedIcon: string;
 }) {
-  const [isLoading, startTransition] = useTransition();
-  const [searchTerm, setSearchTerm] = useState('');
-  console.log('rerendering grid IconGrid');
   return (
     <Command>
       <CommandInput
-        // value={searchTerm}
-        // onValueChange={(value) => {
-        //   startTransition(() => {
-        //     setSearchTerm(value);
-        //   });
-        // }}
         placeholder="Search icon..."
       />
       <CommandList>
-        {isLoading
-          ? (
-            <CommandLoading
-              className="min-h-36 flex justify-center items-center"
-            >
-              Searching...
-            </CommandLoading>
-          ) : (
-            <>
-              <CommandEmpty>No icons found.</CommandEmpty>
-              <CommandGroup
-                className="[&>div]:flex [&>div]:flex-wrap [&>div]:gap-4"
-                onClick={(event) => {
-                  onSelect((event.target as HTMLElement).dataset.icon || '');
-                  setOpen(false);
-                }}
-              >
-                {icons.map((name) => (
-                  <IconGridItem key={name} name={name} selected={selectedIcon === name} size="20" />
-                ))}
-              </CommandGroup>
-            </>
-          )
-        }
+        <CommandEmpty>No icons found.</CommandEmpty>
+        <CommandGroup
+          className="[&>div]:flex [&>div]:flex-wrap [&>div]:gap-4"
+          onClick={(event) => {
+            onSelect((event.target as HTMLElement).dataset.icon || '');
+            setOpen(false);
+          }}
+        >
+          {icons.map((name) => (
+            <IconGridItem key={name} name={name} selected={selectedIcon === name} size="20" />
+          ))}
+        </CommandGroup>
       </CommandList>
     </Command>
   )
@@ -156,7 +133,7 @@ const IconGridItem = React.memo(({
       'bg-accent border border-primary': selected,
     })}
   >
-    <IconLucide name={name} size={size} />
+    <Icon name={name} size={size} />
   </CommandItem>
 ));
 
