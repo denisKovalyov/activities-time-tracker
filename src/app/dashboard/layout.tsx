@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
         <MainNavigation />
       </aside>
-      <div className="h-full flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+      <div className="h-dvh flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <header
           className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-secondary dark:border-primary bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
           <span

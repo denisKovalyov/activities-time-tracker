@@ -46,16 +46,23 @@ export function AddActivityForm({
     defaultValues: {
       name: '',
       color: '',
-      icon: 'airplay',
+      icon: '',
     },
   });
 
-  const color = useWatch({ name: 'color', control: form.control });
-  const icon = useWatch({ name: 'icon', control: form.control });
+  const {
+    setValue,
+    trigger,
+    control,
+    setError,
+  } = form;
+
+  const color = useWatch({ name: 'color', control });
+  const icon = useWatch({ name: 'icon', control });
 
   const handleColorChange = useCallback((value: string) => {
-    form.setValue('color', value.slice(1));
-    void form.trigger('color');
+    setValue('color', value.slice(1));
+    void trigger('color');
   }, [form]);
 
   useEffect(() => {
@@ -63,7 +70,8 @@ export function AddActivityForm({
   }, [handleColorChange]);
 
   const handleIconChange = (iconName: string) => {
-    form.setValue('icon', iconName);
+    setValue('icon', iconName);
+    void trigger('icon');
   }
 
   const handleSubmit = (values: z.infer<typeof ActivitySchema>) => {
@@ -73,7 +81,7 @@ export function AddActivityForm({
         (
           Object.entries(value.errors!) as [keyof Pick<ActivityForm, 'name' | 'color' | 'icon'>, string[]][]
         ).forEach(([field, [message]]) => {
-          form.setError(field, {message, type: 'custom'});
+          setError(field, { message, type: 'custom' });
         });
 
         return onSubmit();
@@ -109,12 +117,17 @@ export function AddActivityForm({
           />
           <HexColorPicker color={selectedColorPicker} onChange={handleColorChange} className="hexColorPicker" />
 
-          <div className="h-28">
-            <IconPicker
-              selected={icon}
-              onSelect={handleIconChange}
-            />
-          </div>
+          <FormFieldInput
+            name="icon"
+            label="Icon"
+            renderCustomInput={(className) => (
+              <IconPicker
+                selected={icon}
+                onSelect={handleIconChange}
+                className={className}
+              />
+            )}
+          />
 
           <Button type="submit" className="mt-auto w-full">
             Create Activity

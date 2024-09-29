@@ -1,17 +1,16 @@
 'use client';
 
-import { ForwardRefExoticComponent, RefAttributes, useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useMediaQuery } from '@raddix/use-media-query';
 import { icons as iconsMap } from 'lucide-react';
-import type { LucideProps } from 'lucide-react';
 import { CaretUpDown } from '@phosphor-icons/react';
 
 import { Button } from '@/ui/common/button';
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
+  CommandGroup,
   CommandItem,
   CommandList,
 } from '@/ui/common/command';
@@ -25,51 +24,33 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/ui/common/popover';
+import { IconLucide } from '@/ui/common/icon-lucide';
+import { cn } from '@/lib/utils';
 
-type Icon = {
-  value: string;
-  label: string;
-  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
-}
-
-const icons: Icon[] = Object.entries(iconsMap).map(([value, icon]) => ({
-  value,
-  label: value,
-  icon,
-}));
+const icons: string[] = Object.keys(iconsMap);
 
 export function IconPicker({
   selected,
   onSelect,
+  className,
 }: {
   selected: string;
   onSelect: (icon: string) => void;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery('(min-width: 768px)');
-  const [selectedStatus, setSelectedStatus] = useState<Icon | null>(null);
-
-  useEffect(() => {
-    if (selected) {
-      setSelectedStatus(icons.find(({ value }) => value === selected)!)
-    }
-  }, [selected]);
+  const isDesktop = useMediaQuery('(min-width: 640px)');
 
   const handleIconSelect = (value: string) => {
-    setSelectedStatus(
-      icons.find((icon) => icon.value === value) || null
-    );
     onSelect(value);
   };
 
-  const Icon = selectedStatus?.icon;
-
   const TriggerButton = (
-    <Button variant="outline" className="w-full justify-start px-3">
-      {Icon ? (
+    <Button variant="outline" className={cn('w-full justify-start px-3', className)}>
+      {selected ? (
         <>
           <span className="mr-2">Selected icon:</span>
-          <Icon size="18" />
+          <IconLucide name={selected} size="18" />
         </>
       ) : (
         <span>Select icon</span>
@@ -85,7 +66,7 @@ export function IconPicker({
           {TriggerButton}
         </PopoverTrigger>
         <PopoverContent className="w-[256px] p-0" align="start" side="top">
-          <StatusList setOpen={setOpen} onSelect={handleIconSelect} />
+          <IconGrid setOpen={setOpen} onSelect={handleIconSelect} selectedIcon={selected} />
         </PopoverContent>
       </Popover>
     )
@@ -98,45 +79,68 @@ export function IconPicker({
       </DrawerTrigger>
       <DrawerContent>
         <div className="mt-4 border-t">
-          <StatusList setOpen={setOpen} onSelect={handleIconSelect} />
+          <IconGrid setOpen={setOpen} onSelect={handleIconSelect} selectedIcon={selected} />
         </div>
       </DrawerContent>
     </Drawer>
   )
 }
 
-function StatusList({
+function IconGrid({
   setOpen,
   onSelect,
+  selectedIcon,
 }: {
   setOpen: (open: boolean) => void;
   onSelect: (status: string) => void;
+  selectedIcon: string;
 }) {
-  const parentRef = useRef(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   return (
     <Command>
-      <CommandInput placeholder="Search icon..." />
+      <CommandInput
+        // value={searchTerm}
+        // onValueChange={(value) => {
+        //   console.log('value', value);
+        //   setSearchTerm(value);
+        // }}
+        placeholder="Search icon..."
+      />
       <CommandList>
         <CommandEmpty>No icons found.</CommandEmpty>
-        <CommandGroup>
-          <div ref={parentRef} className="flex flex-wrap gap-2 overflow-auto" >
-            {icons.map(({ icon: Icon, value }) => (
-              <CommandItem
-                key={value}
-                value={value}
-                className="cursor-pointer"
-                onSelect={(value) => {
-                  onSelect(value);
-                  setOpen(false);
-                }}
-              >
-                <Icon size="18"/>
-              </CommandItem>
-            ))}
-          </div>
+        <CommandGroup
+          className="[&>div]:flex [&>div]:flex-wrap [&>div]:gap-4"
+          onClick={(event) => {
+            onSelect((event.target as HTMLElement).dataset.icon || '');
+            setOpen(false);
+          }}
+        >
+          {icons.map((name) => (
+            <IconItem key={name} name={name} selected={selectedIcon === name} size="20" />
+          ))}
         </CommandGroup>
       </CommandList>
     </Command>
   )
 }
+
+const IconItem = React.memo(({
+  name,
+  size,
+  selected,
+}: {
+  name: string;
+  size: string;
+  selected: boolean;
+}) => (
+  <CommandItem
+    value={name}
+    data-icon={name}
+    className={cn('cursor-pointer p-2 relative  after:absolute after:left-0 after:w-full after:h-full after:z-10', {
+      'bg-accent border border-primary': selected,
+    })}
+  >
+    <IconLucide name={name} size={size} />
+  </CommandItem>
+));
