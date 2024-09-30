@@ -19,14 +19,16 @@ export async function createActivity({
   color,
   icon,
   order,
-}: Partial<Activity>): Promise<void> {
+}: Partial<Activity>): Promise<Activity> {
   try {
     const date = new Date().toISOString();
 
-    await sql`
+     const result = await sql`
       INSERT INTO activity(user_id, name, color, icon, "order", created_at, updated_at)
       VALUES (${user_id}, ${name}, ${color}, ${icon}, ${order}, ${date}, ${date})
       RETURNING *`;
+
+     return result.rows[0] as Activity;
   } catch (error) {
     console.error('DB: Failed to create activity:', error);
     throw new Error('Failed to create activity.');
@@ -42,10 +44,12 @@ export async function updateActivity(id: string, activity: Partial<Activity>): P
 
     const fieldsString = getUpdatedFields(updatedFields);
 
-    await sql.query(
+    const result = await sql.query(
       `UPDATE activity SET ${fieldsString} WHERE id='${id}' RETURNING *`,
       Object.values(updatedFields),
     );
+
+    return result.rows[0];
   } catch (error) {
     console.error('DB: failed to update activity:', error);
     throw new Error('Failed to update activity.');

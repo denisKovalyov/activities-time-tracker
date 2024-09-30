@@ -36,6 +36,10 @@ const config = {
   				DEFAULT: 'hsl(var(--secondary))',
   				foreground: 'hsl(var(--secondary-foreground))'
   			},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))',
+				},
   			destructive: {
   				DEFAULT: 'hsl(var(--destructive))',
   				foreground: 'hsl(var(--destructive-foreground))'
@@ -63,7 +67,7 @@ const config = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		animation: {
-  			'bounce-finished': 'bounce 1s cubic-bezier(0.25, 1, 0.5, 1);'
+  			'bounce-finished': 'bounce 1s cubic-bezier(0.25, 1, 0.5, 1)'
   		}
   	}
   },

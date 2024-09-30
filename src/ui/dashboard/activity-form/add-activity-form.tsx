@@ -6,17 +6,18 @@ import { z } from 'zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { HexColorPicker  } from 'react-colorful';
 import { Palette } from '@phosphor-icons/react';
+import { useSession } from 'next-auth/react';
 
 import { ActivityForm } from '@/lib/definitions';
 import { ActivitySchema } from '@/lib/validation';
 import { Button } from '@/ui/common/button';
 import { Form, FormFieldInput } from '@/ui/common/form';
-import { IconPicker } from '@/ui/dashboard/activity-form/icon-picker/icon-picker';
+import { IconPicker } from '@/ui/dashboard/activity-form/icon-picker';
 import { InputIcon } from '@/ui/common/form/input-icon';
-import { createActivity, getActivities } from '@/lib/actions/activity';
+import { createActivity } from '@/lib/actions/activity';
 import { getRandomValue } from '@/lib/utils';
+import { useToast } from '@/ui/hooks/use-toast';
 import './hex-color-picker.css';
-import {useSession} from 'next-auth/react';
 
 const BASIC_COLORS = [
   "#FF5733", // Bright Orange
@@ -45,6 +46,7 @@ export function AddActivityForm({
   activitiesNumber: number;
 }) {
   const { data: session } = useSession();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof ActivitySchema>>({
     resolver: zodResolver(ActivitySchema),
@@ -94,10 +96,17 @@ export function AddActivityForm({
       ).forEach(([field, [message]]) => {
         setError(field, { message, type: 'custom' });
       });
-    } else {
-      await getActivities(userId);
+
+      toast({
+        title: 'Something went wrong...',
+        variant: 'destructive',
+      });
     }
 
+    toast({
+      title: 'Activity was successfully added!',
+      variant: 'success',
+    });
     onSubmit();
   };
 

@@ -3,8 +3,6 @@
 @tailwind utilities;
 
 /* Change color schema: https://zippystarter.com/tools/shadcn-ui-theme-generator */
-
-
 :root  {
   --background: 153 18% 95%;
   --foreground: 153 5% 0%;
@@ -20,8 +18,10 @@
   --muted-foreground: 153 5% 35%;
   --accent: 115 18% 80%;
   --accent-foreground: 153 5% 10%;
-  --destructive: 0 50% 30%;
-  --destructive-foreground: 153 5% 90%;
+  --success: 145 63% 35%;
+  --success-foreground: 145 40% 93%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
   --border: 153 20% 50%;
   --input: 153 20% 18%;
   --ring: 153 35% 33%;
@@ -43,8 +43,8 @@
   --muted-foreground: 153 5% 60%;
   --accent: 115 18% 15%;
   --accent-foreground: 153 5% 90%;
-  --destructive: 0 50% 30%;
-  --destructive-foreground: 153 5% 90%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
   --border: 153 20% 18%;
   --input: 153 20% 18%;
   --ring: 153 35% 33%;

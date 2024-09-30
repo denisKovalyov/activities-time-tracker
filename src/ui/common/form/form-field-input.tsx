@@ -123,7 +123,7 @@ export const FormFieldCustomInput = ({
     const input = (
       <InputComponent
         className={clsx({
-          'border-destructive [&+button>svg]:text-destructive': hasError,
+          'border-destructive text-destructive [&+button>svg]:text-destructive': hasError,
         })}
         placeholder={placeholder}
         type={type}

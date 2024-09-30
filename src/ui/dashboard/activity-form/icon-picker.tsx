@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { useMediaQuery } from '@raddix/use-media-query';
 import { CaretUpDown } from '@phosphor-icons/react';
 
@@ -97,6 +97,7 @@ function IconGrid({
   return (
     <Command>
       <CommandInput
+        autoFocus
         placeholder="Search icon..."
       />
       <CommandList>

@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { ReactNode } from 'react';
+
 import { ThemeProvider } from '@/ui/providers/theme-provider';
 import { AuthProvider } from '@/ui/providers/auth-provider';
+import { Toaster } from '@/ui/common/toaster';
 import { montserrat, lato } from '@/app/fonts';
 import '../globals.css';
 
@@ -36,6 +38,7 @@ export default function RootLayout({
       disableTransitionOnChange
     >
       <AuthProvider>{children}</AuthProvider>
+      <Toaster />
     </ThemeProvider>
     </body>
     </html>

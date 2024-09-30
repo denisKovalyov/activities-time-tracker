@@ -29,7 +29,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
-      <footer className="sm:hidden h-14 px-4 bg-background border-t border-secondary dark:border-primary">
+      <footer className="sm:hidden h-14 px-4 bg-secondary border-t border-primary dark:border-primary">
         <MobileNavigation />
       </footer>
     </div>

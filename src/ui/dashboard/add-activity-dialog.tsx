@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { DialogWrapper } from '@/ui/common/dialog';
 import { AddActivityForm } from '@/ui/dashboard/activity-form/add-activity-form';
+import { revalidateActivities } from '@/lib/actions/activity/revalidation';
 
 export const AddActivityDialog = ({
   activitiesNumber,
@@ -26,7 +27,7 @@ export const AddActivityDialog = ({
       content={(
         <AddActivityForm
           activitiesNumber={activitiesNumber}
-          onSubmit={redirect}
+          onSubmit={revalidateActivities}
         />
       )}
     />
