@@ -11,6 +11,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SaveNewPasswordSchema } from '@/lib/validation';
 import { authenticate } from '@/lib/actions/auth/sign-in';
 import { checkResetPasswordLink, saveNewPassword } from '@/lib/actions/auth/reset-password';
+import { LoadingOverlay } from '@/ui/common/loading-overlay';
+import {Skeleton} from '@/ui/common/skeleton';
 
 const TITLE = 'Save New Password';
 const TEXT = 'Please enter your new password below.';
@@ -20,7 +22,8 @@ export function PasswordSaveForm() {
   const email = searchParams.get('email');
   const token = searchParams.get('token');
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>();
 
   const form = useForm<z.infer<typeof SaveNewPasswordSchema>>({
@@ -33,16 +36,17 @@ export function PasswordSaveForm() {
   useEffect(() => {
     checkResetPasswordLink(email, token).then((value) => {
       if (value?.message) setError(value.message);
-      if (value?.message || value.success) setIsLoading(false);
+      setIsPageLoading(false);
     });
   }, [email, token]);
 
   const onSubmit = async (values: z.infer<typeof SaveNewPasswordSchema>) => {
     setError(null);
+    setIsLoading(true);
 
     const result = await saveNewPassword(email as string, values.password);
 
-    if (result?.message && !result?.success) {
+    if (result?.message) {
       setError(result.message);
       return;
     }
@@ -57,10 +61,16 @@ export function PasswordSaveForm() {
     }
   };
 
-  if (isLoading) return null;
+  if (isPageLoading) {
+    return (
+      <Skeleton className="w-80 h-72 rounded-md" />
+    );
+  }
 
   return (
-    <div className="w-80 p-6 rounded-md bg-white text-secondary">
+    <div className="w-80 p-6 rounded-md bg-white text-secondary relative">
+      <LoadingOverlay show={isLoading} className="rounded-md" />
+
       <div className="prose-lg mb-4 text-center text-primary">{TITLE}</div>
       <div className="prose-sm mb-4">{TEXT}</div>
 

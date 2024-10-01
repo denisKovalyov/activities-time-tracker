@@ -2,8 +2,11 @@
 
 import { useFormState } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
+
 import { resendVerificationEmail } from '@/lib/actions/auth/email-verification';
 import { ResendButton } from './resend-button';
+import { Logo } from '@/ui/common/logo';
+import { FormErrorMessage } from '@/ui/common/form/form';
 
 const DEFAULT_MESSAGE = 'A verification link has been sent to your email.';
 
@@ -13,7 +16,7 @@ export function EmailVerificationRequestForm() {
   const verificationSent = Boolean(searchParams.get('verification_sent'));
 
   const [formState, action] = useFormState(
-    resendVerificationEmail.bind(null, email!),
+    resendVerificationEmail.bind(null, decodeURIComponent(email!)),
     undefined,
   );
 
@@ -21,22 +24,26 @@ export function EmailVerificationRequestForm() {
   const successMessage = formState?.success && formState?.message;
 
   return (
-    <div className="w-96 rounded-md bg-white p-6 text-center">
-      <div className="prose-base mb-4">Please verify your email first</div>
+    <div className="w-80 p-6 rounded-md bg-white text-secondary text-center relative">
+      <div className="h-14 flex justify-center mb-2">
+        <Logo/>
+      </div>
+
+      <h2 className="prose-lg text-primary mb-4">Please verify your email first</h2>
 
       {errorMessage && (
-        <div className="mb-4 text-destructive">{errorMessage}</div>
+        <FormErrorMessage>{errorMessage}</FormErrorMessage>
       )}
 
       {successMessage && (
-        <div className="mb-4 text-green-500">{successMessage}</div>
+        <div className="prose-sm">{successMessage}</div>
       )}
 
       {verificationSent && !errorMessage && !successMessage && (
-        <div className="mb-4 text-green-500">{DEFAULT_MESSAGE}</div>
+        <div className="prose-sm">{DEFAULT_MESSAGE}</div>
       )}
 
-      <form action={action}>
+      <form action={action} className="mt-4">
         <ResendButton />
       </form>
     </div>

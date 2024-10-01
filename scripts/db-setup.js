@@ -28,13 +28,15 @@ async function setupActivity(client) {
       CREATE TABLE IF NOT EXISTS activity (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         user_id UUID,
-        name VARCHAR(255) NOT NULL UNIQUE,
+        name VARCHAR(255) NOT NULL,
         color CHAR(6) NOT NULL,
         icon VARCHAR(20) NOT NULL,
+        "order" INTEGER NOT NULL,
         is_archived BOOLEAN NOT NULL DEFAULT false,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,
         updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-        CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES "user"(id)
+        CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES "user"(id),
+        CONSTRAINT unique_activity_constraint UNIQUE(user_id, name, color, icon)
       );
     `;
 

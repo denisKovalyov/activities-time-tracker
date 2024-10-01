@@ -8,14 +8,17 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Credentials } from '@/lib/definitions';
 import { SignInSchema } from '@/lib/validation';
+import { useAction } from '@/ui/hooks/use-action';
 import { authenticate, googleAuthenticate } from '@/lib/actions/auth/sign-in';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 import { InputPassword } from '@/ui/common/form/input-password';
-import { Logo } from "@/ui/dashboard/layout/logo";
+import { Logo } from "@/ui/common/logo";
 import { TextSeparator } from '@/ui/common/separator';
 import { GoogleSignIn } from './google-sign-in';
+import { LoadingOverlay } from '@/ui/common/loading-overlay';
 import { cn } from '@/lib/utils';
+import { matchFieldErrors } from '@/ui/utils';
 
 export function SignInForm() {
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -23,6 +26,10 @@ export function SignInForm() {
     googleAuthenticate,
     undefined,
   );
+  const {
+    action: auth,
+    isLoading,
+  } = useAction(authenticate);
 
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
@@ -32,28 +39,23 @@ export function SignInForm() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof SignInSchema>) => {
+  const onSubmit = async (values: z.infer<typeof SignInSchema>) => {
     setLoginError(null);
 
-    authenticate(values).then((value) => {
-      if (!value) return;
-      if (value.message) {
-        setLoginError(value.message);
-      }
-      if (value.errors) {
-        (
-          Object.entries(value.errors) as [keyof Credentials, string[]][]
-        ).forEach(([field, [message]]) => {
-          form.setError(field, { message, type: 'custom' });
-        });
-      }
-    });
+    const result = await auth(values);
+
+    if (result?.message) setLoginError(result.message);
+    if (result?.errors) {
+      matchFieldErrors<Credentials>(result.errors, form.setError);
+    }
   };
 
   const hasErrors = loginError || errorMsgGoogle;
 
   return (
-    <div className="w-80 p-6 rounded-md bg-white text-secondary">
+    <div className="w-80 p-6 rounded-md bg-white text-secondary relative">
+      <LoadingOverlay show={isLoading} className="rounded-md" />
+
       <div className="h-14 flex justify-center mb-2">
         <Logo />
       </div>

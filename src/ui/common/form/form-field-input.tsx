@@ -50,7 +50,7 @@ export const FormFieldInput = ({
   const hasError = name in errors;
 
   const inputClassName = clsx({
-    'border-destructive [&+button>svg]:text-destructive': hasError,
+    'border-destructive [&+button>svg]:text-destructive [&>svg]:text-destructive': hasError,
   });
 
   const renderInput = (field: ControllerRenderProps) => {
@@ -98,70 +98,3 @@ export const FormFieldInput = ({
     />
   );
 };
-
-export const FormFieldCustomInput = ({
-  name,
-  label,
-  placeholder = '',
-  type = 'text',
-  description,
-  showTooltip = false,
-  inputComponent: InputComponent = Input,
-  tooltipContent,
-  allowedSymbols,
-  inputProps = {},
-  ...props
-}: FormFieldInputProps) => {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext();
-
-  const hasError = name in errors;
-
-  const renderInput = (field: ControllerRenderProps) => {
-    const input = (
-      <InputComponent
-        className={clsx({
-          'border-destructive text-destructive [&+button>svg]:text-destructive': hasError,
-        })}
-        placeholder={placeholder}
-        type={type}
-        onKeyDown={allowedSymbols ? (e: KeyboardEvent) => {
-          if (e.key.length > 1 || e.metaKey) return;
-          if (!allowedSymbols.test(e.key)) e.preventDefault();
-        } : undefined}
-        {...field}
-        {...props}
-        {...inputProps}
-      />
-    );
-
-    return tooltipContent ? (
-      <TooltipWrapper
-        show={showTooltip}
-        trigger={input}
-        content={tooltipContent}
-        offset={12}
-      />
-    ) : (
-      input
-    );
-  };
-
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="text-primary">{label}</FormLabel>
-          <FormControl>{renderInput(field)}</FormControl>
-          <FormMessage />
-          {description && <FormDescription>{description}</FormDescription>}
-        </FormItem>
-      )}
-    />
-  );
-};
-

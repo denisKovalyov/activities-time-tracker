@@ -11,7 +11,7 @@ import {
   TooltipTrigger,
 } from '@/ui/common/tooltip';
 import { SignOutButton } from '@/ui/dashboard/layout/sign-out-button';
-import { Logo } from '@/ui/dashboard/layout/logo';
+import { Logo } from '@/ui/common/logo';
 import { MENU_ITEMS } from '@/ui/dashboard/layout/constants';
 
 const MenuItem = ({

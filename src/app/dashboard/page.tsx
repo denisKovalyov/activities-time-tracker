@@ -5,6 +5,7 @@ import { getActivities } from '@/lib/actions/activity';
 
 export default async function ActivitiesList() {
   const session = await auth();
+  console.log('session?.user?.id!', session?.user?.id!)
   const activities = await getActivities(session?.user?.id!);
 
   if ('message' in activities) return null;
@@ -14,6 +15,7 @@ export default async function ActivitiesList() {
       <ActivitiesHeader activities={activities} />
 
       {activities.length === 0 ? (
+        // TODO: Implement EmptyState component (icon + text)
         <span>{'You don\'t have any activities yet'}</span>
       ) : (
         <span>Activities length</span>

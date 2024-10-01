@@ -9,13 +9,14 @@ import type {
 } from "@/ui/common/toast"
 
 const TOAST_LIMIT = 3;
-const TOAST_REMOVE_DELAY = 1000000;
+const TOAST_REMOVE_DELAY = 1500;
 
 type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  autoDismiss?: boolean
 }
 
 const actionTypes = {
@@ -142,7 +143,7 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">
 
-function toast({ ...props }: Toast) {
+function toast({ autoDismiss = true, ...props }: Toast) {
   const id = genId()
 
   const update = (props: ToasterToast) =>
@@ -163,6 +164,8 @@ function toast({ ...props }: Toast) {
       },
     },
   })
+
+  if (autoDismiss) addToRemoveQueue(id);
 
   return {
     id: id,

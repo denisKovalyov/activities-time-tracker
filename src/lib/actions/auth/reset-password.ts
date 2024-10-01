@@ -13,6 +13,7 @@ import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generat
 import { hashPassword } from '@/lib/actions/auth/utils/hash-password';
 
 const SENDING_RESET_LINK_MS = 1000;
+const NOT_FOUND_LINK = '/reset-password/request?not-found-link=true';
 
 const sendResetPasswordEmail = (email: string, token: string) => {
   return sendEmail({
@@ -60,9 +61,7 @@ export async function checkResetPasswordLink(
   email: string | null,
   token: string | null,
 ) {
-  const notFoundLink = '/reset-password/request?not-found-link=true';
-
-  if (!email || !token) return redirect(notFoundLink);
+  if (!email || !token) return redirect(NOT_FOUND_LINK);
   let user: User | undefined;
 
   try {
@@ -72,10 +71,8 @@ export async function checkResetPasswordLink(
   }
 
   if (!user || user.email_verification_token !== token) {
-    return redirect(notFoundLink);
+    return redirect(NOT_FOUND_LINK);
   }
-
-  return { success: true };
 }
 
 export async function saveNewPassword(email: string, password: string) {
@@ -87,6 +84,4 @@ export async function saveNewPassword(email: string, password: string) {
   } catch (e) {
     return { message: 'Something went wrong. Password was not saved.' };
   }
-
-  return { success: true };
 }

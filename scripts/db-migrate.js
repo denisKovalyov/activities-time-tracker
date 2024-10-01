@@ -1,18 +1,18 @@
 const { db: dbReset } = require('@vercel/postgres');
 
-async function addOrderColumnToActivities(client) {
+async function emptyMigration(client) {
   try {
-    await client.sql`ALTER TABLE activity ADD COLUMN "order" INTEGER NOT NULL`;
-    console.log(`Added "order" column to the "activity" table`);
+    // Execute sql code
+    await client.sql``;
   } catch (error) {
-    console.error('Error on adding "order" column to the "activity" table:', error);
+    console.error(error);
     throw error;
   }
 }
 
 async function main() {
   const client = await dbReset.connect();
-  await addOrderColumnToActivities(client);
+  await emptyMigration(client);
   await client.end();
 }
 

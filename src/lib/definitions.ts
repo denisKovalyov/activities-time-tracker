@@ -30,8 +30,6 @@ export type ActivityExtended = Activity & {
   timeSpent?: number;
 }
 
-export type ActivityForm =  Pick<ActivityExtended, 'name' | 'color' | 'icon'>;
-
 export type Record = {
   id: string;
   user_id: string;

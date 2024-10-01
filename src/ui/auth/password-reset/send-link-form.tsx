@@ -2,13 +2,16 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Button } from '@/ui/common/button';
-import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { SendResetPasswordLinkSchema } from '@/lib/validation';
-import { sendResetPasswordLink } from '@/lib/actions/auth/reset-password';
 import { zodResolver } from '@hookform/resolvers/zod';
+
+import { Button } from '@/ui/common/button';
+import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
+import { LoadingOverlay } from '@/ui/common/loading-overlay';
+import { SendResetPasswordLinkSchema } from '@/lib/validation';
+import { sendResetPasswordLink as sendResetPasswordLinkAction } from '@/lib/actions/auth/reset-password';
+import { useAction } from '@/ui/hooks/use-action';
 
 const TITLE = 'Reset your password';
 const TEXT =
@@ -30,12 +33,13 @@ export function SendLinkForm() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof SendResetPasswordLinkSchema>) => {
+  const { action: sendResetPasswordLink, isLoading } = useAction(sendResetPasswordLinkAction);
+
+  const onSubmit = async (values: z.infer<typeof SendResetPasswordLinkSchema>) => {
     setError(null);
 
-    sendResetPasswordLink(values.email).then((value) => {
-      if (value?.message) setError(value.message);
-    });
+    const result = await sendResetPasswordLink(values.email);
+    if (result?.message) setError(result.message);
   };
 
   const title = notFoundLink ? TITLE_NOT_FOUND_LINK : TITLE;
@@ -43,7 +47,9 @@ export function SendLinkForm() {
   const buttonText = notFoundLink ? 'Resend email' : 'Send email';
 
   return (
-    <div className="w-80 p-6 rounded-md bg-white text-secondary">
+    <div className="w-80 p-6 rounded-md bg-white text-secondary relative">
+      <LoadingOverlay show={isLoading} className="rounded-md" />
+
       <div className="prose-lg mb-4 text-center text-primary">{title}</div>
       <div className="prose-sm mb-4">{text}</div>
 

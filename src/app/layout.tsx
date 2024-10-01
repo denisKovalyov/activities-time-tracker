@@ -31,15 +31,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
     <body className={`${lato.variable} ${montserrat.variable} font-sans`}>
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <AuthProvider>{children}</AuthProvider>
-      <Toaster />
-    </ThemeProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <AuthProvider>{children}</AuthProvider>
+        <Toaster />
+      </ThemeProvider>
     </body>
     </html>
   );

@@ -55,5 +55,5 @@ export async function signUp({ email, password }: Credentials) {
   }
 
   // Redirecting to the email verification page
-  redirect(`/email/verify/send?email=${email}&verification_sent=1`);
+  redirect(`/email/verify/send?email=${encodeURIComponent(email)}&verification_sent=1`);
 }

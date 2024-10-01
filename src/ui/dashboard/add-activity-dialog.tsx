@@ -15,7 +15,6 @@ export const AddActivityDialog = ({
   const pathname = usePathname();
 
   const showDialog = Boolean(searchParams.get('addNew'));
-
   const redirect = () => router.push(pathname);
 
   return (

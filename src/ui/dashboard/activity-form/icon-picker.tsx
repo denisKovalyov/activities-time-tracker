@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useState } from 'react';
 import { useMediaQuery } from '@raddix/use-media-query';
 import { CaretUpDown } from '@phosphor-icons/react';
 
@@ -94,6 +94,8 @@ function IconGrid({
   onSelect: (status: string) => void;
   selectedIcon: string;
 }) {
+  const isDesktop = useMediaQuery('(min-width: 640px)');
+
   return (
     <Command>
       <CommandInput
@@ -103,14 +105,19 @@ function IconGrid({
       <CommandList>
         <CommandEmpty>No icons found.</CommandEmpty>
         <CommandGroup
-          className="[&>div]:flex [&>div]:flex-wrap [&>div]:gap-4"
+          className="[&>div]:flex [&>div]:flex-wrap [&>div]:gap-2 [&>div]:sm:gap-4"
           onClick={(event) => {
             onSelect((event.target as HTMLElement).dataset.icon || '');
             setOpen(false);
           }}
         >
           {icons.map((name) => (
-            <IconGridItem key={name} name={name} selected={selectedIcon === name} size="20" />
+            <IconGridItem
+              key={name}
+              name={name}
+              selected={selectedIcon === name}
+              size={isDesktop ? '20' : '26'}
+            />
           ))}
         </CommandGroup>
       </CommandList>

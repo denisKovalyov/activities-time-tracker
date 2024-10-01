@@ -3,37 +3,62 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
 import { verifyEmail } from '@/lib/actions/auth/email-verification';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/ui/common/button';
+import { Logo } from '@/ui/common/logo';
+import { Skeleton } from '@/ui/common/skeleton';
 
 export default function VerifyEmail() {
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
   const token = searchParams.get('token');
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    verifyEmail(email, token)
+    if (!isPageLoading) return;
+
+    let emailDecoded = email ? decodeURIComponent(email) : email;
+
+    verifyEmail(emailDecoded, token)
       .then((message) => {
         setSuccess(message);
       })
       .catch((error) => {
         setError(error.message);
       })
-      .finally(() => setIsLoading(false));
-  }, [email, token]);
+      .finally(() => {
+        setIsPageLoading(false);
+      });
+  }, [email, token, isPageLoading]);
+
+  if (isPageLoading) {
+    return (
+      <Skeleton className="w-80 h-52 rounded-md" />
+    );
+  }
 
   return (
-    <div className="w-96 rounded-md bg-white p-6 text-center">
-      {isLoading && <div className="mb-4">Please wait...</div>}
-      {success && <div className="mb-4 text-green-500">{success}</div>}
-      {error && <div className="mb-4 text-destructive">{error}</div>}
+    <div className="w-80 p-6 rounded-md bg-white text-secondary text-center">
+      <div className="h-14 flex justify-center mb-4">
+        <Logo/>
+      </div>
+
+      {error && (
+        <div className="prose-sm text-destructive">{error}</div>
+      )}
+
+      {success && (
+        <div className="prose-sm">{success}</div>
+      )}
+
       <Link
         className={cn(
+          'mt-4',
           buttonVariants({
             variant: 'link',
             className: 'h-auto px-0 py-0',

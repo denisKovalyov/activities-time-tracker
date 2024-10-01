@@ -1,42 +1,22 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useForm, useWatch } from 'react-hook-form';
-import { HexColorPicker  } from 'react-colorful';
-import { Palette } from '@phosphor-icons/react';
+import { useForm } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
 
-import { ActivityForm } from '@/lib/definitions';
+import { Activity } from '@/lib/definitions';
 import { ActivitySchema } from '@/lib/validation';
 import { Button } from '@/ui/common/button';
 import { Form, FormFieldInput } from '@/ui/common/form';
 import { IconPicker } from '@/ui/dashboard/activity-form/icon-picker';
-import { InputIcon } from '@/ui/common/form/input-icon';
+import { ColorPicker } from '@/ui/dashboard/activity-form/color-picker';
+import { LoadingOverlay } from '@/ui/common/loading-overlay';
 import { createActivity } from '@/lib/actions/activity';
-import { getRandomValue } from '@/lib/utils';
 import { useToast } from '@/ui/hooks/use-toast';
+import { matchFieldErrors } from '@/ui/utils';
 import './hex-color-picker.css';
-
-const BASIC_COLORS = [
-  "#FF5733", // Bright Orange
-  "#33FF57", // Lime Green
-  "#3357FF", // Bright Blue
-  "#FF33A1", // Hot Pink
-  "#33FFF5", // Aqua
-  "#FFB833", // Golden Yellow
-  "#8033FF", // Purple
-  "#33FF83", // Light Green
-  "#FF3333", // Red
-  "#33A1FF", // Sky Blue
-  "#FF5733", // Coral
-  "#A833FF", // Violet
-  "#FFD633", // Sunflower Yellow
-  "#FF33B8", // Pink
-  "#33FFAD", // Mint Green
-];
-
 
 export function AddActivityForm({
   onSubmit,
@@ -48,6 +28,8 @@ export function AddActivityForm({
   const { data: session } = useSession();
   const { toast } = useToast();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof ActivitySchema>>({
     resolver: zodResolver(ActivitySchema),
     defaultValues: {
@@ -58,31 +40,27 @@ export function AddActivityForm({
   });
 
   const {
+    watch,
     setValue,
     trigger,
-    control,
     setError,
   } = form;
 
-  const color = useWatch({ name: 'color', control });
-  const icon = useWatch({ name: 'icon', control });
+  const [color, icon] = watch(['color', 'icon']);
 
   const handleColorChange = useCallback((value: string) => {
     setValue('color', value.slice(1));
     void trigger('color');
-  }, [form]);
+  }, [setValue, trigger]);
 
-  useEffect(() => {
-    handleColorChange(getRandomValue(BASIC_COLORS));
-  }, [handleColorChange]);
-
-  const handleIconChange = (iconName: string) => {
+  const handleIconChange = useCallback((iconName: string) => {
     setValue('icon', iconName);
     void trigger('icon');
-  }
+  }, [setValue, trigger]);
 
   const handleSubmit = async (values: z.infer<typeof ActivitySchema>) => {
     const userId = session?.user?.id!;
+    setIsLoading(true);
 
     const result = await createActivity({
       ...values,
@@ -90,53 +68,46 @@ export function AddActivityForm({
       order: activitiesNumber,
     });
 
-    if (result && typeof result === 'object' && 'errors' in result) {
-      (
-        Object.entries(result.errors!) as [keyof Pick<ActivityForm, 'name' | 'color' | 'icon'>, string[]][]
-      ).forEach(([field, [message]]) => {
-        setError(field, { message, type: 'custom' });
-      });
+    if ('errors' in result && result.errors) {
+      matchFieldErrors<Partial<Pick<Activity, 'name' | 'color' | 'icon'>>>(
+        result.errors, setError,
+      );
+      setIsLoading(false);
+      return;
+    }
 
+    if ('message' in result) {
       toast({
-        title: 'Something went wrong...',
+        title: result.message,
         variant: 'destructive',
       });
+
+      setIsLoading(false);
+      return;
     }
+
+    onSubmit();
 
     toast({
       title: 'Activity was successfully added!',
       variant: 'success',
     });
-    onSubmit();
   };
-
-  const selectedColorPicker = color.length === 6 ? color : '';
 
   return (
     <div className="w-2/3 min-w-64 mx-auto">
+      <LoadingOverlay show={isLoading} />
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="[&>div]:mb-4 flex flex-col">
           <FormFieldInput name="name" label="Name" />
 
-          <FormFieldInput
+          <ColorPicker
             name="color"
             label="Color"
-            maxLength={6}
-            allowedSymbols={/^[a-fA-F0-9]*$/}
-            inputComponent={InputIcon}
-            inputProps={{
-              icon: (
-                <Palette
-                  size="16"
-                  weight="fill"
-                  style={{
-                    color: color.length === 6 ? color : '000000',
-                  }}
-                />
-              ),
-            }}
+            value={color}
+            onColorChange={handleColorChange}
           />
-          <HexColorPicker color={selectedColorPicker} onChange={handleColorChange} className="hexColorPicker" />
 
           <FormFieldInput
             name="icon"

@@ -33,7 +33,7 @@ export function PasswordTooltipContent({
         key={requirement}
         className={clsx('mb-1 flex items-center', {
           'text-destructive': !isFulfilled && markAsError,
-          'text-emerald-600': isFulfilled,
+          'text-success': isFulfilled,
         })}
       >
         <Icon size="12" weight="bold" className="mr-2" />
