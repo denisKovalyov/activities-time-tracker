@@ -6,6 +6,15 @@ import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email
 import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';
 import { getUser, updateUser } from '@/lib/actions/data/user';
 import { EmailNotVerifiedError, EmailRateLimit } from '@/lib/errors';
+import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
+
+export const sendVerificationEmail = (email: string, token: string) => {
+  return sendEmail({
+    email,
+    subject: 'Email Verification',
+    body: EmailVerificationTemplate({ email, token }),
+  });
+};
 
 export const isUsersEmailVerified = async (email: string) => {
   const user = await getUser(email);
@@ -15,14 +24,6 @@ export const isUsersEmailVerified = async (email: string) => {
     throw new EmailNotVerifiedError(`EMAIL_NOT_VERIFIED: ${email}`);
 
   return true;
-};
-
-export const sendVerificationEmail = (email: string, token: string) => {
-  return sendEmail({
-    email,
-    subject: 'Email Verification',
-    body: EmailVerificationTemplate({ email, token }),
-  });
 };
 
 export async function resendVerificationEmail(email: string) {
@@ -41,7 +42,7 @@ export async function resendVerificationEmail(email: string) {
       message:
         error instanceof EmailRateLimit
           ? error.message
-          : 'Something went wrong.',
+          : DEFAULT_ERROR_MESSAGE,
     };
   }
 
@@ -54,17 +55,17 @@ export async function resendVerificationEmail(email: string) {
 export async function verifyEmail(email: string | null, token: string | null) {
   try {
     if (!email || !token) {
-      throw new Error('Missing required fields');
+      return { message: 'Missing required fields' };
     }
 
     const user = await getUser(email);
 
     if (user?.email_verified) {
-      return 'Email already verified. Please, re-login.';
+      return { success: true, message: 'Email already verified. Please, re-login.' };
     }
 
     if (!user || token !== user.email_verification_token) {
-      throw new Error('Invalid verification token');
+      return { message: 'Invalid verification token' };
     }
 
     await updateUser(email, {
@@ -72,9 +73,9 @@ export async function verifyEmail(email: string | null, token: string | null) {
       email_verification_token: null,
     });
 
-    return 'Email verified successfully. Please re-login.';
+    return { success: true, message: 'Email verified successfully. Please re-login.' };
   } catch (error) {
     console.error('Error verifying email:', error);
-    throw error;
+    return { message: DEFAULT_ERROR_MESSAGE };
   }
 }

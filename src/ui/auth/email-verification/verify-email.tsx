@@ -21,19 +21,20 @@ export default function VerifyEmail() {
 
   useEffect(() => {
     if (!isPageLoading) return;
+    const verify = async (emailDecoded, token) => {
+      const result = await verifyEmail(emailDecoded, token);
+      setIsPageLoading(false);
+
+      if (result.success) {
+        setSuccess(result.message);
+        return;
+      }
+
+      setError(result.message);
+    }
 
     let emailDecoded = email ? decodeURIComponent(email) : email;
-
-    verifyEmail(emailDecoded, token)
-      .then((message) => {
-        setSuccess(message);
-      })
-      .catch((error) => {
-        setError(error.message);
-      })
-      .finally(() => {
-        setIsPageLoading(false);
-      });
+    void verify(emailDecoded, token);
   }, [email, token, isPageLoading]);
 
   if (isPageLoading) {

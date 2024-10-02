@@ -4,8 +4,7 @@ import {
   createRecord as dbCreateRecord,
   updateRecord as dbUpdateRecord,
 } from '@/lib/actions/data/record';
-
-const DEFAULT_ERROR_MESSAGE = 'Something went wrong.';
+import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function createNewRecord(userId: string) {
   try {

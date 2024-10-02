@@ -12,8 +12,7 @@ import {
   getRecord as dbGetRecord,
   deleteActivityRecords as dbDeleteActivityRecords,
 } from '@/lib/actions/data/record';
-
-const DEFAULT_ERROR_MESSAGE = 'Something went wrong.';
+import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function getActivities(userId: string) {
   try {
@@ -69,7 +68,7 @@ export async function deleteActivity(userId: string, activityId: string) {
       dbDeleteActivity(activityId),
       dbDeleteActivityRecords(userId, activityId),
     ])
-    return true;
+    return { success: true };
   } catch (error: unknown) {
     return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
   }

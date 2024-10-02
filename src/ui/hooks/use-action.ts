@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 type ReturnType =
+  | { success: true }
   | { errors: {[key: string]: string[]} }
   | { message: string }
   | undefined;

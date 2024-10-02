@@ -11,6 +11,7 @@ import { sendEmail } from '@/lib/actions/email/send-email';
 import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
 import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';
 import { hashPassword } from '@/lib/actions/auth/utils/hash-password';
+import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 const SENDING_RESET_LINK_MS = 1000;
 const NOT_FOUND_LINK = '/reset-password/request?not-found-link=true';
@@ -48,7 +49,7 @@ export async function sendResetPasswordLink(email: string) {
       message:
         error instanceof EmailRateLimit
           ? error.message
-          : 'Something went wrong.',
+          : DEFAULT_ERROR_MESSAGE,
     };
   }
 
@@ -67,7 +68,7 @@ export async function checkResetPasswordLink(
   try {
     user = await getUser(email);
   } catch (e) {
-    return { message: 'Something went wrong.' };
+    return { message: DEFAULT_ERROR_MESSAGE };
   }
 
   if (!user || user.email_verification_token !== token) {
@@ -82,6 +83,6 @@ export async function saveNewPassword(email: string, password: string) {
       email_verification_token: null,
     });
   } catch (e) {
-    return { message: 'Something went wrong. Password was not saved.' };
+    return { message: `${DEFAULT_ERROR_MESSAGE} Password was not saved.` };
   }
 }

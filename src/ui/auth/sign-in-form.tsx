@@ -66,7 +66,7 @@ export function SignInForm() {
         {hasErrors && (
           <div className="mb-4 [&>div]:mb-2">
             {loginError && <FormMessage>{loginError}</FormMessage>}
-            {errorMsgGoogle && <FormMessage>{errorMsgGoogle}</FormMessage>}
+            {errorMsgGoogle && <FormMessage>{errorMsgGoogle.message}</FormMessage>}
           </div>
         )}
 

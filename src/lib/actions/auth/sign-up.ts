@@ -10,6 +10,7 @@ import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email
 import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';
 import { hashPassword } from '@/lib/actions/auth/utils/hash-password';
 import { EmailRateLimit } from '@/lib/errors';
+import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function signUp({ email, password }: Credentials) {
   const validatedFields = SignUpSchema.safeParse({
@@ -50,7 +51,7 @@ export async function signUp({ email, password }: Credentials) {
       message:
         error instanceof EmailRateLimit
           ? error.message
-          : 'Something went wrong.',
+          : DEFAULT_ERROR_MESSAGE,
     };
   }
 

@@ -10,6 +10,7 @@ import { SignInSchema } from '@/lib/validation';
 import { isUsersEmailVerified } from '@/lib/actions/auth/email-verification';
 import { signIn } from '@/auth';
 import { PROTECTED_PAGE_PATH } from '@/auth.config';
+import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function googleAuthenticate(
   prevState: string | undefined,
@@ -19,7 +20,7 @@ export async function googleAuthenticate(
     await signIn('google');
   } catch (error) {
     if (error instanceof AuthError) {
-      return 'Google log is failed.';
+      return { message: 'Google log is failed.' };
     }
     throw error;
   }
@@ -47,13 +48,13 @@ export async function authenticate(values: Credentials) {
         case 'CredentialsSignin':
           return { message: 'Invalid credentials.' };
         default:
-          return { message: 'Something went wrong.' };
+          return { message: DEFAULT_ERROR_MESSAGE };
       }
     }
 
     if (!(error instanceof EmailNotVerifiedError) && !isRedirectError(error)) {
       console.error(error);
-      throw error;
+      return { message: DEFAULT_ERROR_MESSAGE };
     }
   }
 
