@@ -8,7 +8,7 @@ import { Logo } from '@/ui/common/logo';
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <div className="h-dvh w-full flex flex-col bg-muted/40">
+    <div className="h-dvh w-full flex flex-col">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r sm:flex">
         <MainNavigation />
       </aside>
@@ -26,7 +26,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <UserMenu/>
         </header>
 
-        <main className="p-4 md:px-8 h-[calc(100%-112px)] overflow-auto">
+        <main className="p-4 sm:pb-0 h-[calc(100%-112px)] sm:h-full overflow-auto">
           {children}
         </main>
 

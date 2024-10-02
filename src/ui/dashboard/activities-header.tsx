@@ -8,7 +8,7 @@ export const ActivitiesHeader = ({ activities }: { activities: ActivityExtended[
     (acc, curr) => acc + (curr?.timeSpent || 0), 0));
 
   return (
-    <div className="flex justify-between max-w-2xl mx-auto">
+    <div className="flex justify-between max-w-2xl w-full mx-auto">
       <div className="flex justify-center items-center w-full py-1 px-4 rounded-l-full bg-secondary dark:bg-background text-white font-bold truncate">
         {activities.length
           ? (<span>Time Spent:</span>)
