@@ -9,7 +9,7 @@ export default async function Activities() {
   const session = await auth();
   const activities = await getActivities(session?.user?.id!);
 
-  if ('message' in activities) return null;
+  if (activities.message) return null;
 
   return (
     <>

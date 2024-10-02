@@ -19,7 +19,7 @@ export const ActivityItem = ({
     timeSpent,
   } = activity;
   const totalTimeSpent = calculateTimeValues(timeSpent);
-  console.log('activity', activity);
+
   return (
     <Card className="w-full flex justify-between items-center mb-4 p-4">
       <div className="flex items-center">

@@ -67,7 +67,7 @@ export function SignUpForm() {
         {hasErrors && (
           <div className="mb-4 [&>div]:mb-2">
             {signUpError && <FormMessage>{signUpError}</FormMessage>}
-            {errorMsgGoogle && <FormMessage>{errorMsgGoogle.message}</FormMessage>}
+            {errorMsgGoogle && <FormMessage>{errorMsgGoogle}</FormMessage>}
           </div>
         )}
 

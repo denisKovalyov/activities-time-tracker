@@ -20,7 +20,7 @@ export async function googleAuthenticate(
     await signIn('google');
   } catch (error) {
     if (error instanceof AuthError) {
-      return { message: 'Google log is failed.' };
+      return 'Google log is failed.';
     }
     throw error;
   }

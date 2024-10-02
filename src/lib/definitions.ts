@@ -27,7 +27,7 @@ export type Activity = {
 }
 
 export type ActivityExtended = Activity & {
-  timeSpent?: number;
+  timeSpent: number;
 }
 
 export type Record = {

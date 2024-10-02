@@ -1,6 +1,6 @@
 'use server';
 
-import { Activity } from '@/lib/definitions';
+import {Activity, ActivityExtended} from '@/lib/definitions';
 import { ActivitySchema } from '@/lib/validation';
 import {
   createActivity as dbCreateActivity,
@@ -14,7 +14,7 @@ import {
 } from '@/lib/actions/data/record';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
-export async function getActivities(userId: string) {
+export async function getActivities(userId: string): Promise<ActivityExtended[] | { message: string }> {
   try {
     const [record, activities] = await Promise.all([
       dbGetRecord(userId),

@@ -21,7 +21,7 @@ export default function VerifyEmail() {
 
   useEffect(() => {
     if (!isPageLoading) return;
-    const verify = async (emailDecoded, token) => {
+    const verify = async (emailDecoded: string | null, token: string | null) => {
       const result = await verifyEmail(emailDecoded, token);
       setIsPageLoading(false);
 
