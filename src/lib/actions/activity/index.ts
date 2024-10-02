@@ -21,11 +21,9 @@ export async function getActivities(userId: string) {
       dbGetActivities(userId),
     ]);
 
-    if (!record) return activities;
-
     return activities.map((activity) => ({
       ...activity,
-      timeSpent: record.activities[activity.id] || null,
+      timeSpent: record?.activities?.[activity.id] || 0,
     }));
   } catch (error: unknown) {
     return { message: 'Something went wrong.' };

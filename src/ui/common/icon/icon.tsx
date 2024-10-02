@@ -5,10 +5,13 @@ import { icons } from './icon-list';
 export const Icon: React.FC<IconProps> = ({
   name,
   size = 24,
-  className = ''
+  className = '',
+  weight,
+  color,
 }) => {
-  const Icon = icons[name as keyof typeof icons];
-  return Icon
-    ? <Icon size={size} className={className} />
-    : <Empty size={size} className={className} />
+  const Icon = icons[name as keyof typeof icons] || Empty;
+
+  return (
+    <Icon size={size} weight={weight} className={className} color={color} />
+  );
 };
