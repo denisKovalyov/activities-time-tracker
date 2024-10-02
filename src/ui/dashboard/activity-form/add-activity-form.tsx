@@ -17,13 +17,14 @@ import { createActivity } from '@/lib/actions/activity';
 import { useToast } from '@/ui/hooks/use-toast';
 import { matchFieldErrors } from '@/ui/utils';
 import './hex-color-picker.css';
+import {checkActivityExists} from '@/ui/dashboard/activity-form/utils';
 
 export function AddActivityForm({
   onSubmit,
-  activitiesNumber,
+  activities,
 }: {
   onSubmit: () => void;
-  activitiesNumber: number;
+  activities: Activity[];
 }) {
   const { data: session } = useSession();
   const { toast } = useToast();
@@ -59,13 +60,23 @@ export function AddActivityForm({
   }, [setValue, trigger]);
 
   const handleSubmit = async (values: z.infer<typeof ActivitySchema>) => {
+    const isExist = checkActivityExists(values, activities);
+
+    if (isExist) {
+      toast({
+        title: 'Activity already exists!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const userId = session?.user?.id!;
     setIsLoading(true);
 
     const result = await createActivity({
       ...values,
       user_id: userId,
-      order: activitiesNumber,
+      order: activities.length,
     });
 
     if ('errors' in result && result.errors) {

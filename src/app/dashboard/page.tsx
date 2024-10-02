@@ -29,7 +29,7 @@ export default async function ActivitiesList() {
       </div>
 
       <AddActivityDialog
-        activitiesNumber={activities?.length || 0}
+        activities={activities}
       />
     </>
   );
