@@ -53,7 +53,7 @@ const MenuItem = ({
           onAnimationEndCapture={handleAnimationEnd}
         >
           {animationCompleted && (
-            <span className="absolute -z-10 top-[-9.5px] left-[-9px] w-[calc(100%+18px)] h-full rounded-t-full bg-primary dark:bg-primary" />
+            <span className="absolute -z-10 top-[-9px] left-[-10px] w-[calc(100%+20px)] h-full rounded-t-full [clip-path:rect(0_70px_10px_0_round_0)] bg-primary dark:bg-primary" />
           )}
           {Item}
         </div>

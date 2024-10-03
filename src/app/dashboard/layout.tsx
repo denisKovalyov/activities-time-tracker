@@ -30,7 +30,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           {children}
         </main>
 
-        <footer className="mt-auto sm:hidden h-14 px-4 bg-secondary border-t border-primary dark:border-primary">
+        <footer className="relative z-10 mt-auto sm:hidden h-14 px-4 bg-secondary border-t border-primary dark:border-primary">
           <MobileNavigation />
         </footer>
       </div>

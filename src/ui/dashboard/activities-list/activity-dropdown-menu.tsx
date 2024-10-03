@@ -1,19 +1,24 @@
 'use client';
 
-import {Button} from '@/ui/common/button';
-import {ShieldChevron} from '@phosphor-icons/react';
+import { CaretCircleDown } from '@phosphor-icons/react/dist/ssr';
 
-export const ActivityMenu = () => {
+import { Button } from '@/ui/common/button';
+import { cn } from '@/lib/utils';
+
+export const ActivityDropdownMenu = ({
+  className,
+}: {
+  className?: string;
+}) => {
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      className="rounded-full"
+      className={cn('rounded-full', className)}
     >
-      <ShieldChevron
-        size="9"
-        className="overflow-hidden rounded-full text-primary dark:text-white"
+      <CaretCircleDown
+        className="w-5 h-5 text-primary dark:text-white"
       />
     </Button>
   );
