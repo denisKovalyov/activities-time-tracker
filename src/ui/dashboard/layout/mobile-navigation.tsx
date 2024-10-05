@@ -39,10 +39,10 @@ const MenuItem = ({
     </Tooltip>
   );
 
-  const className = cn('flex items-end mx-6 p-4 rounded-full text-primary',
+  const className = cn('flex items-end mx-6 p-4 rounded-full text-white',
     active
-      ? 'bg-primary text-white relative outline outline-8 outline-secondary animate-bounce-finished relative'
-      : 'hover:text-white',
+      ? 'bg-accent text-white relative outline outline-8 outline-primary animate-bounce-finished relative'
+      : 'hover:text-accent',
   );
 
   return (
@@ -53,7 +53,7 @@ const MenuItem = ({
           onAnimationEndCapture={handleAnimationEnd}
         >
           {animationCompleted && (
-            <span className="absolute -z-10 top-[-9px] left-[-10px] w-[calc(100%+20px)] h-full rounded-t-full [clip-path:rect(0_70px_10px_0_round_0)] bg-primary dark:bg-primary" />
+            <span className="absolute -z-10 top-[-9px] left-[-10px] w-[calc(100%+20px)] h-full rounded-t-full [clip-path:rect(0_70px_10px_0_round_0)] bg-accent" />
           )}
           {Item}
         </div>

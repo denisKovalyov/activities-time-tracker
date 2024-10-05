@@ -14,6 +14,8 @@ import { SignOutButton } from '@/ui/dashboard/layout/sign-out-button';
 import { Logo } from '@/ui/common/logo';
 import { MENU_ITEMS } from '@/ui/dashboard/layout/constants';
 
+const itemClassNames = 'flex h-9 w-9 items-center justify-center text-accent-foreground transition-colors hover:text-accent-foreground/80';
+
 const MenuItem = ({
   text,
   path,
@@ -27,9 +29,9 @@ const MenuItem = ({
     <TooltipTrigger asChild>
       <Link
         href={`/dashboard/${path}`}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+        className={itemClassNames}
       >
-        <IconComponent size="24" />
+        <IconComponent size="26" />
         <span className="sr-only">{text}</span>
       </Link>
     </TooltipTrigger>
@@ -39,7 +41,7 @@ const MenuItem = ({
 
 export function MainNavigation() {
   return (
-    <nav className="flex h-full flex-col items-center gap-4 px-2 py-4">
+    <nav className="flex h-full flex-col items-center gap-6 px-2 py-4">
       <TooltipProvider delayDuration={300}>
         <Link
           href="/dashboard"
@@ -56,8 +58,8 @@ export function MainNavigation() {
         <SignOutButton className="mt-auto rounded-lg">
           <Tooltip>
             <TooltipTrigger asChild>
-            <span className='flex h-9 w-9 items-center justify-center text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8'>
-              <SignOut size="24"/>
+            <span className={itemClassNames}>
+              <SignOut size="26"/>
               <span className="sr-only">Log Out</span>
             </span>
             </TooltipTrigger>

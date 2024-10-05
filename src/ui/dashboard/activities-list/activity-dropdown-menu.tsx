@@ -18,6 +18,7 @@ export const ActivityDropdownMenu = ({
       className={cn('rounded-full', className)}
     >
       <CaretCircleDown
+        weight="fill"
         className="w-5 h-5 text-primary dark:text-white"
       />
     </Button>

@@ -10,8 +10,8 @@ export const PlayPauseButton = ({
   className?: string;
 }) => {
   return (
-    <Button variant="outline" size="icon" className={cn('rounded-full', className)}>
-      <PlayPause />
+    <Button variant="accent" size="icon" className={cn('rounded-full', className)}>
+      <PlayPause weight="fill" />
     </Button>
   );
 }

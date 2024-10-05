@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-    <body className={`${lato.variable} ${montserrat.variable} font-sans bg-muted/40`}>
+    <body className={`${lato.variable} ${montserrat.variable} font-sans bg-muted`}>
       <ThemeProvider
         attribute="class"
         defaultTheme="system"

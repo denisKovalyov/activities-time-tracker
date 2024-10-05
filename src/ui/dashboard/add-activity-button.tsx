@@ -15,6 +15,7 @@ export const AddActivityButton = () => {
 
   return (
     <Button
+      variant="accent"
       className="flex-none rounded-full text-lg relative"
       size="iconLg"
       onClick={handleClick}

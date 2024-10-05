@@ -4,51 +4,55 @@
 
 /* Change color schema: https://zippystarter.com/tools/shadcn-ui-theme-generator */
 :root  {
-  --background: 153 18% 95%;
-  --foreground: 153 5% 0%;
-  --card: 153 18% 90%;
-  --card-foreground: 153 5% 10%;
-  --popover: 153 18% 95%;
-  --popover-foreground: 153 95% 0%;
-  --primary: 153 35% 33%;
+  --background: 130 13% 95%;
+  --foreground: 130 5% 0%;
+  --card: 130 13% 90%;
+  --card-foreground: 130 5% 10%;
+  --popover: 130 13% 95%;
+  --popover-foreground: 130 95% 0%;
+  --primary: 130 44.1% 44.9%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 153 18% 70%;
+  --secondary: 130 13% 70%;
   --secondary-foreground: 0 0% 0%;
-  --muted: 115 18% 85%;
-  --muted-foreground: 153 5% 35%;
-  --accent: 115 18% 80%;
-  --accent-foreground: 153 5% 10%;
+  --muted: 120 18.7% 93.7%;
+  --muted-foreground: 130 5% 35%;
+  --border: 130 20% 50%;
+  --input: 130 20% 18%;
+  --ring: 130 44.1% 44.9%;
+  --radius: 0.5rem;
+
+  --colored-gray: 92 13% 80%;
+  --colored-gray-foreground: 130 20% 39%;
+  --accent: 246 52.3% 56.5%;
+  --accent-foreground: 246 35% 30%;
   --success: 145 63% 35%;
   --success-foreground: 145 40% 93%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
-  --border: 153 20% 50%;
-  --input: 153 20% 18%;
-  --ring: 153 35% 33%;
-  --radius: 0.5rem;
 }
 
 .dark  {
-  --background: 153 18% 5%;
-  --foreground: 153 5% 90%;
-  --card: 153 18% 0%;
-  --card-foreground: 153 5% 90%;
-  --popover: 153 18% 5%;
-  --popover-foreground: 153 5% 90%;
-  --primary: 153 35% 33%;
+  --background: 130 13% 5%;
+  --foreground: 130 5% 90%;
+  --card: 130 13% 0%;
+  --card-foreground: 130 5% 90%;
+  --popover: 130 13% 5%;
+  --popover-foreground: 130 5% 90%;
+  --primary: 130 44.1% 44.9%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 153 18% 10%;
+  --secondary: 130 13% 10%;
   --secondary-foreground: 0 0% 100%;
-  --muted: 115 18% 15%;
-  --muted-foreground: 153 5% 60%;
-  --accent: 115 18% 15%;
-  --accent-foreground: 153 5% 90%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 153 20% 18%;
-  --input: 153 20% 18%;
-  --ring: 153 35% 33%;
-  --radius: 0.5rem;
+  --muted: 120 18.7% 20%;
+  --muted-foreground: 130 5% 60%;
+  --destructive: 0 50% 30%;
+  --destructive-foreground: 130 5% 90%;
+  --border: 130 20% 18%;
+  --input: 130 20% 18%;
+  --ring: 130 44.1% 44.9%;
+
+  --accent-foreground: 246 35% 90%;
+  --colored-gray: 92 22% 22%;
+  --colored-gray-foreground: 130 30% 90%;
 }
 
 @layer components {
