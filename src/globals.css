@@ -29,6 +29,8 @@
   --success-foreground: 145 40% 93%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
+  --warning: 48 100% 30%;
+  --warning-foreground: 48 100% 87%;
 }
 
 .dark  {
@@ -44,8 +46,6 @@
   --secondary-foreground: 0 0% 100%;
   --muted: 120 18.7% 20%;
   --muted-foreground: 130 5% 60%;
-  --destructive: 0 50% 30%;
-  --destructive-foreground: 130 5% 90%;
   --border: 130 20% 18%;
   --input: 130 20% 18%;
   --ring: 130 44.1% 44.9%;
@@ -53,6 +53,10 @@
   --accent-foreground: 246 35% 90%;
   --colored-gray: 92 22% 22%;
   --colored-gray-foreground: 130 30% 90%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --warning: 40 100% 21%;
+  --warning-foreground: 48 97% 83%;
 }
 
 @layer components {
