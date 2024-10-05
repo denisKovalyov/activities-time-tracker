@@ -138,7 +138,7 @@ const IconGridItem = React.memo(({
     value={name}
     data-icon={name}
     className={cn('cursor-pointer p-2 relative  after:absolute after:left-0 after:w-full after:h-full after:z-10', {
-      'bg-accent border border-primary': selected,
+      'bg-grayColored': selected,
     })}
   >
     <Icon name={name} size={size} />
