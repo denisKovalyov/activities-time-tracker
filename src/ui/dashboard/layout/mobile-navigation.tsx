@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import type { Icon } from '@phosphor-icons/react';
 import { MENU_ITEMS } from '@/ui/dashboard/layout/constants';
-import { TooltipProvider , Tooltip, TooltipContent, TooltipTrigger } from '@/ui/common/tooltip';
 import { cn } from '@/lib/utils';
 
 const MenuItem = ({
@@ -28,15 +27,10 @@ const MenuItem = ({
   }, [active]);
 
   const Item = (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span>
-          <IconComponent size="22" />
-          <span className="sr-only">{text}</span>
-        </span>
-      </TooltipTrigger>
-      <TooltipContent side="top" sideOffset={20}>{text}</TooltipContent>
-    </Tooltip>
+    <>
+      <IconComponent size="22"/>
+      <span className="sr-only">{text}</span>
+    </>
   );
 
   const className = cn('flex items-end mx-6 p-4 rounded-full text-white',
@@ -74,14 +68,12 @@ export const MobileNavigation = () => {
 
   return (
     <nav className="w-full h-full pb-1 flex justify-center items-center relative">
-      <TooltipProvider delayDuration={300}>
-        {MENU_ITEMS
-          .toSorted((a, b) => a.order - b.order)
-          .map(({ path, ...props }) => (
-            <MenuItem key={path} active={pathname === path} path={path} {...props} />
-          ))
-        }
-      </TooltipProvider>
+      {MENU_ITEMS
+        .toSorted((a, b) => a.order - b.order)
+        .map(({ path, ...props }) => (
+          <MenuItem key={path} active={pathname === path} path={path} {...props} />
+        ))
+      }
     </nav>
   );
 }

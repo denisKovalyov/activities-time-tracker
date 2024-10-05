@@ -35,7 +35,7 @@ const MenuItem = ({
         <span className="sr-only">{text}</span>
       </Link>
     </TooltipTrigger>
-    <TooltipContent side="right">{text}</TooltipContent>
+    <TooltipContent side="right" className="bg-accent/90">{text}</TooltipContent>
   </Tooltip>
 );
 
@@ -63,7 +63,7 @@ export function MainNavigation() {
               <span className="sr-only">Log Out</span>
             </span>
             </TooltipTrigger>
-            <TooltipContent side="right">Log Out</TooltipContent>
+            <TooltipContent side="right" className="bg-accent/90">Log Out</TooltipContent>
           </Tooltip>
         </SignOutButton>
       </TooltipProvider>
