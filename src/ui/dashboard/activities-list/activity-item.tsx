@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useSwipeable } from 'react-swipeable';
 import { X, NotePencil } from '@phosphor-icons/react';
@@ -12,7 +12,8 @@ import { ActivityDropdownMenu } from '@/ui/dashboard/activities-list/activity-dr
 import { Button } from '@/ui/common/button';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
 
-const buttonClassNames = 'w-0 h-full px-3 rounded-none dark:border-y dark:border-r transition-all duration-200';
+const BUTTONS_WIDTH = 110;
+const buttonClassNames = 'h-auto px-3 rounded-none shadow-none dark:border-y dark:border-r';
 
 export const ActivityItem = ({
   activity,
@@ -28,6 +29,10 @@ export const ActivityItem = ({
   const [shift, setShift] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const ref = useRef(null);
+
+  useEffect(() => {
+    if (swiped) setShift(-BUTTONS_WIDTH);
+  }, [swiped]);
 
   const {
     id,
@@ -45,7 +50,7 @@ export const ActivityItem = ({
     onSwiping: (e) => {
       if (!isSwiping) setIsSwiping(true);
 
-      if (e.dir === 'Left' && Math.abs(shift) <= 110) setShift(e.deltaX < -110 ? -110 : e.deltaX);
+      if (e.dir === 'Left' && Math.abs(shift) <= BUTTONS_WIDTH) setShift(e.deltaX < -BUTTONS_WIDTH ? -BUTTONS_WIDTH : e.deltaX);
       if (e.dir === 'Right') setShift((shift) => {
         const delta = shift + e.absX;
         return delta > 0 ? 0 : delta;
@@ -53,7 +58,6 @@ export const ActivityItem = ({
     },
     onSwiped: () => {
       if (isSwiping) setIsSwiping(false);
-      if (!swiped) setShift(0);
     }
   });
 
@@ -66,22 +70,17 @@ export const ActivityItem = ({
 
   useOnClickOutside(ref, handleClickOutsideButtons, 'touchstart');
 
-  const buttonWidth = Math.floor(Math.abs(shift) / 2);
-
   return (
-    <div className="relative">
-      <Card
-        className={cn('w-full flex justify-between items-center mb-4 p-4 will-change-transform transition-transform duration-200 ease-in-out', {
-          '-translate-x-[110px] rounded-r-none duration-200': swiped,
-          'duration-0': isSwiping,
-          'rounded-r-none': shift !== 0,
-        })}
-        style={isSwiping
-          ? { 'transform': `translateX(${shift}px)`}
-          : undefined
-        }
-        {...handlers}
-      >
+    <div
+      className={cn('w-full mb-4 will-change-transform transition-transform duration-200 ease-in-out', {
+        'duration-0': isSwiping,
+      })}
+      style={{ 'transform': `translateX(${shift}px)`}}
+      {...handlers}
+    >
+      <Card className={cn('w-full flex flex-none justify-between items-center p-4', {
+        'rounded-r-none shadow-none': shift !== 0,
+      })}>
         <div className="flex-none flex items-center max-w-[70%] overflow-hidden">
           <PlayPauseButton className="flex-none" />
           <span className="font-semibold mx-2 text-accent-foreground truncate">
@@ -100,39 +99,21 @@ export const ActivityItem = ({
 
       <div
         ref={ref}
-        className="absolute top-0 right-0 bottom-0 overflow-hidden"
+        className="absolute top-0 bottom-0 right-0 translate-x-full flex rounded-r-md"
       >
         <Button
-          className={cn(buttonClassNames, {
-            'w-auto': swiped,
-            'px-0': !swiped,
-            'border-none': shift === 0,
-            'duration-0': isSwiping
-          })}
-          style={isSwiping
-            ? { 'width': `${buttonWidth}px` }
-            : undefined
-          }
+          className={`${buttonClassNames} border-warning`}
           variant="warning"
           onClick={() => console.log('edit')}
         >
-          {(buttonWidth >= 30 || swiped) && <NotePencil size="30" />}
+          <NotePencil size="30" />
         </Button>
         <Button
-          className={cn(`${buttonClassNames} rounded-r-md`, {
-            'w-auto': swiped,
-            'px-0': !swiped,
-            'border-none': shift === 0,
-            'duration-0': isSwiping
-          })}
-          style={isSwiping
-            ? { 'width': `${buttonWidth}px` }
-            : undefined
-          }
+          className={`${buttonClassNames} border-destructive rounded-r-md`}
           variant="destructive"
           onClick={() => console.log('delete')}
         >
-          {(buttonWidth >= 30 || swiped) && <X size="30" />}
+          <X size="30" />
         </Button>
       </div>
     </div>

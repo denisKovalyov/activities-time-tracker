@@ -9,13 +9,13 @@ export const ActivitiesList = ({
 }: {
   activities: ActivityExtended[]
 }) => {
-  const [swiped, setSwiped] = useState(null);
+  const [swiped, setSwiped] = useState<string | null>(null);
 
   const handleSwipe = (id: string) => setSwiped(id);
   const handleSwipeCancel = () => setSwiped(() => null);
 
   return (
-    <div className="py-4 w-full max-w-3xl mx-auto">
+    <div className="py-4 w-full max-w-3xl mx-auto overflow-hidden">
       {activities.map((activity) => (
         <ActivityItem
           key={activity.id}
