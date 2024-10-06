@@ -58,7 +58,7 @@ export async function updateActivity(id: string, activity: Partial<Activity>): P
 
 export async function deleteActivity(id: string): Promise<void> {
   try {
-    await sql`DELETE FROM activity WHERE id='${id}'`;
+    await sql`DELETE FROM activity WHERE id=${id}`;
   } catch (error) {
     console.error('DB: failed to delete activity:', error);
     throw new Error('Failed to delete activity.');

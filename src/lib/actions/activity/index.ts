@@ -65,7 +65,7 @@ export async function deleteActivity(userId: string, activityId: string) {
     await Promise.all([
       dbDeleteActivity(activityId),
       dbDeleteActivityRecords(userId, activityId),
-    ])
+    ]);
     return { success: true };
   } catch (error: unknown) {
     return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };

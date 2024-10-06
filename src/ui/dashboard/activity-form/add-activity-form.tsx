@@ -17,7 +17,7 @@ import { createActivity } from '@/lib/actions/activity';
 import { useToast } from '@/ui/hooks/use-toast';
 import { matchFieldErrors } from '@/ui/utils';
 import './hex-color-picker.css';
-import {checkActivityExists} from '@/ui/dashboard/activity-form/utils';
+import { checkActivityExists } from '@/ui/dashboard/activity-form/utils';
 
 export function AddActivityForm({
   onSubmit,

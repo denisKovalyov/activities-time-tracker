@@ -31,15 +31,22 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+  fullScreenMobile?: boolean;
+}>(({
+  className,
+  children,
+  fullScreenMobile = true,
+  ...props
+}, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full h-full sm:max-w-lg sm:h-auto translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg overflow-auto",
-        className
+        "fixed left-[50%] top-[50%] z-50 grid sm:max-w-lg sm:h-auto translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg overflow-auto",
+        fullScreenMobile ? 'w-full h-full' : 'w-full max-w-[425px] h-auto rounded-lg',
+        className,
       )}
       {...props}
     >
@@ -116,6 +123,7 @@ function DialogWrapper({
   content,
   subheader,
   footer,
+  fullScreenMobile = true,
 }: {
   show: boolean;
   onOpenChange: (state: boolean) => void;
@@ -124,6 +132,7 @@ function DialogWrapper({
   trigger?: React.ReactNode;
   subheader?: React.ReactNode;
   footer?: React.ReactNode;
+  fullScreenMobile?: boolean;
 }) {
   return (
     <Dialog open={show} onOpenChange={onOpenChange}>
@@ -132,7 +141,10 @@ function DialogWrapper({
           {trigger}
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        fullScreenMobile={fullScreenMobile}
+      >
         <DialogHeader>
           <DialogTitle>{header}</DialogTitle>
           {subheader && (
