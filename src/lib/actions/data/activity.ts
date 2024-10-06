@@ -35,7 +35,7 @@ export async function createActivity({
   }
 }
 
-export async function updateActivity(id: string, activity: Partial<Activity>): Promise<void> {
+export async function updateActivity(id: string, activity: Partial<Activity>): Promise<Activity> {
   try {
     const updatedFields = {
       ...activity,

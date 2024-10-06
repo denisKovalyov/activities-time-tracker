@@ -99,3 +99,5 @@ export const ActivitySchema = z.object({
     message: REQUIRED_MESSAGE,
   }),
 });
+
+export const EditActivitySchema = ActivitySchema.partial();

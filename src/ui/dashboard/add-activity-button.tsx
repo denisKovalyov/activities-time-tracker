@@ -1,17 +1,16 @@
 'use client';
 
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Button } from '@/ui/common/button';
-import { useCreateQueryString } from '@/ui/hooks/use-create-query-string';
+import { useRouter } from '@/ui/hooks/use-router';
 
 export const AddActivityButton = () => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const {
+    router,
+    pathname,
+    stringifyQueryParams,
+  } = useRouter();
 
-  const getSearchParams = useCreateQueryString(searchParams);
-
-  const handleClick = () => router.push(`${pathname}?${getSearchParams('addNew', 'true')}`);
+  const handleClick = () => router.push(`${pathname}?${stringifyQueryParams({ addActivity: 'true' })}`);
 
   return (
     <Button

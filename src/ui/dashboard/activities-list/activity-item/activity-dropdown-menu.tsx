@@ -41,13 +41,14 @@ export const ActivityDropdownMenu = ({
       <DropdownMenuContent align="end">
         <DropdownMenuItem
           onClick={onEditClick}
-          className="flex items-center"
+          className="flex items-center cursor-pointer"
         >
           <span className="mr-1">Edit</span>
           <PencilSimple size="15" />
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={onRemoveClick}
+          className="cursor-pointer"
         >
           <span className="mr-1">Remove</span>
           <Trash size="15" />

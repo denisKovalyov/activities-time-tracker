@@ -38,8 +38,9 @@ export function ColorPicker({
   const selectedColorPicker = value.length === 6 ? value : '';
 
   useEffect(() => {
+    if (value) return;
     onColorChange(getRandomValue(BASIC_COLORS));
-  }, [onColorChange]);
+  }, [value, onColorChange]);
 
   return (
     <>

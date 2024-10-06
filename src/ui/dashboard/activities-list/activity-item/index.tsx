@@ -2,25 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useSwipeable } from 'react-swipeable';
 import { useSession } from 'next-auth/react';
-import { X, NotePencil } from '@phosphor-icons/react';
 
 import { ActivityExtended } from '@/lib/definitions';
 import { Card } from '@/ui/common/card';
 import { cn } from '@/lib/utils';
-import { PlayPauseButton } from '@/ui/dashboard/activities-list/play-pause-button';
+import { PlayPauseButton } from '@/ui/dashboard/activities-list/activity-item/play-pause-button';
 import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-icon';
-import { ActivityDropdownMenu } from '@/ui/dashboard/activities-list/activity-dropdown-menu';
-import { Button } from '@/ui/common/button';
+import { ActivityDropdownMenu } from '@/ui/dashboard/activities-list/activity-item/activity-dropdown-menu';
 import { RemoveActivityDialog } from '@/ui/dashboard/activities-list/remove-activity-dialog';
+import { ActionButtons } from '@/ui/dashboard/activities-list/activity-item/action-buttons';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
 import { deleteActivity } from '@/lib/actions/activity';
 import { useToast } from '@/ui/hooks/use-toast';
 import { revalidateActivities } from '@/lib/actions/activity/revalidation';
+import { useRouter } from '@/ui/hooks/use-router';
 
 const BUTTONS_WIDTH = 110;
-const buttonClassNames = 'h-auto px-3 rounded-none shadow-none dark:border-y dark:border-r';
 
-export const ActivityItem = ({
+export const Index = ({
   activity,
   swiped,
   onSwipe,
@@ -43,6 +42,12 @@ export const ActivityItem = ({
 
   const { data: session } = useSession();
   const { toast } = useToast();
+
+  const {
+    router,
+    pathname,
+    stringifyQueryParams,
+  } = useRouter();
 
   const {
     id,
@@ -97,6 +102,8 @@ export const ActivityItem = ({
     setShowRemoveDialog(false);
   };
 
+  const handleEditClick = () => router.push(`${pathname}?${stringifyQueryParams({ 'editActivity': id })}`);
+
   return (
     <>
       <div
@@ -123,7 +130,7 @@ export const ActivityItem = ({
           </span>
             <ActivityDropdownMenu
               className="hidden sm:inline-flex ml-2"
-              onEditClick={() => {}}
+              onEditClick={handleEditClick}
               onRemoveClick={handleDialogOpenChange}
             />
           </div>
@@ -133,20 +140,10 @@ export const ActivityItem = ({
           ref={ref}
           className="absolute top-0 bottom-0 right-0 translate-x-full flex rounded-r-md"
         >
-          <Button
-            className={`${buttonClassNames} border-warning`}
-            variant="warning"
-            onClick={() => console.log('edit')}
-          >
-            <NotePencil size="30" />
-          </Button>
-          <Button
-            className={`${buttonClassNames} border-destructive rounded-r-md`}
-            variant="destructive"
-            onClick={handleDialogOpenChange}
-          >
-            <X size="30" />
-          </Button>
+          <ActionButtons
+            onEditClick={handleEditClick}
+            onRemoveClick={handleDialogOpenChange}
+          />
         </div>
       </div>
 

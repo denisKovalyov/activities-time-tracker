@@ -1,7 +1,7 @@
 'use server';
 
-import {Activity, ActivityExtended} from '@/lib/definitions';
-import { ActivitySchema } from '@/lib/validation';
+import { Activity, ActivityExtended } from '@/lib/definitions';
+import {ActivitySchema, EditActivitySchema} from '@/lib/validation';
 import {
   createActivity as dbCreateActivity,
   getActivities as dbGetActivities,
@@ -45,8 +45,8 @@ export async function createActivity(activity: Pick<Activity, 'user_id' | 'name'
   }
 }
 
-export async function updateActivity(id: string, activity: Partial<Activity>) {
-  const validatedFields = ActivitySchema.safeParse(activity);
+export async function updateActivity(id: string, activity: Partial<Pick<Activity, 'name' | 'color' | 'icon'>>) {
+  const validatedFields = EditActivitySchema.safeParse(activity);
 
   // If form validation fails, return field errors early.
   if (!validatedFields.success) {
