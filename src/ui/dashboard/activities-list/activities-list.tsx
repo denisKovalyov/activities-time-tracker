@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Index } from '@/ui/dashboard/activities-list/activity-item';
+import { useEffect, useState } from 'react';
+import { Reorder } from 'framer-motion';
+
+import { ActivityItem } from '@/ui/dashboard/activities-list/activity-item/activityItem';
 import { ActivityExtended } from '@/lib/definitions';
 
 export const ActivitiesList = ({
@@ -9,22 +11,35 @@ export const ActivitiesList = ({
 }: {
   activities: ActivityExtended[]
 }) => {
+  const [activitiesList, setActivitiesList] = useState<ActivityExtended[]>([]);
   const [swiped, setSwiped] = useState<string | null>(null);
+
+  useEffect(() => {
+    setActivitiesList(activities);
+  }, [activities]);
 
   const handleSwipe = (id: string) => setSwiped(id);
   const handleSwipeCancel = () => setSwiped(() => null);
 
   return (
-    <div className="py-4 w-full max-w-3xl mx-auto overflow-hidden">
-      {activities.map((activity) => (
-        <Index
-          key={activity.id}
-          activity={activity}
-          swiped={swiped === activity.id}
-          onSwipe={handleSwipe}
-          onCancelSwipe={handleSwipeCancel}
-        />
-      ))}
+    <div className="w-full mt-4 max-w-3xl mx-auto overflow-x-hidden">
+      <Reorder.Group
+        onReorder={setActivitiesList}
+        values={activitiesList}
+        axis="y"
+        layoutScroll
+        style={{ overflowY: 'scroll', overflowX: 'hidden' }}
+      >
+        {activitiesList.map((activity) => (
+          <ActivityItem
+            key={activity.id}
+            activity={activity}
+            swiped={swiped === activity.id}
+            onSwipe={handleSwipe}
+            onCancelSwipe={handleSwipeCancel}
+          />
+        ))}
+      </Reorder.Group>
     </div>
   );
 }

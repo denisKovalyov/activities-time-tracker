@@ -56,6 +56,19 @@ export async function updateActivity(id: string, activity: Partial<Activity>): P
   }
 }
 
+export async function reorderActivities(activitiesList: { id: string; order: number; }[]): Promise<void> {
+  try {
+    const updatedAt =  new Date().toISOString();
+
+    await Promise.all(activitiesList.map(({ id, order: orderValue }) =>
+      sql.query(`UPDATE activity SET order=${orderValue}, updated_at=${updatedAt} WHERE id='${id}'`)
+    ));
+  } catch (error) {
+    console.error('DB: failed to update order of activities:', error);
+    throw new Error('Failed to update order of activities.');
+  }
+}
+
 export async function deleteActivity(id: string): Promise<void> {
   try {
     await sql`DELETE FROM activity WHERE id=${id}`;

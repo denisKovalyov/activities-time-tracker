@@ -4,7 +4,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 
 import type { Credentials } from '@/lib/definitions';
-import { AdapterUser } from '@auth/core/adapters';
 import { authConfig } from './auth.config';
 import { getUser } from '@/lib/actions/data/user';
 
@@ -33,21 +32,5 @@ export const {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     }),
   ],
-  callbacks: {
-    ...authConfig.callbacks,
-    async session({ session, token, user }) {
-      session.user = token.user as AdapterUser;
-      return session;
-    },
-    async jwt({ token, user, trigger, session }) {
-      if (user) {
-        token.user = user;
-      }
-      if (trigger === 'update' && session) {
-        token = { ...token, user: session };
-        return token;
-      }
-      return token;
-    },
-  },
+  callbacks: authConfig.callbacks,
 });

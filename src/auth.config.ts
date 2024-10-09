@@ -1,5 +1,6 @@
 import type { NextAuthConfig } from 'next-auth';
 import { NextResponse } from 'next/server';
+import { AdapterUser } from '@auth/core/adapters';
 
 export const PROTECTED_PAGE_PATH = '/dashboard';
 const SIGN_IN_PATH = '/sign-in';
@@ -21,6 +22,18 @@ export const authConfig = {
         }
       }
       return true;
+    },
+    async session({ session, token, user }) {
+      session.user = token.user as AdapterUser;
+      return session;
+    },
+    async jwt({ token, user, trigger, session }) {
+      if (user) token.user = user;
+      if (trigger === 'update' && session) {
+        token = { ...token, user: session };
+        return token;
+      }
+      return token;
     },
   },
   providers: [],

@@ -8,7 +8,7 @@ export function GoogleSignIn() {
   return (
     <Button
       variant="outline"
-      className="w-full"
+      className="w-full dark:text-white"
       loading={pending}
     >
       <GoogleLogo className="mr-2.5" />

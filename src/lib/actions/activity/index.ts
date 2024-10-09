@@ -1,11 +1,12 @@
 'use server';
 
 import { Activity, ActivityExtended } from '@/lib/definitions';
-import {ActivitySchema, EditActivitySchema} from '@/lib/validation';
+import { ActivitySchema, EditActivitySchema } from '@/lib/validation';
 import {
   createActivity as dbCreateActivity,
   getActivities as dbGetActivities,
   updateActivity as dbUpdateActivity,
+  reorderActivities as dbReorderActivities,
   deleteActivity as dbDeleteActivity,
 } from '@/lib/actions/data/activity';
 import {
@@ -55,6 +56,15 @@ export async function updateActivity(id: string, activity: Partial<Pick<Activity
 
   try {
     return await dbUpdateActivity(id, activity);
+  } catch (error: unknown) {
+    return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
+  }
+}
+
+export async function reorderActivities(activitiesList: { id: string; order: number; }[]) {
+  try {
+    await dbReorderActivities(activitiesList);
+    return { success: true };
   } catch (error: unknown) {
     return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
   }
