@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* Change color schema: https://zippystarter.com/tools/shadcn-ui-theme-generator */
-:root  {
+:root {
   --background: 130 13% 95%;
   --foreground: 130 5% 0%;
   --card: 130 13% 90%;
@@ -33,7 +33,7 @@
   --warning-foreground: 48 100% 87%;
 }
 
-.dark  {
+.dark {
   --background: 130 13% 5%;
   --foreground: 130 5% 90%;
   --card: 130 13% 0%;
@@ -60,7 +60,9 @@
 }
 
 @layer components {
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     font-weight: 500;
     font-family: theme('fontFamily.header');
   }

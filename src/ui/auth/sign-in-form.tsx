@@ -13,7 +13,7 @@ import { authenticate, googleAuthenticate } from '@/lib/actions/auth/sign-in';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 import { InputPassword } from '@/ui/common/form/input-password';
-import { Logo } from "@/ui/common/logo";
+import { Logo } from '@/ui/common/logo';
 import { TextSeparator } from '@/ui/common/separator';
 import { GoogleSignIn } from './google-sign-in';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
@@ -26,10 +26,7 @@ export function SignInForm() {
     googleAuthenticate,
     undefined,
   );
-  const {
-    action: auth,
-    isLoading,
-  } = useAction(authenticate);
+  const { action: auth, isLoading } = useAction(authenticate);
 
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
@@ -53,10 +50,10 @@ export function SignInForm() {
   const hasErrors = loginError || errorMsgGoogle;
 
   return (
-    <div className="w-80 p-6 rounded-md bg-white text-secondary relative">
+    <div className="relative w-80 rounded-md bg-white p-6 text-secondary">
       <LoadingOverlay show={isLoading} className="rounded-md" />
 
-      <div className="h-14 flex justify-center mb-2">
+      <div className="mb-2 flex h-14 justify-center">
         <Logo />
       </div>
 

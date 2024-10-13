@@ -49,12 +49,12 @@ export async function signUp({ email, password }: Credentials) {
   } catch (error: unknown) {
     return {
       message:
-        error instanceof EmailRateLimit
-          ? error.message
-          : DEFAULT_ERROR_MESSAGE,
+        error instanceof EmailRateLimit ? error.message : DEFAULT_ERROR_MESSAGE,
     };
   }
 
   // Redirecting to the email verification page
-  redirect(`/email/verify/send?email=${encodeURIComponent(email)}&verification_sent=1`);
+  redirect(
+    `/email/verify/send?email=${encodeURIComponent(email)}&verification_sent=1`,
+  );
 }

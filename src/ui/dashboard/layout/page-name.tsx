@@ -11,9 +11,5 @@ const PATH_NAME_MAP = {
 export const PageName = () => {
   const pathname = usePathname();
 
-  return (
-    <h1>
-      {PATH_NAME_MAP[pathname as keyof typeof PATH_NAME_MAP]}
-    </h1>
-  )
+  return <h1>{PATH_NAME_MAP[pathname as keyof typeof PATH_NAME_MAP]}</h1>;
 };

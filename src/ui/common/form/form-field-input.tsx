@@ -23,7 +23,7 @@ export interface FormFieldInputProps extends InputProps {
   showTooltip?: boolean;
   inputComponent?: ElementType | FC<InputProps>;
   renderCustomInput?: (className: string) => ReactNode;
-  inputProps?: {[key: string]: unknown};
+  inputProps?: { [key: string]: unknown };
   tooltipContent?: ReactNode;
   allowedSymbols?: RegExp;
 }
@@ -50,26 +50,31 @@ export const FormFieldInput = ({
   const hasError = name in errors;
 
   const inputClassName = clsx({
-    'border-destructive [&+button>svg]:text-destructive [&>svg]:text-destructive': hasError,
+    'border-destructive [&+button>svg]:text-destructive [&>svg]:text-destructive':
+      hasError,
   });
 
   const renderInput = (field: ControllerRenderProps) => {
-    const input = renderCustomInput
-      ? renderCustomInput(inputClassName)
-      : (
-        <InputComponent
-          className={inputClassName}
-          placeholder={placeholder}
-          type={type}
-          onKeyDown={allowedSymbols ? (e: KeyboardEvent) => {
-            if (e.key.length > 1 || e.metaKey) return;
-            if (!allowedSymbols.test(e.key)) e.preventDefault();
-          } : undefined}
-          {...field}
-          {...props}
-          {...inputProps}
-        />
-      );
+    const input = renderCustomInput ? (
+      renderCustomInput(inputClassName)
+    ) : (
+      <InputComponent
+        className={inputClassName}
+        placeholder={placeholder}
+        type={type}
+        onKeyDown={
+          allowedSymbols
+            ? (e: KeyboardEvent) => {
+                if (e.key.length > 1 || e.metaKey) return;
+                if (!allowedSymbols.test(e.key)) e.preventDefault();
+              }
+            : undefined
+        }
+        {...field}
+        {...props}
+        {...inputProps}
+      />
+    );
 
     return tooltipContent ? (
       <TooltipWrapper

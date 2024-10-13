@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 type ReturnType =
   | { success: true }
-  | { errors: {[key: string]: string[]} }
+  | { errors: { [key: string]: string[] } }
   | { message: string }
   | undefined;
 
@@ -17,10 +17,10 @@ export const useAction = <Args extends unknown[], Result = ReturnType>(
     const result = await action(...params);
     setIsLoading(false);
     return result;
-  }
+  };
 
   return {
     action: decorator,
     isLoading,
-  }
-}
+  };
+};

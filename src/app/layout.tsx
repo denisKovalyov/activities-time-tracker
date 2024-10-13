@@ -30,17 +30,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-    <body className={`${lato.variable} ${montserrat.variable} font-sans bg-muted`}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
+      <body
+        className={`${lato.variable} ${montserrat.variable} bg-muted font-sans`}
       >
-        <AuthProvider>{children}</AuthProvider>
-        <Toaster />
-      </ThemeProvider>
-    </body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>{children}</AuthProvider>
+          <Toaster />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

@@ -4,7 +4,13 @@ import { ReactNode } from 'react';
 import { signOut } from '@/lib/actions/auth/sign-out';
 import { useToast } from '@/ui/hooks/use-toast';
 
-export const SignOutButton = ({ children, className }: { children: ReactNode, className: string }) => {
+export const SignOutButton = ({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}) => {
   const { toast } = useToast();
 
   const handleSignOut = async () => {
@@ -16,14 +22,11 @@ export const SignOutButton = ({ children, className }: { children: ReactNode, cl
         variant: 'destructive',
       });
     }
-  }
+  };
 
   return (
-    <button
-      onClick={handleSignOut}
-      className={className}
-    >
+    <button onClick={handleSignOut} className={className}>
       {children}
     </button>
   );
-}
+};

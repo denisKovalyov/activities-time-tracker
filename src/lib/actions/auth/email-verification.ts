@@ -40,9 +40,7 @@ export async function resendVerificationEmail(email: string) {
   } catch (error) {
     return {
       message:
-        error instanceof EmailRateLimit
-          ? error.message
-          : DEFAULT_ERROR_MESSAGE,
+        error instanceof EmailRateLimit ? error.message : DEFAULT_ERROR_MESSAGE,
     };
   }
 
@@ -61,7 +59,10 @@ export async function verifyEmail(email: string | null, token: string | null) {
     const user = await getUser(email);
 
     if (user?.email_verified) {
-      return { success: true, message: 'Email already verified. Please, re-login.' };
+      return {
+        success: true,
+        message: 'Email already verified. Please, re-login.',
+      };
     }
 
     if (!user || token !== user.email_verification_token) {
@@ -73,7 +74,10 @@ export async function verifyEmail(email: string | null, token: string | null) {
       email_verification_token: null,
     });
 
-    return { success: true, message: 'Email verified successfully. Please re-login.' };
+    return {
+      success: true,
+      message: 'Email verified successfully. Please re-login.',
+    };
   } catch (error) {
     console.error('Error verifying email:', error);
     return { message: DEFAULT_ERROR_MESSAGE };

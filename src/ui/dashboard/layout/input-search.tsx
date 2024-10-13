@@ -3,7 +3,7 @@ import { Input } from '@/ui/common/form/input';
 
 export const InputSearch = () => (
   <div className="relative ml-auto flex-1 md:grow-0">
-    <MagnifyingGlass className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/>
+    <MagnifyingGlass className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
     <Input
       type="search"
       placeholder="Search..."

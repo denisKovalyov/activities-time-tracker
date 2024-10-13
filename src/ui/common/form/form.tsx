@@ -12,7 +12,7 @@ import {
   useFormContext,
 } from 'react-hook-form';
 import { cn } from '@/lib/utils';
-import {useId} from 'react';
+import { useId } from 'react';
 
 const Form = FormProvider;
 
@@ -154,14 +154,10 @@ const FormMessage = React.forwardRef<
   }
 
   return (
-    <FormErrorMessage
-      id={formMessageId}
-      ref={ref}
-      {...props}
-    >
+    <FormErrorMessage id={formMessageId} ref={ref} {...props}>
       {body}
     </FormErrorMessage>
-  )
+  );
 });
 FormMessage.displayName = 'FormMessage';
 
@@ -170,7 +166,7 @@ const FormErrorMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, id, ...props }, ref) => (
   <div className="flex items-center text-destructive">
-    <WarningCircle weight="duotone" size="16" className="mr-1 flex-none"/>
+    <WarningCircle weight="duotone" size="16" className="mr-1 flex-none" />
     <p
       ref={ref}
       id={id}

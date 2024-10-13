@@ -28,11 +28,7 @@ export function SignUpForm() {
     googleAuthenticate,
     undefined,
   );
-  const {
-    action: signUp,
-    isLoading,
-  } = useAction(signUpAction);
-
+  const { action: signUp, isLoading } = useAction(signUpAction);
 
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
@@ -48,16 +44,17 @@ export function SignUpForm() {
     const result = await signUp(values);
 
     if (result?.message) setSignUpError(result.message);
-    if (result?.errors) matchFieldErrors<Credentials>(result.errors, form.setError);
+    if (result?.errors)
+      matchFieldErrors<Credentials>(result.errors, form.setError);
   };
 
   const hasErrors = signUpError || errorMsgGoogle;
 
   return (
-    <div className="w-80 p-6 rounded-md bg-white text-secondary relative">
+    <div className="relative w-80 rounded-md bg-white p-6 text-secondary">
       <LoadingOverlay show={isLoading} className="rounded-md" />
 
-      <div className="h-14 flex justify-center mb-2">
+      <div className="mb-2 flex h-14 justify-center">
         <Logo />
       </div>
 
@@ -81,7 +78,7 @@ export function SignUpForm() {
         </form>
       </Form>
 
-      <TextSeparator className="my-3" text="or"/>
+      <TextSeparator className="my-3" text="or" />
 
       <form action={dispatchGoogle}>
         <GoogleSignIn />

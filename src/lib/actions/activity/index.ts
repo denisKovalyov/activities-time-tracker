@@ -15,7 +15,9 @@ import {
 } from '@/lib/actions/data/record';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
-export async function getActivities(userId: string): Promise<ActivityExtended[] | { message: string }> {
+export async function getActivities(
+  userId: string,
+): Promise<ActivityExtended[] | { message: string }> {
   try {
     const [record, activities] = await Promise.all([
       dbGetRecord(userId),
@@ -31,7 +33,9 @@ export async function getActivities(userId: string): Promise<ActivityExtended[] 
   }
 }
 
-export async function createActivity(activity: Pick<Activity, 'user_id' | 'name' | 'color' | 'icon' | 'order'>) {
+export async function createActivity(
+  activity: Pick<Activity, 'user_id' | 'name' | 'color' | 'icon' | 'order'>,
+) {
   const validatedFields = ActivitySchema.safeParse(activity);
 
   // If form validation fails, return field errors early.
@@ -42,11 +46,16 @@ export async function createActivity(activity: Pick<Activity, 'user_id' | 'name'
   try {
     return await dbCreateActivity(activity);
   } catch (error: unknown) {
-    return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
+    return {
+      message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE,
+    };
   }
 }
 
-export async function updateActivity(id: string, activity: Partial<Pick<Activity, 'name' | 'color' | 'icon'>>) {
+export async function updateActivity(
+  id: string,
+  activity: Partial<Pick<Activity, 'name' | 'color' | 'icon'>>,
+) {
   const validatedFields = EditActivitySchema.safeParse(activity);
 
   // If form validation fails, return field errors early.
@@ -57,16 +66,22 @@ export async function updateActivity(id: string, activity: Partial<Pick<Activity
   try {
     return await dbUpdateActivity(id, activity);
   } catch (error: unknown) {
-    return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
+    return {
+      message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE,
+    };
   }
 }
 
-export async function reorderActivities(activitiesList: { id: string; order: number; }[]) {
+export async function reorderActivities(
+  activitiesList: { id: string; order: number }[],
+) {
   try {
     await dbReorderActivities(activitiesList);
     return { success: true };
   } catch (error: unknown) {
-    return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
+    return {
+      message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE,
+    };
   }
 }
 
@@ -78,6 +93,8 @@ export async function deleteActivity(userId: string, activityId: string) {
     ]);
     return { success: true };
   } catch (error: unknown) {
-    return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
+    return {
+      message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE,
+    };
   }
 }

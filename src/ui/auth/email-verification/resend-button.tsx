@@ -1,6 +1,6 @@
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/ui/common/button';
-import {LoadingOverlay} from '@/ui/common/loading-overlay';
+import { LoadingOverlay } from '@/ui/common/loading-overlay';
 
 export function ResendButton() {
   const { pending } = useFormStatus();

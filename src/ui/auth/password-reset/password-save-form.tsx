@@ -10,9 +10,12 @@ import { Button } from '@/ui/common/button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SaveNewPasswordSchema } from '@/lib/validation';
 import { authenticate } from '@/lib/actions/auth/sign-in';
-import { checkResetPasswordLink, saveNewPassword } from '@/lib/actions/auth/reset-password';
+import {
+  checkResetPasswordLink,
+  saveNewPassword,
+} from '@/lib/actions/auth/reset-password';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
-import {Skeleton} from '@/ui/common/skeleton';
+import { Skeleton } from '@/ui/common/skeleton';
 
 const TITLE = 'Save New Password';
 const TEXT = 'Please enter your new password below.';
@@ -62,13 +65,11 @@ export function PasswordSaveForm() {
   };
 
   if (isPageLoading) {
-    return (
-      <Skeleton className="w-80 h-72 rounded-md" />
-    );
+    return <Skeleton className="h-72 w-80 rounded-md" />;
   }
 
   return (
-    <div className="w-80 p-6 rounded-md bg-white text-secondary relative">
+    <div className="relative w-80 rounded-md bg-white p-6 text-secondary">
       <LoadingOverlay show={isLoading} className="rounded-md" />
 
       <div className="prose-lg mb-4 text-center text-primary">{TITLE}</div>

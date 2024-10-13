@@ -9,13 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground shadow hover:bg-primary/90 bg-opacity-10',
+        default:
+          'bg-primary text-primary-foreground shadow hover:bg-primary/90 bg-opacity-10',
         accent: 'bg-accent text-white shadow hover:bg-accent/80 bg-opacity-10',
         warning: 'bg-warning text-white hover:bg-warning/80 bg-opacity-10',
-        destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
+        destructive:
+          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
         outline:
           'border border-input bg-background text-primary shadow-sm hover:bg-primary/50 hover:text-primary-foreground',
-        secondary: 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
+        secondary: 'bg-secondary text-white shadow-sm hover:bg-secondary/80',
         ghost: 'hover:bg-primary/40 hover:text-primary-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
       },
@@ -42,35 +44,31 @@ export interface ButtonProps
   loading?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
-  className,
-  variant,
-  loading,
-  size,
-  asChild = false,
-  children,
-  ...props
-}, ref) => {
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    { className, variant, loading, size, asChild = false, children, ...props },
+    ref,
+  ) => {
     const Comp = asChild ? Slot : 'button';
 
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }), {
-          'relative': loading,
+          relative: loading,
         })}
         ref={ref}
         {...props}
       >
         {loading ? (
           <>
-            <span className="invisible contents">
-              {children}
-            </span>
-            <span className="absolute w-full h-full">
+            <span className="invisible contents">{children}</span>
+            <span className="absolute h-full w-full">
               <Spinner />
             </span>
           </>
-        ) : children}
+        ) : (
+          children
+        )}
       </Comp>
     );
   },

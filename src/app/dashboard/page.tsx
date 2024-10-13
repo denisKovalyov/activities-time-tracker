@@ -13,14 +13,19 @@ export default async function Activities() {
 
   return (
     <>
-      <div className="w-full h-full flex flex-col">
+      <div className="flex h-full w-full flex-col">
         <ActivitiesHeader activities={activities} />
 
         {activities.length === 0 ? (
-          <div className="w-full flex-1 flex">
+          <div className="flex w-full flex-1">
             <div className="m-auto flex flex-col items-center">
-              <FolderOpen className="w-28 h-auto text-primary" weight="duotone" />
-              <h2 className="font-normal text-primary">{'You don\'t have any activities yet'}</h2>
+              <FolderOpen
+                className="h-auto w-28 text-primary"
+                weight="duotone"
+              />
+              <h2 className="font-normal text-primary">
+                {"You don't have any activities yet"}
+              </h2>
             </div>
           </div>
         ) : (

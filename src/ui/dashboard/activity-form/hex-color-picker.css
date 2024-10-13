@@ -1,5 +1,5 @@
 .hexColorPicker.react-colorful {
-    width: 100%;
-    height: 150px;
-    border-radius: theme('fontFamily.header');
+  width: 100%;
+  height: 150px;
+  border-radius: theme('fontFamily.header');
 }

@@ -9,8 +9,13 @@ export function LoadingOverlay({
   className?: string;
 }) {
   return show ? (
-    <div className={cn('absolute z-50 top-0 left-0 right-0 bottom-0 bg-primary/60 flex', className)}>
-      <div className="m-auto text-white font-bold text-xl">
+    <div
+      className={cn(
+        'absolute bottom-0 left-0 right-0 top-0 z-50 flex bg-primary/60',
+        className,
+      )}
+    >
+      <div className="m-auto text-xl font-bold text-white">
         <h3 className="mb-4">Loading</h3>
         <Logo animate showHands={false} />
       </div>

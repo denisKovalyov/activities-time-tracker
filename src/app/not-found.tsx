@@ -5,8 +5,8 @@ import { CloudX } from '@phosphor-icons/react';
 
 export default function NotFound() {
   return (
-    <div className="h-screen w-full flex flex-col justify-center items-center [&>div]:!h-auto text-primary">
-      <CloudX className="w-28 h-auto" weight="duotone" />
+    <div className="flex h-screen w-full flex-col items-center justify-center text-primary [&>div]:!h-auto">
+      <CloudX className="h-auto w-28" weight="duotone" />
       <Error statusCode={404} />
     </div>
   );

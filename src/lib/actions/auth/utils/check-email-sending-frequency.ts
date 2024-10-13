@@ -1,4 +1,7 @@
-import { emailSentCache, CLEAN_UP_INTERVAL } from '@/lib/actions/email/email-cache';
+import {
+  emailSentCache,
+  CLEAN_UP_INTERVAL,
+} from '@/lib/actions/email/email-cache';
 import { EmailRateLimit } from '@/lib/errors';
 
 const EMAIL_RATE_LIMIT_MESSAGE =

@@ -32,7 +32,12 @@ type TooltipWrapperProps = {
   offset?: number;
 };
 
-const TooltipWrapper = ({ show, trigger, content, offset }: TooltipWrapperProps) => (
+const TooltipWrapper = ({
+  show,
+  trigger,
+  content,
+  offset,
+}: TooltipWrapperProps) => (
   <TooltipProvider delayDuration={300}>
     <Tooltip open={show}>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>

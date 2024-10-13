@@ -47,9 +47,7 @@ export async function sendResetPasswordLink(email: string) {
 
     return {
       message:
-        error instanceof EmailRateLimit
-          ? error.message
-          : DEFAULT_ERROR_MESSAGE,
+        error instanceof EmailRateLimit ? error.message : DEFAULT_ERROR_MESSAGE,
     };
   }
 

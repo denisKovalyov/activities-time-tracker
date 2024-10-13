@@ -13,16 +13,8 @@ import {
   CommandItem,
   CommandList,
 } from '@/ui/common/command';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-} from '@/ui/common/drawer';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/ui/common/popover';
+import { Drawer, DrawerContent, DrawerTrigger } from '@/ui/common/drawer';
+import { Popover, PopoverContent, PopoverTrigger } from '@/ui/common/popover';
 import { Icon, icons as iconsMap } from '@/ui/common/icon';
 import { cn } from '@/lib/utils';
 
@@ -45,7 +37,10 @@ export function IconPicker({
   };
 
   const TriggerButton = (
-    <Button variant="outline" className={cn('w-full justify-start px-3', className)}>
+    <Button
+      variant="outline"
+      className={cn('w-full justify-start px-3', className)}
+    >
       {selected ? (
         <>
           <span className="mr-2">Selected icon:</span>
@@ -61,28 +56,32 @@ export function IconPicker({
   if (isDesktop) {
     return (
       <Popover open={open} onOpenChange={setOpen} modal>
-        <PopoverTrigger asChild>
-          {TriggerButton}
-        </PopoverTrigger>
+        <PopoverTrigger asChild>{TriggerButton}</PopoverTrigger>
         <PopoverContent className="w-[256px] p-0" align="start" side="top">
-          <IconGrid setOpen={setOpen} onSelect={handleIconSelect} selectedIcon={selected} />
+          <IconGrid
+            setOpen={setOpen}
+            onSelect={handleIconSelect}
+            selectedIcon={selected}
+          />
         </PopoverContent>
       </Popover>
-    )
+    );
   }
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        {TriggerButton}
-      </DrawerTrigger>
+      <DrawerTrigger asChild>{TriggerButton}</DrawerTrigger>
       <DrawerContent>
         <div className="mt-4 border-t">
-          <IconGrid setOpen={setOpen} onSelect={handleIconSelect} selectedIcon={selected} />
+          <IconGrid
+            setOpen={setOpen}
+            onSelect={handleIconSelect}
+            selectedIcon={selected}
+          />
         </div>
       </DrawerContent>
     </Drawer>
-  )
+  );
 }
 
 function IconGrid({
@@ -98,10 +97,7 @@ function IconGrid({
 
   return (
     <Command>
-      <CommandInput
-        autoFocus
-        placeholder="Search icon..."
-      />
+      <CommandInput autoFocus placeholder="Search icon..." />
       <CommandList>
         <CommandEmpty>No icons found.</CommandEmpty>
         <CommandGroup
@@ -122,27 +118,32 @@ function IconGrid({
         </CommandGroup>
       </CommandList>
     </Command>
-  )
+  );
 }
 
-const IconGridItem = React.memo(({
-  name,
-  size,
-  selected,
-}: {
-  name: string;
-  size: string;
-  selected: boolean;
-}) => (
-  <CommandItem
-    value={name}
-    data-icon={name}
-    className={cn('cursor-pointer p-2 relative  after:absolute after:left-0 after:w-full after:h-full after:z-10', {
-      'bg-grayColored': selected,
-    })}
-  >
-    <Icon name={name} size={size} />
-  </CommandItem>
-));
+const IconGridItem = React.memo(
+  ({
+    name,
+    size,
+    selected,
+  }: {
+    name: string;
+    size: string;
+    selected: boolean;
+  }) => (
+    <CommandItem
+      value={name}
+      data-icon={name}
+      className={cn(
+        'relative cursor-pointer p-2  after:absolute after:left-0 after:z-10 after:h-full after:w-full',
+        {
+          'bg-grayColored': selected,
+        },
+      )}
+    >
+      <Icon name={name} size={size} />
+    </CommandItem>
+  ),
+);
 
 IconGridItem.displayName = 'IconGridItem';

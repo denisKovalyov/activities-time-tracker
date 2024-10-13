@@ -11,15 +11,24 @@ export async function createNewRecord(userId: string) {
     await dbCreateRecord(userId);
     return true;
   } catch (error: unknown) {
-    return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
+    return {
+      message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE,
+    };
   }
 }
 
-export async function recordActivityTime(userId: string, activityId: string, seconds: number, date?: Date) {
+export async function recordActivityTime(
+  userId: string,
+  activityId: string,
+  seconds: number,
+  date?: Date,
+) {
   try {
     await dbUpdateRecord(userId, activityId, seconds, date);
     return true;
   } catch (error: unknown) {
-    return { message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE };
+    return {
+      message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE,
+    };
   }
 }

@@ -33,9 +33,13 @@ export function SendLinkForm() {
     },
   });
 
-  const { action: sendResetPasswordLink, isLoading } = useAction(sendResetPasswordLinkAction);
+  const { action: sendResetPasswordLink, isLoading } = useAction(
+    sendResetPasswordLinkAction,
+  );
 
-  const onSubmit = async (values: z.infer<typeof SendResetPasswordLinkSchema>) => {
+  const onSubmit = async (
+    values: z.infer<typeof SendResetPasswordLinkSchema>,
+  ) => {
     setError(null);
 
     const result = await sendResetPasswordLink(values.email);
@@ -47,7 +51,7 @@ export function SendLinkForm() {
   const buttonText = notFoundLink ? 'Resend email' : 'Send email';
 
   return (
-    <div className="w-80 p-6 rounded-md bg-white text-secondary relative">
+    <div className="relative w-80 rounded-md bg-white p-6 text-secondary">
       <LoadingOverlay show={isLoading} className="rounded-md" />
 
       <div className="prose-lg mb-4 text-center text-primary">{title}</div>

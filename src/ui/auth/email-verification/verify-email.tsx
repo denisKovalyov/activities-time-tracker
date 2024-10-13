@@ -21,7 +21,10 @@ export default function VerifyEmail() {
 
   useEffect(() => {
     if (!isPageLoading) return;
-    const verify = async (emailDecoded: string | null, token: string | null) => {
+    const verify = async (
+      emailDecoded: string | null,
+      token: string | null,
+    ) => {
       const result = await verifyEmail(emailDecoded, token);
       setIsPageLoading(false);
 
@@ -31,31 +34,25 @@ export default function VerifyEmail() {
       }
 
       setError(result.message);
-    }
+    };
 
     let emailDecoded = email ? decodeURIComponent(email) : email;
     void verify(emailDecoded, token);
   }, [email, token, isPageLoading]);
 
   if (isPageLoading) {
-    return (
-      <Skeleton className="w-80 h-52 rounded-md" />
-    );
+    return <Skeleton className="h-52 w-80 rounded-md" />;
   }
 
   return (
-    <div className="w-80 p-6 rounded-md bg-white text-secondary text-center">
-      <div className="h-14 flex justify-center mb-4">
-        <Logo/>
+    <div className="w-80 rounded-md bg-white p-6 text-center text-secondary">
+      <div className="mb-4 flex h-14 justify-center">
+        <Logo />
       </div>
 
-      {error && (
-        <div className="prose-sm text-destructive">{error}</div>
-      )}
+      {error && <div className="prose-sm text-destructive">{error}</div>}
 
-      {success && (
-        <div className="prose-sm">{success}</div>
-      )}
+      {success && <div className="prose-sm">{success}</div>}
 
       <Link
         className={cn(

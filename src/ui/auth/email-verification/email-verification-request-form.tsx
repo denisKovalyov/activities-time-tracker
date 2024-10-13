@@ -24,20 +24,18 @@ export function EmailVerificationRequestForm() {
   const successMessage = formState?.success && formState?.message;
 
   return (
-    <div className="w-80 p-6 rounded-md bg-white text-secondary text-center relative">
-      <div className="h-14 flex justify-center mb-2">
-        <Logo/>
+    <div className="relative w-80 rounded-md bg-white p-6 text-center text-secondary">
+      <div className="mb-2 flex h-14 justify-center">
+        <Logo />
       </div>
 
-      <h2 className="prose-lg text-primary mb-4">Please verify your email first</h2>
+      <h2 className="prose-lg mb-4 text-primary">
+        Please verify your email first
+      </h2>
 
-      {errorMessage && (
-        <FormErrorMessage>{errorMessage}</FormErrorMessage>
-      )}
+      {errorMessage && <FormErrorMessage>{errorMessage}</FormErrorMessage>}
 
-      {successMessage && (
-        <div className="prose-sm">{successMessage}</div>
-      )}
+      {successMessage && <div className="prose-sm">{successMessage}</div>}
 
       {verificationSent && !errorMessage && !successMessage && (
         <div className="prose-sm">{DEFAULT_MESSAGE}</div>

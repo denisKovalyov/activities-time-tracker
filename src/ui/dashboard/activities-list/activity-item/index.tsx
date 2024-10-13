@@ -6,29 +6,34 @@ import { Reorder, useDragControls } from 'framer-motion';
 
 import { ActivityExtended } from '@/lib/definitions';
 import { Card } from '@/ui/common/card';
-import { cn } from '@/lib/utils';
 import { PlayPauseButton } from '@/ui/dashboard/activities-list/activity-item/play-pause-button';
 import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-icon';
 import { ActivityDropdownMenu } from '@/ui/dashboard/activities-list/activity-item/activity-dropdown-menu';
 import { RemoveActivityDialog } from '@/ui/dashboard/activities-list/remove-activity-dialog';
-import { ActionButtons } from '@/ui/dashboard/activities-list/activity-item/action-buttons';
+import {
+  ActionButtons,
+  BUTTONS_WIDTH,
+} from '@/ui/dashboard/activities-list/activity-item/action-buttons';
 import { DragButton } from '@/ui/dashboard/activities-list/activity-item/drag-button';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
 import { deleteActivity } from '@/lib/actions/activity';
 import { useToast } from '@/ui/hooks/use-toast';
 import { revalidateActivities } from '@/lib/actions/activity/revalidation';
 import { useRouter } from '@/ui/hooks/use-router';
-
-const BUTTONS_WIDTH = 110;
+import { cn } from '@/lib/utils';
 
 export const ActivityItem = ({
   activity,
   swiped,
+  showReorderButton,
+  onReorderClick,
   onSwipe,
   onCancelSwipe,
 }: {
   activity: ActivityExtended;
   swiped: boolean;
+  showReorderButton: boolean;
+  onReorderClick: () => void;
   onSwipe: (id: string) => void;
   onCancelSwipe: () => void;
 }) => {
@@ -40,52 +45,41 @@ export const ActivityItem = ({
   const ref = useRef(null);
 
   useEffect(() => {
+    if (showReorderButton) {
+      setShift(0);
+      return;
+    }
     if (swiped) setShift(-BUTTONS_WIDTH);
-  }, [swiped]);
+  }, [swiped, showReorderButton]);
 
   const { data: session } = useSession();
   const { toast } = useToast();
 
-  const {
-    router,
-    pathname,
-    stringifyQueryParams,
-  } = useRouter();
+  const { router, pathname, stringifyQueryParams } = useRouter();
 
-  const {
-    id,
-    name,
-    color,
-    icon,
-    timeSpent,
-  } = activity;
+  const { id, name, color, icon, timeSpent } = activity;
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      if (!isDragging) onSwipe(id);
-    },
-    onSwipedRight: () => {
-      if (swiped) onCancelSwipe();
+      onSwipe(id);
     },
     onSwiping: (e) => {
-      if (isDragging) return;
+      if (showReorderButton) return;
       if (!isSwiping) setIsSwiping(true);
-      console.log('---', e.dir);
-      if (e.dir === 'Left' && Math.abs(shift) <= BUTTONS_WIDTH) setShift(e.deltaX < -BUTTONS_WIDTH ? -BUTTONS_WIDTH : e.deltaX);
-      if (e.dir === 'Right') setShift((shift) => {
-        const delta = shift + e.absX;
-        return delta > 0 ? 0 : delta;
-      });
+      if (e.dir === 'Left' && Math.abs(shift) <= BUTTONS_WIDTH)
+        setShift(e.deltaX < -BUTTONS_WIDTH ? -BUTTONS_WIDTH : e.deltaX);
+      if (e.dir === 'Right')
+        setShift((shift) => {
+          const delta = shift + e.absX;
+          return delta > 0 ? 0 : delta;
+        });
     },
-    onSwiped: (e) => {
-      if (e.dir === 'Down' || e.dir === 'Up') {
-        const value = Math.abs(shift);
-        console.log('value', value);
-        if (value >= BUTTONS_WIDTH/2) setShift(-BUTTONS_WIDTH);
-        if (value < BUTTONS_WIDTH/2) setShift(0);
-      }
+    onSwiped: () => {
+      const value = -shift;
+      if (value >= BUTTONS_WIDTH / 2) setShift(-BUTTONS_WIDTH);
+      if (value < BUTTONS_WIDTH / 2) setShift(0);
       if (isSwiping) setIsSwiping(false);
-    }
+    },
   });
 
   const totalTimeSpent = useCalculateTimeValues(timeSpent);
@@ -114,7 +108,8 @@ export const ActivityItem = ({
     setShowRemoveDialog(false);
   };
 
-  const handleEditClick = () => router.push(`${pathname}?${stringifyQueryParams({ 'editActivity': id })}`);
+  const handleEditClick = () =>
+    router.push(`${pathname}?${stringifyQueryParams({ editActivity: id })}`);
 
   const controls = useDragControls();
   const startDrag = (e: PointerEvent) => controls.start(e);
@@ -132,46 +127,61 @@ export const ActivityItem = ({
         className="relative"
       >
         <div
-          className={cn('w-full mb-4 will-change-transform transition-transform duration-200 ease-in-out', {
-            'duration-0': isSwiping
-          })}
-          style={{ 'transform': isDragging ? 'none' : `translateX(${shift}px)`}}
+          className={cn(
+            'mb-4 w-full transition-transform duration-300 ease-in-out will-change-transform',
+            {
+              'duration-0': isSwiping,
+            },
+          )}
+          style={{ transform: isDragging ? 'none' : `translateX(${shift}px)` }}
           {...handlers}
         >
-          <Card className={cn('w-full flex flex-none justify-between items-center p-4', {
-            'rounded-r-none shadow-none': shift !== 0,
-          })}>
-            <div className="flex-none flex items-center max-w-[70%] overflow-hidden">
+          <Card
+            className={cn(
+              'flex w-full flex-none items-center justify-between p-4',
+              {
+                'rounded-r-none shadow-none': shift !== 0,
+              },
+            )}
+          >
+            <div className="flex max-w-[70%] flex-none items-center overflow-hidden">
               <PlayPauseButton className="flex-none" />
-              <span className="font-semibold mx-2 text-accent-foreground truncate">
-            {name}
-          </span>
-              <ActivityIcon className="flex-none" name={icon} color={`#${color}`} />
+              <span className="mx-2 truncate font-semibold text-accent-foreground">
+                {name}
+              </span>
+              <ActivityIcon
+                className="flex-none"
+                name={icon}
+                color={`#${color}`}
+              />
             </div>
 
-            <DragButton onDragStart={startDrag} />
+            <div className="flex flex-none items-center">
+              {showReorderButton ? (
+                <DragButton onDragStart={startDrag} />
+              ) : (
+                <span className="text-accent-foreground">
+                  {`${totalTimeSpent[0]}:${totalTimeSpent[1]}:${totalTimeSpent[2]}`}
+                </span>
+              )}
 
-            <div className="flex-none flex items-center">
-            <span className="text-accent-foreground">
-              {`${totalTimeSpent[0]}:${totalTimeSpent[1]}:${totalTimeSpent[2]}`}
-            </span>
               <ActivityDropdownMenu
-                className="hidden sm:inline-flex ml-2"
+                className="ml-2 hidden sm:inline-flex"
+                onReorderClick={onReorderClick}
                 onEditClick={handleEditClick}
                 onRemoveClick={handleDialogOpenChange}
               />
             </div>
           </Card>
 
-          <div
+          <ActionButtons
             ref={ref}
-            className="absolute top-0 bottom-0 right-0 translate-x-full flex rounded-r-md"
-          >
-            <ActionButtons
-              onEditClick={handleEditClick}
-              onRemoveClick={handleDialogOpenChange}
-            />
-          </div>
+            visibleWidth={-shift}
+            applyTransition={!isSwiping}
+            onReorderClick={onReorderClick}
+            onEditClick={handleEditClick}
+            onRemoveClick={handleDialogOpenChange}
+          />
         </div>
       </Reorder.Item>
 

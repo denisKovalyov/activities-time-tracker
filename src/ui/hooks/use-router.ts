@@ -1,4 +1,8 @@
-import { useRouter as useRouterNext, usePathname, useSearchParams } from 'next/navigation';
+import {
+  useRouter as useRouterNext,
+  usePathname,
+  useSearchParams,
+} from 'next/navigation';
 import { useCreateQueryString } from '@/ui/hooks/use-create-query-string';
 
 export const useRouter = () => {
@@ -13,4 +17,4 @@ export const useRouter = () => {
     searchParams,
     stringifyQueryParams,
   };
-}
+};

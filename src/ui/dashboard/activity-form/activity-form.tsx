@@ -16,7 +16,10 @@ import { LoadingOverlay } from '@/ui/common/loading-overlay';
 import { createActivity, updateActivity } from '@/lib/actions/activity';
 import { useToast } from '@/ui/hooks/use-toast';
 import { matchFieldErrors } from '@/ui/utils';
-import { checkActivityExists, retrieveUpdatedValues } from '@/ui/dashboard/activity-form/utils';
+import {
+  checkActivityExists,
+  retrieveUpdatedValues,
+} from '@/ui/dashboard/activity-form/utils';
 import './hex-color-picker.css';
 
 const ACTIVITY_ADD_SUCCESS = 'Activity was successfully added!';
@@ -36,7 +39,9 @@ export function ActivityForm({
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const editable = activityId ? activities.find(({ id }) => id === activityId) : null;
+  const editable = activityId
+    ? activities.find(({ id }) => id === activityId)
+    : null;
 
   const form = useForm<z.infer<typeof ActivitySchema>>({
     resolver: zodResolver(ActivitySchema),
@@ -47,28 +52,31 @@ export function ActivityForm({
     },
   });
 
-  const {
-    watch,
-    setValue,
-    trigger,
-    setError,
-  } = form;
+  const { watch, setValue, trigger, setError } = form;
 
   const [name, color, icon] = watch(['name', 'color', 'icon']);
 
   const changedValues = useMemo(
-    () => editable ? retrieveUpdatedValues(editable, { name, color, icon }) : null,
-    [editable, name, color, icon]);
+    () =>
+      editable ? retrieveUpdatedValues(editable, { name, color, icon }) : null,
+    [editable, name, color, icon],
+  );
 
-  const handleColorChange = useCallback((value: string) => {
-    setValue('color', value.slice(1));
-    void trigger('color');
-  }, [setValue, trigger]);
+  const handleColorChange = useCallback(
+    (value: string) => {
+      setValue('color', value.slice(1));
+      void trigger('color');
+    },
+    [setValue, trigger],
+  );
 
-  const handleIconChange = useCallback((iconName: string) => {
-    setValue('icon', iconName);
-    void trigger('icon');
-  }, [setValue, trigger]);
+  const handleIconChange = useCallback(
+    (iconName: string) => {
+      setValue('icon', iconName);
+      void trigger('icon');
+    },
+    [setValue, trigger],
+  );
 
   const handleSubmit = async (values: z.infer<typeof ActivitySchema>) => {
     const isExist = checkActivityExists(values, activities);
@@ -84,18 +92,19 @@ export function ActivityForm({
     const userId = session?.user?.id!;
     setIsLoading(true);
 
-    const result = activityId && changedValues
-      ? await updateActivity(activityId, changedValues)
-      : await createActivity({
-        ...values,
-        user_id: userId,
-        order: activities.length,
-      });
+    const result =
+      activityId && changedValues
+        ? await updateActivity(activityId, changedValues)
+        : await createActivity({
+            ...values,
+            user_id: userId,
+            order: activities.length,
+          });
 
     if ('errors' in result && result.errors) {
-      matchFieldErrors<Partial<Pick<ActivityExtended, 'name' | 'color' | 'icon'>>>(
-        result.errors, setError,
-      );
+      matchFieldErrors<
+        Partial<Pick<ActivityExtended, 'name' | 'color' | 'icon'>>
+      >(result.errors, setError);
       setIsLoading(false);
       return;
     }
@@ -118,14 +127,19 @@ export function ActivityForm({
     });
   };
 
-  const disableSubmit = changedValues ? !Object.keys(changedValues).length : false;
+  const disableSubmit = changedValues
+    ? !Object.keys(changedValues).length
+    : false;
 
   return (
-    <div className="w-2/3 min-w-64 mx-auto">
+    <div className="mx-auto w-2/3 min-w-64">
       <LoadingOverlay show={isLoading} />
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="[&>div]:mb-4 flex flex-col">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="flex flex-col [&>div]:mb-4"
+        >
           <FormFieldInput name="name" label="Name" />
 
           <ColorPicker

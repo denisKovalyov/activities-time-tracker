@@ -4,18 +4,18 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "bundle:analyze": "ANALYZE=true npm run build",
     "clean": "rm -r .next node_modules",
-    "db:reset": "node -r dotenv/config ./scripts/db-reset.js",
     "db:migrate": "node -r dotenv/config ./scripts/db-migrate.js",
-    "db:setup": "node -r dotenv/config ./scripts/db-setup.js && npm run db:migrate",
+    "db:reset": "node -r dotenv/config ./scripts/db-reset.js",
     "db:restart": "npm run db:reset && npm run db:setup && npm run db:migrate",
+    "db:setup": "node -r dotenv/config ./scripts/db-setup.js && npm run db:migrate",
+    "dev": "next dev -p 4000",
     "lint": "next lint",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
-    "test": "vitest run",
-    "bundle:analyze": "ANALYZE=true npm run build",
-    "dev": "next dev -p 4000",
-    "start": "next start"
+    "start": "next start",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

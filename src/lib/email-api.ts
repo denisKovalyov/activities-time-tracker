@@ -26,6 +26,5 @@ export const emailApiProvider = {
     }
 
     return data;
-  }
+  },
 };
-

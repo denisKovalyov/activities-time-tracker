@@ -24,15 +24,15 @@ export type Activity = {
   order: number;
   created_at: Date;
   updated_at: Date;
-}
+};
 
 export type ActivityExtended = Activity & {
   timeSpent: number;
-}
+};
 
 export type Record = {
   id: string;
   user_id: string;
   date: Date;
   activities: { [id: string]: number };
-}
+};

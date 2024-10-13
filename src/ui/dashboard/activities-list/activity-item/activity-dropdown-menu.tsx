@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  ArrowsDownUp,
   CaretCircleDown,
   PencilSimple,
   Trash,
@@ -15,14 +16,20 @@ import {
   DropdownMenuItem,
 } from '@/ui/common/dropdown-menu';
 
+const ITEMS = [
+  { label: 'Edit', icon: PencilSimple },
+  { label: 'Reorder', icon: ArrowsDownUp },
+  { label: 'Remove', icon: Trash },
+];
+
 export const ActivityDropdownMenu = ({
   className,
-  onEditClick,
-  onRemoveClick,
+  ...handlers
 }: {
-  onEditClick: () => void;
-  onRemoveClick: () => void;
   className: string;
+  onEditClick: () => void;
+  onReorderClick: () => void;
+  onRemoveClick: () => void;
 }) => {
   return (
     <DropdownMenu>
@@ -32,27 +39,21 @@ export const ActivityDropdownMenu = ({
           size="icon"
           className={cn('rounded-full', className)}
         >
-          <CaretCircleDown
-            className="w-5 h-5 text-primary dark:text-white"
-          />
+          <CaretCircleDown className="h-5 w-5 text-primary dark:text-white" />
         </Button>
-        </DropdownMenuTrigger>
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={onEditClick}
-          className="flex items-center cursor-pointer"
-        >
-          <span className="mr-1">Edit</span>
-          <PencilSimple size="15" />
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={onRemoveClick}
-          className="cursor-pointer"
-        >
-          <span className="mr-1">Remove</span>
-          <Trash size="15" />
-        </DropdownMenuItem>
+        {ITEMS.map(({ label, icon: Icon }) => (
+          <DropdownMenuItem
+            key={label}
+            onClick={handlers[`on${label}Click`]}
+            className="flex cursor-pointer items-center"
+          >
+            <span className="mr-1">{label}</span>
+            <Icon size="15" />
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};

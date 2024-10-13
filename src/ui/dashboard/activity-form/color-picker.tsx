@@ -7,21 +7,21 @@ import { HexColorPicker } from 'react-colorful';
 import { getRandomValue } from '@/lib/utils';
 
 const BASIC_COLORS = [
-  "#FF5733", // Bright Orange
-  "#33FF57", // Lime Green
-  "#3357FF", // Bright Blue
-  "#FF33A1", // Hot Pink
-  "#33FFF5", // Aqua
-  "#FFB833", // Golden Yellow
-  "#8033FF", // Purple
-  "#33FF83", // Light Green
-  "#FF3333", // Red
-  "#33A1FF", // Sky Blue
-  "#FF5733", // Coral
-  "#A833FF", // Violet
-  "#FFD633", // Sunflower Yellow
-  "#FF33B8", // Pink
-  "#33FFAD", // Mint Green
+  '#FF5733', // Bright Orange
+  '#33FF57', // Lime Green
+  '#3357FF', // Bright Blue
+  '#FF33A1', // Hot Pink
+  '#33FFF5', // Aqua
+  '#FFB833', // Golden Yellow
+  '#8033FF', // Purple
+  '#33FF83', // Light Green
+  '#FF3333', // Red
+  '#33A1FF', // Sky Blue
+  '#FF5733', // Coral
+  '#A833FF', // Violet
+  '#FFD633', // Sunflower Yellow
+  '#FF33B8', // Pink
+  '#33FFAD', // Mint Green
 ];
 
 export function ColorPicker({

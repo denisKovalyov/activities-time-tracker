@@ -8,14 +8,10 @@ import { cn } from '@/lib/utils';
 export type InputButtonProps = InputProps & {
   icon: ReactNode;
   onButtonClick?: () => void;
-}
+};
 
-const InputIcon = React.forwardRef<HTMLInputElement, InputButtonProps>(({
-    className,
-    icon ,
-    onButtonClick,
-    ...props
- }, ref) => {
+const InputIcon = React.forwardRef<HTMLInputElement, InputButtonProps>(
+  ({ className, icon, onButtonClick, ...props }, ref) => {
     return (
       <div className="relative">
         <Input
