@@ -46,7 +46,7 @@ export const ActivityDropdownMenu = ({
         {ITEMS.map(({ label, icon: Icon }) => (
           <DropdownMenuItem
             key={label}
-            onClick={handlers[`on${label}Click`]}
+            onClick={handlers[`on${label}Click` as keyof typeof handlers]}
             className="flex cursor-pointer items-center"
           >
             <span className="mr-1">{label}</span>

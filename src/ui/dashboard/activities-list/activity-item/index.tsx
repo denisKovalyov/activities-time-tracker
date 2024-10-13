@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, PointerEvent } from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useSwipeable } from 'react-swipeable';
 import { useSession } from 'next-auth/react';
@@ -112,7 +112,7 @@ export const ActivityItem = ({
     router.push(`${pathname}?${stringifyQueryParams({ editActivity: id })}`);
 
   const controls = useDragControls();
-  const startDrag = (e: PointerEvent) => controls.start(e);
+  const startDrag = (e: PointerEvent<HTMLButtonElement>) => controls.start(e);
   const handleDragStart = () => setIsDragging(true);
   const handleDragEnd = () => setIsDragging(false);
 

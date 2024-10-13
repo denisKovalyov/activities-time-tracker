@@ -82,20 +82,20 @@ const config = {
       keyframes: {
         'zoom-in': {
           '0%': {
-            opacity: 0,
+            opacity: '0',
             transform: 'scale3d(0.3, 0.3, 0.3)',
           },
           '80%': {
-            opacity: 0.8,
+            opacity: '0.8',
             transform: 'scale3d(1.3, 1.3, 1.3)',
           },
           '100%': {
-            opacity: 1,
+            opacity: '1',
           },
         },
         'fly-in': {
           '0%': {
-            opacity: 0,
+            opacity: '0',
             transform: 'scale3d(0.3, 0.3, 0.3)',
             transitionTimingFunction: 'cubic-bezier(0.215, 0.61, 0.355, 1)',
           },
@@ -106,14 +106,14 @@ const config = {
             transform: 'scale3d(0.9, 0.9, 0.9)',
           },
           '60%': {
-            opacity: 1,
+            opacity: '1',
             transform: 'scale3d(1.03, 1.03, 1.03)',
           },
           '80%': {
             transform: 'scale3d(0.97, 0.97, 0.97)',
           },
           '100%': {
-            opacity: 1,
+            opacity: '1',
             transform: 'scale3d(1, 1, 1)',
           },
         },
