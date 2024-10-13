@@ -74,3 +74,5 @@ export const ActionButtons = forwardRef<
     );
   },
 );
+
+ActionButtons.displayName = 'ActionButtons';
