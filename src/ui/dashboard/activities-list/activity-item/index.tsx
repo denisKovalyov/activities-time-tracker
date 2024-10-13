@@ -56,7 +56,6 @@ export const ActivityItem = ({
   const { toast } = useToast();
 
   const { router, pathname, stringifyQueryParams } = useRouter();
-
   const { id, name, color, icon, timeSpent } = activity;
 
   const handlers = useSwipeable({
@@ -141,6 +140,7 @@ export const ActivityItem = ({
               'flex w-full flex-none items-center justify-between p-4',
               {
                 'rounded-r-none shadow-none': shift !== 0,
+                'cursor-grabbing [&_button]:cursor-grabbing': isDragging,
               },
             )}
           >

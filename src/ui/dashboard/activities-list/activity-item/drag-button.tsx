@@ -16,7 +16,7 @@ export const DragButton = ({ onDragStart }: DragButtonProps) => {
     <Button
       variant="ghost"
       size="icon"
-      className={cn({
+      className={cn('cursor-grab', {
         'animate-zoom-in opacity-0': !animationCompleted,
       })}
       onPointerDown={onDragStart}
