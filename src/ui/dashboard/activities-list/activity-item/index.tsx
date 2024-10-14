@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, PointerEvent } from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useSwipeable } from 'react-swipeable';
-import { useSession } from 'next-auth/react';
 import { Reorder, useDragControls } from 'framer-motion';
 
 import { ActivityExtended } from '@/lib/definitions';
@@ -9,16 +8,12 @@ import { Card } from '@/ui/common/card';
 import { PlayPauseButton } from '@/ui/dashboard/activities-list/activity-item/play-pause-button';
 import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-icon';
 import { ActivityDropdownMenu } from '@/ui/dashboard/activities-list/activity-item/activity-dropdown-menu';
-import { RemoveActivityDialog } from '@/ui/dashboard/activities-list/remove-activity-dialog';
 import {
   ActionButtons,
   BUTTONS_WIDTH,
 } from '@/ui/dashboard/activities-list/activity-item/action-buttons';
 import { DragButton } from '@/ui/dashboard/activities-list/activity-item/drag-button';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
-import { deleteActivity } from '@/lib/actions/activity';
-import { useToast } from '@/ui/hooks/use-toast';
-import { revalidateActivities } from '@/lib/actions/activity/revalidation';
 import { useRouter } from '@/ui/hooks/use-router';
 import { cn } from '@/lib/utils';
 
@@ -40,8 +35,6 @@ export const ActivityItem = ({
   const [shift, setShift] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -51,9 +44,6 @@ export const ActivityItem = ({
     }
     if (swiped) setShift(-BUTTONS_WIDTH);
   }, [swiped, showReorderButton]);
-
-  const { data: session } = useSession();
-  const { toast } = useToast();
 
   const { router, pathname, stringifyQueryParams } = useRouter();
   const { id, name, color, icon, timeSpent } = activity;
@@ -90,25 +80,10 @@ export const ActivityItem = ({
 
   useOnClickOutside(ref, handleClickOutsideButtons, 'touchstart');
 
-  const handleDialogOpenChange = () => setShowRemoveDialog((state) => !state);
-
-  const removeActivity = async () => {
-    setIsLoading(true);
-
-    const result = await deleteActivity(session?.user?.id!, id);
-    if (result.success) void revalidateActivities();
-
-    toast({
-      title: result?.message || 'Activity was successfully removed!',
-      variant: result?.message ? 'destructive' : 'success',
-    });
-
-    setIsLoading(false);
-    setShowRemoveDialog(false);
-  };
-
   const handleEditClick = () =>
     router.push(`${pathname}?${stringifyQueryParams({ editActivity: id })}`);
+  const handleRemoveClick = () =>
+    router.push(`${pathname}?${stringifyQueryParams({ removeActivity: id })}`);
 
   const controls = useDragControls();
   const startDrag = (e: PointerEvent<HTMLButtonElement>) => controls.start(e);
@@ -169,7 +144,7 @@ export const ActivityItem = ({
                 className="ml-2 hidden sm:inline-flex"
                 onReorderClick={onReorderClick}
                 onEditClick={handleEditClick}
-                onRemoveClick={handleDialogOpenChange}
+                onRemoveClick={handleRemoveClick}
               />
             </div>
           </Card>
@@ -180,18 +155,10 @@ export const ActivityItem = ({
             applyTransition={!isSwiping}
             onReorderClick={onReorderClick}
             onEditClick={handleEditClick}
-            onRemoveClick={handleDialogOpenChange}
+            onRemoveClick={handleRemoveClick}
           />
         </div>
       </Reorder.Item>
-
-      <RemoveActivityDialog
-        show={showRemoveDialog}
-        loading={isLoading}
-        onConfirm={removeActivity}
-        onOpenChange={handleDialogOpenChange}
-        activity={{ name, id, icon, color }}
-      />
     </>
   );
 };

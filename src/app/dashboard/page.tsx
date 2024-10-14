@@ -1,6 +1,7 @@
 import { auth } from '@/auth';
 import { ActivitiesHeader } from '@/ui/dashboard/activities-header';
 import { ActivityDialog } from '@/ui/dashboard/activity-dialog';
+import { RemoveActivityDialog } from '@/ui/dashboard/remove-activity-dialog';
 import { ActivitiesList } from '@/ui/dashboard/activities-list/activities-list';
 import { getActivities } from '@/lib/actions/activity';
 import { FolderOpen } from '@phosphor-icons/react/dist/ssr';
@@ -34,6 +35,7 @@ export default async function Activities() {
       </div>
 
       <ActivityDialog activities={activities} />
+      <RemoveActivityDialog activities={activities} />
     </>
   );
 }
