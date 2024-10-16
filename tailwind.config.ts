@@ -76,28 +76,14 @@ const config = {
       },
       animation: {
         'bounce-finished': 'bounce 1s cubic-bezier(0.25, 1, 0.5, 1)',
-        'zoom-in': 'zoom-in 1s ease-in-out 0.25s 1 forwards',
-        'fly-in': 'fly-in 0.8s ease-in-out 0.25s 1 forwards',
+        'fly-in': 'fly-in 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) 0.25s 1 forwards',
+        'vertical-shake': 'vertical-shake 0.5s ease-in-out 1',
       },
       keyframes: {
-        'zoom-in': {
-          '0%': {
-            opacity: '0',
-            transform: 'scale3d(0.3, 0.3, 0.3)',
-          },
-          '80%': {
-            opacity: '0.8',
-            transform: 'scale3d(1.3, 1.3, 1.3)',
-          },
-          '100%': {
-            opacity: '1',
-          },
-        },
         'fly-in': {
           '0%': {
             opacity: '0',
             transform: 'scale3d(0.3, 0.3, 0.3)',
-            transitionTimingFunction: 'cubic-bezier(0.215, 0.61, 0.355, 1)',
           },
           '20%': {
             transform: 'scale3d(1.1, 1.1, 1.1)',
@@ -116,6 +102,11 @@ const config = {
             opacity: '1',
             transform: 'scale3d(1, 1, 1)',
           },
+        },
+        'vertical-shake': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '25%': { transform: 'translateY(-5px)' },
+          '75%': { transform: 'translateY(5px)' },
         },
       },
     },

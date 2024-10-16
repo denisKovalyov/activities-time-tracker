@@ -5,7 +5,10 @@ import { redirect } from 'next/navigation';
 
 const ACTIVITIES_PATH = '/dashboard';
 
-export async function revalidateActivities() {
-  revalidatePath(ACTIVITIES_PATH);
+export async function refetchActivities() {
+  await revalidatePath(ACTIVITIES_PATH);
+}
+
+export async function goToActivitiesPage() {
   redirect(ACTIVITIES_PATH);
 }

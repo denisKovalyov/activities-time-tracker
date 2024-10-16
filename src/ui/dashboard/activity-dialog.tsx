@@ -2,9 +2,9 @@
 
 import { DialogWrapper } from '@/ui/common/dialog';
 import { ActivityForm } from '@/ui/dashboard/activity-form/activity-form';
-import { revalidateActivities } from '@/lib/actions/activity/revalidation';
 import { ActivityExtended } from '@/lib/definitions';
 import { useRouter } from '@/ui/hooks/use-router';
+import { goToActivitiesPage, refetchActivities } from '@/lib/actions/activity/app';
 
 const ADD_ACTIVITY_SUBHEADER =
   'Create an Activity to Monitor and Optimize Your Time';
@@ -27,6 +27,11 @@ export const ActivityDialog = ({
     ? ADD_ACTIVITY_SUBHEADER
     : EDIT_ACTIVITY_SUBHEADER;
 
+  const handleSubmit = async () => {
+    await refetchActivities();
+    void goToActivitiesPage();
+  }
+
   return (
     <DialogWrapper
       show={showDialog}
@@ -39,7 +44,7 @@ export const ActivityDialog = ({
         <ActivityForm
           activityId={editActivityId}
           activities={activities}
-          onSubmit={revalidateActivities}
+          onSubmit={handleSubmit}
         />
       }
     />

@@ -17,13 +17,13 @@ export const DragButton = ({ onDragStart }: DragButtonProps) => {
       variant="ghost"
       size="icon"
       className={cn('cursor-grab', {
-        'animate-zoom-in opacity-0': !animationCompleted,
+        'animate-fly-in opacity-0': !animationCompleted,
       })}
-      onPointerDown={onDragStart}
       style={{ touchAction: 'none' }}
+      onPointerDown={onDragStart}
       onAnimationEnd={handleAnimationEnd}
     >
-      <List className="h-5 w-5 text-primary dark:text-white" />
+      <List className="h-6 w-6 text-primary dark:text-white" />
     </Button>
   );
 };

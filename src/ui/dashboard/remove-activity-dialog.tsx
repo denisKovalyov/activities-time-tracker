@@ -5,9 +5,9 @@ import { useState } from 'react';
 import { DialogWrapper } from '@/ui/common/dialog';
 import { ActivityExtended } from '@/lib/definitions';
 import { Button } from '@/ui/common/button';
-import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-icon';
+import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activity-icon';
 import { deleteActivity } from '@/lib/actions/activity';
-import { revalidateActivities } from '@/lib/actions/activity/revalidation';
+import { refetchActivities } from '@/lib/actions/activity/app';
 import { useRouter } from '@/ui/hooks/use-router';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/ui/hooks/use-toast';
@@ -31,15 +31,17 @@ export const RemoveActivityDialog = ({
   const handleConfirm = async () => {
     setIsLoading(true);
 
-    const result = await deleteActivity(session?.user?.id!, activityId);
-    if (result.success) void revalidateActivities();
+    const result = await deleteActivity(session?.user?.id!, activityId!);
 
     toast({
       title: result?.message || 'Activity was successfully removed!',
       variant: result?.message ? 'destructive' : 'success',
     });
 
-    setIsLoading(false);
+    if (result.success) {
+      await refetchActivities();
+    }
+
     redirect();
   };
 

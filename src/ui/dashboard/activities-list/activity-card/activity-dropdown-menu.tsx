@@ -15,6 +15,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/ui/common/dropdown-menu';
+import { ActionHandlers } from '@/ui/dashboard/activities-list/types';
 
 const ITEMS = [
   { label: 'Edit', icon: PencilSimple },
@@ -27,10 +28,12 @@ export const ActivityDropdownMenu = ({
   ...handlers
 }: {
   className: string;
-  onEditClick: () => void;
-  onReorderClick: () => void;
-  onRemoveClick: () => void;
+  onEdit: () => void;
+  onRemove: () => void;
+  onReorder?: () => void;
 }) => {
+  const menuItems = handlers.onReorder ? ITEMS : ITEMS.filter(({ label }) => label !== 'Reorder');
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,14 +42,14 @@ export const ActivityDropdownMenu = ({
           size="icon"
           className={cn('rounded-full', className)}
         >
-          <CaretCircleDown className="h-5 w-5 text-primary dark:text-white" />
+          <CaretCircleDown className="h-6 w-6 text-primary dark:text-white" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {ITEMS.map(({ label, icon: Icon }) => (
+        {menuItems.map(({ label, icon: Icon }) => (
           <DropdownMenuItem
             key={label}
-            onClick={handlers[`on${label}Click` as keyof typeof handlers]}
+            onClick={handlers[`on${label}` as keyof typeof handlers]}
             className="flex cursor-pointer items-center"
           >
             <span className="mr-1">{label}</span>

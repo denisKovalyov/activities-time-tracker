@@ -1,4 +1,4 @@
-import type { Activity } from '@/lib/definitions';
+import type {Activity, ActivityExtended} from '@/lib/definitions';
 import { sql } from '@vercel/postgres';
 import { getUpdatedFields } from '@/lib/actions/data/utils';
 
@@ -61,17 +61,22 @@ export async function updateActivity(
 
 export async function reorderActivities(
   activitiesList: { id: string; order: number }[],
-): Promise<void> {
+): Promise<ActivityExtended[]> {
   try {
     const updatedAt = new Date().toISOString();
+    const dataSet = activitiesList.reduce((str, { id, order}, i) => {
+      const value = `('${id}'::uuid, ${order})`;
+      return str + (i > 0 ? ', ' + value  : value);
+    }, '');
 
-    await Promise.all(
-      activitiesList.map(({ id, order: orderValue }) =>
-        sql.query(
-          `UPDATE activity SET order=${orderValue}, updated_at=${updatedAt} WHERE id='${id}'`,
-        ),
-      ),
-    );
+    const result = await sql.query(`
+      UPDATE activity SET "order" = data.new_order, updated_at = '${updatedAt}'
+      FROM (VALUES ${dataSet}) AS data(id, new_order)
+      WHERE activity.id = data.id
+      RETURNING *;
+    `);
+
+    return result.rows;
   } catch (error) {
     console.error('DB: failed to update order of activities:', error);
     throw new Error('Failed to update order of activities.');
