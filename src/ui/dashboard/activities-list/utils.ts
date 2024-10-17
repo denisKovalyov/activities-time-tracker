@@ -9,3 +9,13 @@ export const getReorderedActivities = (activitiesList: ActivityExtended[], reord
 
   return result;
 }
+
+export const getLatestUpdateTimestamp = (activitiesList: ActivityExtended[]) => {
+  let timestamp = 0;
+
+  activitiesList.forEach(({ updated_at: updatedAt }) => {
+    if (+updatedAt > timestamp) timestamp = +updatedAt;
+  });
+
+  return timestamp;
+}

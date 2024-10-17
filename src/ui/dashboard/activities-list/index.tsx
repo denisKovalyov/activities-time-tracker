@@ -3,6 +3,7 @@
 import { ActivitiesListWrapperProps } from '@/ui/dashboard/activities-list/types';
 import { ReorderList } from '@/ui/dashboard/activities-list/reorder-list';
 import { ActivitiesList } from '@/ui/dashboard/activities-list/activities-list';
+import { ActivitiesProvider } from '@/ui/dashboard/activities-list/activities-context';
 import { useRouter } from '@/ui/hooks/use-router';
 
 export const ActivitiesListWrapper = ({
@@ -21,13 +22,16 @@ export const ActivitiesListWrapper = ({
   const List = reorderMode ? ReorderList : ActivitiesList;
 
   return (
-    <div className="mx-auto mt-4 w-full max-w-3xl overflow-x-hidden">
-      <List
-        activities={activities}
-        onReorder={handleReorder}
-        onEdit={handleEdit}
-        onRemove={handleRemove}
-      />
-    </div>
+    <ActivitiesProvider
+      activities={activities}
+    >
+      <div className="mx-auto mt-4 w-full max-w-3xl overflow-x-hidden">
+        <List
+          onReorder={handleReorder}
+          onEdit={handleEdit}
+          onRemove={handleRemove}
+        />
+      </div>
+    </ActivitiesProvider>
   );
 };

@@ -10,4 +10,4 @@ export type ActionHandlers = {
   onRemove: (id: string) => void;
 }
 
-export type ActivitiesListProps = ActivitiesListWrapperProps & ActionHandlers;
+export type ActivitiesListProps =  ActionHandlers;

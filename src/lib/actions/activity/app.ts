@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 const ACTIVITIES_PATH = '/dashboard';
 
 export async function refetchActivities() {
-  await revalidatePath(ACTIVITIES_PATH);
+  revalidatePath(ACTIVITIES_PATH);
 }
 
 export async function goToActivitiesPage() {
