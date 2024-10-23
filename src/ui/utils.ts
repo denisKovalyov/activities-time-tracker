@@ -12,3 +12,5 @@ export const matchFieldErrors = <T>(
       setError(field, { message, type: 'custom' });
     },
   );
+
+export const padWithZero = (value: number) => (value < 10 ? `0${value}` : `${value}`);

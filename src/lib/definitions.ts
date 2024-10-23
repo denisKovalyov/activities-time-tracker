@@ -30,9 +30,10 @@ export type ActivityExtended = Activity & {
   timeSpent: number;
 };
 
-export type Record = {
+export type ActivityRecord = {
   id: string;
   user_id: string;
   date: Date;
+  current_activity: [string, string] | null;
   activities: { [id: string]: number };
 };

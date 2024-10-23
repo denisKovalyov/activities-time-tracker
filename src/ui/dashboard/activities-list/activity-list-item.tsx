@@ -7,10 +7,10 @@ import {
   BUTTONS_WIDTH,
 } from '@/ui/dashboard/activities-list/activity-card/action-buttons';
 import { ActivityCard } from '@/ui/dashboard/activities-list/activity-card/activity-card';
-import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
-import { cn } from '@/lib/utils';
+import { useStopwatch } from '@/ui/hooks/use-stopwatch';
 import { ActivityExtended } from '@/lib/definitions';
-import { ActionHandlers } from '@/ui/dashboard/activities-list/types';
+import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
+import { cn } from '@/lib/utils';
 
 export const ActivityListItem = ({
   activity,
@@ -25,16 +25,24 @@ export const ActivityListItem = ({
   swiped: boolean;
   onSwipe: (id: string) => void;
   onCancelSwipe: () => void;
-} & ActionHandlers) => {
+} & ActivitiesListProps) => {
   const [shift, setShift] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const ref = useRef(null);
 
+  const { id } = activity;
+
+  const {
+    isActive,
+    hours,
+    minutes,
+    seconds,
+    onStartStop,
+  } = useStopwatch(id);
+
   useEffect(() => {
     if (swiped) setShift(-BUTTONS_WIDTH);
   }, [swiped]);
-
-  const { id, timeSpent } = activity;
 
   const handlers = useSwipeable({
     onSwipedLeft: () => onSwipe(id),
@@ -56,8 +64,6 @@ export const ActivityListItem = ({
     },
   });
 
-  const totalTimeSpent = useCalculateTimeValues(timeSpent);
-
   const handleClickOutsideButtons = () => {
     setShift(0);
     if (swiped) onCancelSwipe();
@@ -67,6 +73,9 @@ export const ActivityListItem = ({
 
   const handleEdit = () => onEdit(id);
   const handleRemove = () => onRemove(id);
+  const handleRecord = () => onStartStop();
+
+  // console.log('name: ', name, id);
 
   return (
     <div
@@ -82,12 +91,14 @@ export const ActivityListItem = ({
       <ActivityCard
         className={shift !== 0 ? 'rounded-r-none shadow-none' : ''}
         activity={activity}
+        isActive={isActive}
         onReorder={onReorder}
         onEdit={handleEdit}
         onRemove={handleRemove}
+        onRecord={handleRecord}
       >
-        <span className="text-accent-foreground">
-          {`${totalTimeSpent[0]}:${totalTimeSpent[1]}:${totalTimeSpent[2]}`}
+        <span className="text-accent-foreground" suppressHydrationWarning>
+          {`${hours}:${minutes}:${seconds}`}
         </span>
       </ActivityCard>
 

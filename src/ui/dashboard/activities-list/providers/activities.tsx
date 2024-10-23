@@ -1,11 +1,12 @@
-import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { ActivityExtended } from '@/lib/definitions';
 import { reorderActivities } from '@/lib/actions/activity';
 import { refetchActivities } from '@/lib/actions/activity/app';
-import {getLatestUpdateTimestamp, getReorderedActivities} from '@/ui/dashboard/activities-list/utils';
+import { getReorderedActivities, isListHasChanged } from '@/ui/dashboard/activities-list/utils';
 import { useToast } from '@/ui/hooks/use-toast';
+import { noop } from '@/lib/utils';
 
 interface ActivitiesContextProps {
   activitiesList: ActivityExtended[];
@@ -13,10 +14,10 @@ interface ActivitiesContextProps {
   handleReorderDebounced: (activitiesList: ActivityExtended[]) => void;
 }
 
-export const ActivitiesContext = createContext<ActivitiesContextProps>({
+export const Activities = createContext<ActivitiesContextProps>({
   activitiesList: [],
-  handleReorder: () => {},
-  handleReorderDebounced: () => {},
+  handleReorder: noop,
+  handleReorderDebounced: noop,
 });
 
 export const ActivitiesProviderComponent: React.FC<{
@@ -28,16 +29,12 @@ export const ActivitiesProviderComponent: React.FC<{
 }) => {
   const [activitiesList, setActivitiesList] =
     useState<ActivityExtended[]>(activities);
-  const [latestUpdate, setLatestUpdate] = useState(0);
+  const [previousList, setPreviousList] = useState<ActivityExtended[]>([]);
 
-  useEffect(() => {
-    const timestamp = getLatestUpdateTimestamp(activities);
-
-    if (timestamp > latestUpdate) {
-      setLatestUpdate(timestamp);
-      setActivitiesList(activities);
-    }
-  }, [activities, latestUpdate]);
+  if (isListHasChanged(previousList, activities)) {
+    setActivitiesList(activities);
+    setPreviousList(activities);
+  }
 
   const { toast } = useToast();
 
@@ -74,7 +71,7 @@ export const ActivitiesProviderComponent: React.FC<{
   );
 
   return (
-    <ActivitiesContext.Provider
+    <Activities.Provider
       value={{
         activitiesList,
         handleReorderDebounced,
@@ -82,12 +79,12 @@ export const ActivitiesProviderComponent: React.FC<{
       }}
     >
       {children}
-    </ActivitiesContext.Provider>
+    </Activities.Provider>
   );
 };
 
 export const useActivities = () => {
-  const context = useContext(ActivitiesContext);
+  const context = useContext(Activities);
   if (!context) {
     throw new Error('useActivities must be used within an ActivitiesProvider');
   }

@@ -3,7 +3,7 @@
 import React, { ReactNode } from 'react';
 import { Input, InputProps } from './input';
 import { Button } from '@/ui/common/button';
-import { cn } from '@/lib/utils';
+import { cn, noop } from '@/lib/utils';
 
 export type InputButtonProps = InputProps & {
   icon: ReactNode;
@@ -27,7 +27,7 @@ const InputIcon = React.forwardRef<HTMLInputElement, InputButtonProps>(
           className={cn('absolute right-0 top-0', {
             'pointer-events-none': !onButtonClick,
           })}
-          onClick={onButtonClick || (() => {})}
+          onClick={onButtonClick || noop}
         >
           {icon}
         </Button>

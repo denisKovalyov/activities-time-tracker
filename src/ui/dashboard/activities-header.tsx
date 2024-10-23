@@ -5,21 +5,25 @@ import { ConfirmReorderingButton } from '@/ui/dashboard/confirm-reordering-butto
 import { ActivityExtended } from '@/lib/definitions';
 import { useRouter } from '@/ui/hooks/use-router';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
+import { getSecondsPassed } from '@/lib/actions/data/utils';
 
 const headerBlockClasses =
   'flex justify-center items-center w-full py-4 px-4 bg-primary text-white font-bold truncate';
 
 export const ActivitiesHeader = ({
   activities,
+  startTimestamp,
 }: {
   activities: ActivityExtended[];
+  startTimestamp: string | null;
 }) => {
   const { searchParams } = useRouter();
 
   const reorderMode = Boolean(searchParams.get('reorder'));
 
   const totalTimeSpent = useCalculateTimeValues(
-    activities.reduce((acc, curr) => acc + (curr?.timeSpent || 0), 0),
+    getSecondsPassed(startTimestamp) +
+     activities.reduce((acc, curr) => acc + (curr?.timeSpent || 0), 0),
   );
 
   return (
@@ -39,7 +43,7 @@ export const ActivitiesHeader = ({
 
       <div className={`${headerBlockClasses} rounded-r-full`}>
         {activities.length ? (
-          <span>{`${totalTimeSpent[0]}:${totalTimeSpent[1]}:${totalTimeSpent[2]}`}</span>
+          <span suppressHydrationWarning>{`${totalTimeSpent[0]}:${totalTimeSpent[1]}:${totalTimeSpent[2]}`}</span>
         ) : (
           <span className="truncate">To Start Using App</span>
         )}

@@ -15,7 +15,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/ui/common/dropdown-menu';
-import { ActionHandlers } from '@/ui/dashboard/activities-list/types';
 
 const ITEMS = [
   { label: 'Edit', icon: PencilSimple },

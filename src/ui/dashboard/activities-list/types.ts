@@ -1,13 +1,15 @@
-import { ActivityExtended } from '@/lib/definitions';
+import { ActivityExtended, ActivityRecord } from '@/lib/definitions';
 
 export type ActivitiesListWrapperProps = {
+  activeActivity: ActivityRecord['current_activity'] | null;
   activities: ActivityExtended[];
+  activitiesTimeMap: {[id: ActivityExtended['id']]: ActivityExtended['timeSpent']}
 }
 
-export type ActionHandlers = {
-  onReorder: () => void;
+export type ActivitiesListProps = {
+  recordingId: string | null
+  onRecord: (id: string) => void;
   onEdit: (id: string) => void;
   onRemove: (id: string) => void;
-}
-
-export type ActivitiesListProps =  ActionHandlers;
+  onReorder: () => void;
+};

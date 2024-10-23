@@ -8,14 +8,13 @@ export const getReorderedActivities = (activitiesList: ActivityExtended[], reord
   });
 
   return result;
-}
+};
 
-export const getLatestUpdateTimestamp = (activitiesList: ActivityExtended[]) => {
-  let timestamp = 0;
+export const isListHasChanged = (list: ActivityExtended[], updatedList: ActivityExtended[]) => {
+  if (list.length !== updatedList.length) return true;
 
-  activitiesList.forEach(({ updated_at: updatedAt }) => {
-    if (+updatedAt > timestamp) timestamp = +updatedAt;
+  return list.some(({ updated_at: updatedAt, timeSpent }, index) => {
+    const updatedItem = updatedList[index];
+    if (+updatedAt !== +updatedItem.updated_at || timeSpent !== updatedItem.timeSpent) return true;
   });
-
-  return timestamp;
-}
+};

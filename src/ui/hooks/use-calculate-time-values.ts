@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
+import { padWithZero } from '@/ui/utils';
 
-const padWithZero = (value: number) => (value < 10 ? `0${value}` : `${value}`);
 const calculateTimeValues = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
