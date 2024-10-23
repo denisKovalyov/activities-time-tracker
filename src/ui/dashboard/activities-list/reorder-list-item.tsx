@@ -7,6 +7,7 @@ import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
 import { ActivityExtended } from '@/lib/definitions';
 import { useRecord } from '@/ui/dashboard/activities-list/providers/record';
 import { cn } from '@/lib/utils';
+import {useStopwatch} from '@/ui/hooks/use-stopwatch';
 
 export const ReorderListItem = ({
   activity,
@@ -17,13 +18,10 @@ export const ReorderListItem = ({
 } & ActivitiesListProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
-  const controls = useDragControls();
-  const {
-    activeActivityId,
-    onRecord,
-  } = useRecord();
-
   const { id } = activity;
+
+  const controls = useDragControls();
+  const { isActive, onStartStop } = useStopwatch(id);
 
   const startDrag = (e: PointerEvent<HTMLButtonElement>) => controls.start(e);
   const handleDragStart = () => setIsDragging(true);
@@ -31,7 +29,7 @@ export const ReorderListItem = ({
 
   const handleEdit = () => onEdit(id);
   const handleRemove = () => onRemove(id);
-  const handleRecord = () => onRecord(id);
+  const handleRecord = () => onStartStop();
 
   return (
     <Reorder.Item
@@ -47,7 +45,7 @@ export const ReorderListItem = ({
           'cursor-grabbing [&_button]:cursor-grabbing': isDragging,
         })}
         activity={activity}
-        isRunning={activeActivityId === id}
+        isActive={isActive}
         onEdit={handleEdit}
         onRemove={handleRemove}
         onRecord={handleRecord}
