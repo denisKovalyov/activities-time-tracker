@@ -8,6 +8,8 @@ import { getReorderedActivities, isListHasChanged } from '@/ui/dashboard/activit
 import { useToast } from '@/ui/hooks/use-toast';
 import { noop } from '@/lib/utils';
 
+const DEBOUNCE_DELAY = 2000;
+
 interface ActivitiesContextProps {
   activitiesList: ActivityExtended[];
   handleReorder: () => void;
@@ -55,7 +57,7 @@ export const ActivitiesProviderComponent: React.FC<{
     });
   };
 
-  const debouncedReorder = useDebouncedCallback(reorderActivitiesList, 2000);
+  const debouncedReorder = useDebouncedCallback(reorderActivitiesList, DEBOUNCE_DELAY);
 
   const handleReorderDebounced = useCallback(
     (activitiesReordered: ActivityExtended[]) => {

@@ -1,10 +1,18 @@
-import React, { createContext, ReactNode, useContext, useEffect, useState, Dispatch, SetStateAction } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  ReactNode,
+  createContext,
+  useContext,
+  useState, useEffect,
+} from 'react';
 
 import { ActivityRecord } from '@/lib/definitions';
 import { ActivitiesListWrapperProps } from '@/ui/dashboard/activities-list/types';
 import { noop } from '@/lib/utils';
 
 interface RecordContextProps {
+  runningTimestamp: string | null;
   activeId: string | null;
   activitiesTimeMap: { [id: string]: number },
   setActiveId: Dispatch<SetStateAction<string | null>>,
@@ -12,6 +20,7 @@ interface RecordContextProps {
 }
 
 export const Record = createContext<RecordContextProps>({
+  runningTimestamp: null,
   activeId: null,
   setActiveId: noop,
   activitiesTimeMap: {},
@@ -20,23 +29,32 @@ export const Record = createContext<RecordContextProps>({
 
 export const RecordProvider: React.FC<{
   activeActivity: ActivityRecord['current_activity'] | null;
-  defaultActivitiesMap: ActivitiesListWrapperProps['activitiesTimeMap'],
+  activitiesMap: ActivitiesListWrapperProps['activitiesTimeMap'];
+  totalTimeSpent: number;
   children: ReactNode;
 }> = ({
   activeActivity,
-  defaultActivitiesMap,
+  activitiesMap,
+  totalTimeSpent,
   children,
 }) => {
-  const [activitiesTimeMap, setActivitiesTimeMap] = useState(defaultActivitiesMap);
-  const [activeId, setActiveId] = useState<string | null>(activeActivity?.[0] || null);
+  const [activitiesTimeMap, setActivitiesTimeMap] = useState(activitiesMap);
+  const [previousNumber, setPreviousNumber] = useState(Object.keys(activitiesMap).length);
+  const [activeId, setActiveId] =
+    useState<string | null>(activeActivity?.[0] || null);
 
   useEffect(() => {
-    setActiveId(activeActivity?.[0] || null);
-  }, [activeActivity]);
+    const currentNumber = Object.keys(activitiesMap).length;
+    if (currentNumber !== previousNumber) {
+      setActivitiesTimeMap(activitiesMap);
+      setPreviousNumber(currentNumber);
+    }
+  }, [activitiesMap, previousNumber, totalTimeSpent, setPreviousNumber]);
 
   return (
     <Record.Provider
       value={{
+        runningTimestamp: activeActivity?.[1] || null,
         activeId,
         setActiveId,
         activitiesTimeMap,

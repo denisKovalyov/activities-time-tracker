@@ -4,6 +4,7 @@ export type ActivitiesListWrapperProps = {
   activeActivity: ActivityRecord['current_activity'] | null;
   activities: ActivityExtended[];
   activitiesTimeMap: {[id: ActivityExtended['id']]: ActivityExtended['timeSpent']}
+  totalTimeSpent: number;
 }
 
 export type ActivitiesListProps = {

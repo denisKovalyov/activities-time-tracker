@@ -13,6 +13,7 @@ export const ActivitiesListWrapper = ({
   activeActivity,
   activities,
   activitiesTimeMap,
+  totalTimeSpent,
 }: ActivitiesListWrapperProps) => {
   const [recordingId, setRecordingId] = useState<string | null>(null);
   const { router, pathname, searchParams, stringifyQueryParams } = useRouter();
@@ -36,7 +37,8 @@ export const ActivitiesListWrapper = ({
     >
       <RecordProvider
         activeActivity={activeActivity}
-        defaultActivitiesMap={activitiesTimeMap}
+        activitiesMap={activitiesTimeMap}
+        totalTimeSpent={totalTimeSpent}
       >
         <div className="mx-auto mt-4 w-full max-w-3xl overflow-x-hidden">
           <List

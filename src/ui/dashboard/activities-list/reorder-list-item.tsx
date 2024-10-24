@@ -5,9 +5,8 @@ import { ActivityCard } from '@/ui/dashboard/activities-list/activity-card/activ
 import { DragButton } from '@/ui/dashboard/activities-list/activity-card/drag-button';
 import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
 import { ActivityExtended } from '@/lib/definitions';
-import { useRecord } from '@/ui/dashboard/activities-list/providers/record';
+import { useStopwatch } from '@/ui/hooks/use-stopwatch';
 import { cn } from '@/lib/utils';
-import {useStopwatch} from '@/ui/hooks/use-stopwatch';
 
 export const ReorderListItem = ({
   activity,
@@ -50,7 +49,7 @@ export const ReorderListItem = ({
         onRemove={handleRemove}
         onRecord={handleRecord}
       >
-        <DragButton onDragStart={startDrag}/>
+        <DragButton onDragStart={startDrag} />
       </ActivityCard>
     </Reorder.Item>
   );

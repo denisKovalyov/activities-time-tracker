@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useStopwatch as useStopwatchHook } from 'react-timer-hook';
+import debounce from 'debounce';
 
 import { createNewRecord, getRecord, updateRecord } from '@/lib/actions/record';
 import { refetchActivities } from '@/lib/actions/activity/app';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
 import { useRecord } from '@/ui/dashboard/activities-list/providers/record';
 import { padWithZero } from '@/ui/utils';
+import { getSecondsPassed } from '@/lib/actions/data/utils';
+
+const DEBOUNCE_DELAY = 400;
 
 const getOffset = (timeSpent: number) => {
   const date = new Date();
@@ -14,8 +18,22 @@ const getOffset = (timeSpent: number) => {
   return date;
 }
 
+const debouncedStart = debounce(
+  async (start: () => void, activityId: string, userId: string) => {
+    start();
+
+    const record = await getRecord(userId);
+    const hasRecord = record && ('id' in record);
+    const currentActivity = hasRecord ? record.current_activity : null;
+
+    if (currentActivity?.[0] === activityId) return;
+
+    await (hasRecord ? updateRecord : createNewRecord)(userId, activityId);
+  }, DEBOUNCE_DELAY);
+
 export const useStopwatch = (activityId: string) => {
   const {
+    runningTimestamp,
     activeId,
     setActiveId,
     activitiesTimeMap,
@@ -24,8 +42,6 @@ export const useStopwatch = (activityId: string) => {
 
   const isActive = activeId === activityId;
   const timeSpent = activitiesTimeMap[activityId];
-
-  const [offset, setOffset] = useState<Date | undefined>(getOffset(timeSpent));
 
   const { data: session } = useSession();
   const userId = session?.user?.id!;
@@ -38,36 +54,19 @@ export const useStopwatch = (activityId: string) => {
     isRunning,
     start,
     pause,
-  } = useStopwatchHook({ offsetTimestamp: offset });
-
-  useEffect(() => {
-    if (!timeSpent) return;
-    const date = new Date();
-    date.setSeconds(date.getSeconds() + activitiesTimeMap[activityId]);
-    setOffset(date);
-  }, [timeSpent]);
+  } = useStopwatchHook({
+    offsetTimestamp: getOffset(timeSpent + (isActive ? getSecondsPassed(runningTimestamp) : 0)),
+  });
 
   useEffect(() => {
     if (isActive && userId && !isRunning) {
-      void startRecord(userId);
+      void debouncedStart(start, activityId, userId);
     }
 
     if (!isActive && userId && isRunning) {
       void stopRecord(userId);
     }
-  }, [isActive, isRunning, userId, pause]);
-
-  const startRecord = async (userId: string) => {
-    start();
-
-    const record = await getRecord(userId);
-    const hasRecord = record && ('id' in record);
-    const currentActivity = hasRecord ? record.current_activity : null;
-
-    if (currentActivity?.[0] === activityId) return;
-
-    await (hasRecord ? updateRecord : createNewRecord)(userId, activityId);
-  }
+  }, [isActive, isRunning, userId, start]);
 
   const stopRecord = async (userId: string) => {
     pause();
@@ -86,7 +85,7 @@ export const useStopwatch = (activityId: string) => {
       activeId || null,
       [activityId, totalSeconds],
     );
-    await refetchActivities();
+    void refetchActivities();
   }
 
   const onStartStop = () => {
@@ -100,8 +99,8 @@ export const useStopwatch = (activityId: string) => {
   return {
     isActive,
     onStartStop,
-    seconds: isRunning ? padWithZero(seconds) : timeValues[2],
-    minutes: isRunning ? padWithZero(minutes) : timeValues[1],
-    hours: isRunning ? padWithZero(hours) : timeValues[0],
+    seconds: isActive ? padWithZero(seconds) : timeValues[2],
+    minutes: isActive ? padWithZero(minutes) : timeValues[1],
+    hours: isActive ? padWithZero(hours) : timeValues[0],
   }
 }

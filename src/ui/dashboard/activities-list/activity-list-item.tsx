@@ -75,8 +75,6 @@ export const ActivityListItem = ({
   const handleRemove = () => onRemove(id);
   const handleRecord = () => onStartStop();
 
-  console.log('name: ', id);
-
   return (
     <div
       className={cn(

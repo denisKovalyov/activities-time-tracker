@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 
 import { DialogWrapper } from '@/ui/common/dialog';
 import { ActivityExtended } from '@/lib/definitions';
@@ -24,10 +24,19 @@ export const RemoveActivityDialog = ({
   const { router, pathname, searchParams } = useRouter();
 
   const activityId = searchParams.get('removeActivity');
+  const showDialog = Boolean(activityId);
+  const activity = activities.find(({ id }) => id === activityId);
+
+  useEffect(() => {
+    if (showDialog) setIsLoading(false);
+  }, [showDialog]);
 
   const redirect = () => router.push(pathname);
 
-  const handleCancel = () => redirect();
+  const handleCancel = () => {
+    redirect();
+    setIsLoading(false);
+  };
   const handleConfirm = async () => {
     setIsLoading(true);
 
@@ -45,9 +54,6 @@ export const RemoveActivityDialog = ({
     redirect();
   };
 
-  const showDialog = Boolean(activityId);
-  const activity = activities.find(({ id }) => id === activityId);
-
   if (!activity) return;
 
   return (
@@ -62,9 +68,10 @@ export const RemoveActivityDialog = ({
       fullScreenMobile={false}
       content={
         <div className="flex flex-wrap items-center justify-center">
-          <span>{`Remove "${activity.name}"`}</span>
+          <span>Remove&nbsp;</span>
+          <span className="font-semibold">{activity.name}</span>
           <ActivityIcon
-            className="mx-2"
+            className="mx-1"
             name={activity.icon}
             color={`#${activity.color}`}
           />

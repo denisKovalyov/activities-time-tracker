@@ -21,21 +21,20 @@ export default async function Activities() {
   if ('message' in activities) return null;
 
   const activeActivity =  record && 'current_activity' in record ? record.current_activity : null;
-  const startTimestamp = activeActivity?.[1] || null;
+
+  let totalTimeSpent = getSecondsPassed(activeActivity?.[1]);
   const activitiesTimeMap = activities.reduce((acc, curr) => {
-      const value = curr.timeSpent + (curr.id === activeActivity?.[0] ? getSecondsPassed(activeActivity?.[1]) : 0);
-      return {
-        ...acc,
-        [curr.id]: value,
-      }
-    }, {});
+    const value = curr.timeSpent;
+    totalTimeSpent += value;
+    return { ...acc, [curr.id]: value };
+  }, {});
 
   return (
     <>
       <div className="flex h-full w-full flex-col">
         <ActivitiesHeader
-          startTimestamp={startTimestamp}
-          activities={activities}
+          totalTimeSpent={totalTimeSpent}
+          activitiesNumber={activities.length}
         />
 
         {activities.length === 0 ? (
@@ -55,6 +54,7 @@ export default async function Activities() {
             activeActivity={activeActivity}
             activities={activities}
             activitiesTimeMap={activitiesTimeMap}
+            totalTimeSpent={totalTimeSpent}
           />
         )}
       </div>

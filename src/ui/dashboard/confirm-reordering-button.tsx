@@ -1,11 +1,12 @@
 'use client';
 
 import { Check } from '@phosphor-icons/react';
+import { useState } from 'react';
 
 import { Button } from '@/ui/common/button';
 import { useRouter } from '@/ui/hooks/use-router';
+import { refetchActivities } from '@/lib/actions/activity/app';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 
 export const ConfirmReorderingButton = () => {
   const { router, pathname } = useRouter();
@@ -13,7 +14,10 @@ export const ConfirmReorderingButton = () => {
   const [animationCompleted, setAnimationCompleted] = useState(false);
 
   const handleAnimationEnd = () => setAnimationCompleted(true);
-  const handleClick = () => router.push(pathname);
+  const handleClick = async () => {
+    await refetchActivities();
+    router.push(pathname);
+  };
 
   return (
     <Button
