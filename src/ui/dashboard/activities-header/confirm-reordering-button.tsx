@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import { Button } from '@/ui/common/button';
 import { useRouter } from '@/ui/hooks/use-router';
-import { refetchActivities } from '@/lib/actions/activity/app';
+import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { cn } from '@/lib/utils';
 
 export const ConfirmReorderingButton = () => {

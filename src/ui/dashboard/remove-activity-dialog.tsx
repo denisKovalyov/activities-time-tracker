@@ -7,7 +7,7 @@ import { ActivityExtended } from '@/lib/definitions';
 import { Button } from '@/ui/common/button';
 import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activity-icon';
 import { deleteActivity } from '@/lib/actions/activity';
-import { refetchActivities } from '@/lib/actions/activity/app';
+import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { useRouter } from '@/ui/hooks/use-router';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/ui/hooks/use-toast';

@@ -3,7 +3,7 @@ import { useDebouncedCallback } from 'use-debounce';
 
 import { ActivityExtended } from '@/lib/definitions';
 import { reorderActivities } from '@/lib/actions/activity';
-import { refetchActivities } from '@/lib/actions/activity/app';
+import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { getReorderedActivities, isListHasChanged } from '@/ui/dashboard/activities-list/utils';
 import { useToast } from '@/ui/hooks/use-toast';
 import { noop } from '@/lib/utils';

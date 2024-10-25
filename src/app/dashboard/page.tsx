@@ -1,21 +1,25 @@
 import { auth } from '@/auth';
-import { FolderOpen } from '@phosphor-icons/react/dist/ssr';
+import { cookies } from 'next/headers';
 
-import { ActivitiesHeader } from '@/ui/dashboard/activities-header';
 import { ActivityDialog } from '@/ui/dashboard/activity-dialog';
 import { RemoveActivityDialog } from '@/ui/dashboard/remove-activity-dialog';
-import { ActivitiesListWrapper } from '@/ui/dashboard/activities-list';
+import { ProvidersWrapper} from '@/ui/dashboard';
+import { SetCookies } from '@/ui/dashboard/set-cookies';
 import { getActivities } from '@/lib/actions/activity';
 import { getRecord } from '@/lib/actions/record';
-import { getSecondsPassed } from '@/lib/actions/data/utils';
+import { getSecondsPassed } from '@/lib/utils';
 
 export default async function Activities() {
   const session = await auth();
   const userId = session?.user?.id!;
+  const cookiesStore = cookies();
+  const { value: dateStr } = cookiesStore.get('user-date') || {};
+
+  const date = dateStr ? new Date(dateStr) : new Date();
 
   const [activities, record] = await Promise.all([
-    getActivities(userId!),
-    getRecord(userId!),
+    getActivities(userId!, date),
+    getRecord(userId!, date),
   ]);
 
   if ('message' in activities) return null;
@@ -29,38 +33,20 @@ export default async function Activities() {
     return { ...acc, [curr.id]: value };
   }, {});
 
+  const currentActivity = activities.find(({ id }) => id === activeActivity?.[0]);
+
   return (
     <>
-      <div className="flex h-full w-full flex-col">
-        <ActivitiesHeader
-          totalTimeSpent={totalTimeSpent}
-          activitiesNumber={activities.length}
-        />
-
-        {activities.length === 0 ? (
-          <div className="flex w-full flex-1">
-            <div className="m-auto flex flex-col items-center">
-              <FolderOpen
-                className="h-auto w-28 text-primary"
-                weight="duotone"
-              />
-              <h2 className="font-normal text-primary">
-                {"You don't have any activities yet"}
-              </h2>
-            </div>
-          </div>
-        ) : (
-          <ActivitiesListWrapper
-            activeActivity={activeActivity}
-            activities={activities}
-            activitiesTimeMap={activitiesTimeMap}
-            totalTimeSpent={totalTimeSpent}
-          />
-        )}
-      </div>
-
+      <ProvidersWrapper
+        activeActivity={activeActivity}
+        currentActivity={currentActivity}
+        activities={activities}
+        activitiesTimeMap={activitiesTimeMap}
+        totalTimeSpent={totalTimeSpent}
+      />
       <ActivityDialog activities={activities} />
       <RemoveActivityDialog activities={activities} />
+      <SetCookies />
     </>
   );
 }

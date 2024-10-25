@@ -17,10 +17,11 @@ import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function getActivities(
   userId: string,
+  date: Date,
 ): Promise<ActivityExtended[] | { message: string }> {
   try {
     const [record, activities] = await Promise.all([
-      dbGetRecord(userId),
+      dbGetRecord(userId, date),
       dbGetActivities(userId),
     ]);
 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { ActivityListItem } from '@/ui/dashboard/activities-list/activity-list-item';
 import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
-import { useActivities } from '@/ui/dashboard/activities-list/providers/activities';
+import { useActivities } from '@/ui/dashboard/providers/activities';
 
 export const ActivitiesList = ({
   ...props

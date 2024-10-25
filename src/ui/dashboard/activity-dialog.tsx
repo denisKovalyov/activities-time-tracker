@@ -4,7 +4,7 @@ import { DialogWrapper } from '@/ui/common/dialog';
 import { ActivityForm } from '@/ui/dashboard/activity-form/activity-form';
 import { ActivityExtended } from '@/lib/definitions';
 import { useRouter } from '@/ui/hooks/use-router';
-import { goToActivitiesPage, refetchActivities } from '@/lib/actions/activity/app';
+import { goToActivitiesPage, refetchActivities } from '@/lib/actions/activity/next-api';
 
 const ADD_ACTIVITY_SUBHEADER =
   'Create an Activity to Monitor and Optimize Your Time';

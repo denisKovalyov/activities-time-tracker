@@ -3,7 +3,7 @@ import { Reorder } from 'framer-motion';
 
 import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
 import { ReorderListItem } from '@/ui/dashboard/activities-list/reorder-list-item';
-import { useActivities } from '@/ui/dashboard/activities-list/providers/activities';
+import { useActivities } from '@/ui/dashboard/providers/activities';
 
 export const ReorderList = ({
   ...props

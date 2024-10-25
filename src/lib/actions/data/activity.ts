@@ -1,6 +1,7 @@
-import type {Activity, ActivityExtended} from '@/lib/definitions';
 import { sql } from '@vercel/postgres';
+
 import { getUpdatedFields } from '@/lib/actions/data/utils';
+import type { Activity, ActivityExtended } from '@/lib/definitions';
 
 export async function getActivities(userId: string): Promise<Activity[] | []> {
   try {

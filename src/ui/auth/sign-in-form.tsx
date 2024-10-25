@@ -19,6 +19,7 @@ import { GoogleSignIn } from './google-sign-in';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
 import { cn } from '@/lib/utils';
 import { matchFieldErrors } from '@/ui/utils';
+import {SetCookies} from '@/ui/auth/set-cookies';
 
 export function SignInForm() {
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -51,6 +52,7 @@ export function SignInForm() {
 
   return (
     <div className="relative w-80 rounded-md bg-white p-6 text-secondary">
+      <SetCookies />
       <LoadingOverlay show={isLoading} className="rounded-md" />
 
       <div className="mb-2 flex h-14 justify-center">

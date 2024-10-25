@@ -7,9 +7,9 @@ import React, {
   useState, useEffect,
 } from 'react';
 
-import { ActivityRecord } from '@/lib/definitions';
-import { ActivitiesListWrapperProps } from '@/ui/dashboard/activities-list/types';
 import { noop } from '@/lib/utils';
+import { ActivityRecord } from '@/lib/definitions';
+import { ProvidersWrapperProps } from '@/ui/dashboard/types';
 
 interface RecordContextProps {
   runningTimestamp: string | null;
@@ -29,7 +29,7 @@ export const Record = createContext<RecordContextProps>({
 
 export const RecordProvider: React.FC<{
   activeActivity: ActivityRecord['current_activity'] | null;
-  activitiesMap: ActivitiesListWrapperProps['activitiesTimeMap'];
+  activitiesMap: ProvidersWrapperProps['activitiesTimeMap'];
   totalTimeSpent: number;
   children: ReactNode;
 }> = ({
