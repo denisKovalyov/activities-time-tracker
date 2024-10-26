@@ -1,18 +1,16 @@
 import { ReactElement } from 'react';
-import { headers } from 'next/headers';
 
 type EmailVerificationTemplateProps = {
   email: string;
   token: string;
+  origin: string;
 };
 
 export const EmailVerificationTemplate = ({
   email,
   token,
+  origin,
 }: EmailVerificationTemplateProps): ReactElement => {
-  const headersList = headers();
-  const origin = headersList.get('origin');
-
   return (
     <div>
       <h1>{`Welcome to ${process.env.APP_NAME} app!`}</h1>

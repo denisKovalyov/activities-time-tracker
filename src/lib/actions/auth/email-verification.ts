@@ -1,5 +1,7 @@
 'use server';
 
+import { headers } from 'next/headers';
+
 import { sendEmail } from '@/lib/actions/email/send-email';
 import { EmailVerificationTemplate } from '@/ui/email-templates/email-verification';
 import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
@@ -8,11 +10,14 @@ import { getUser, updateUser } from '@/lib/actions/data/user';
 import { EmailNotVerifiedError, EmailRateLimit } from '@/lib/errors';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
-export const sendVerificationEmail = (email: string, token: string) => {
+export const sendVerificationEmail = async  (email: string, token: string) => {
+  const headersList = await headers();
+  const origin = headersList.get('origin') || '';
+
   return sendEmail({
     email,
     subject: 'Email Verification',
-    body: EmailVerificationTemplate({ email, token }),
+    body: EmailVerificationTemplate({ email, token, origin }),
   });
 };
 

@@ -1,20 +1,18 @@
 import { ReactElement } from 'react';
-import { headers } from 'next/headers';
 
 const APP_NAME = process.env.APP_NAME;
 
 type ResetPasswordTemplateProps = {
   email: string;
   token: string;
+  origin: string;
 };
 
 export const ResetPasswordTemplate = ({
   email,
   token,
+  origin,
 }: ResetPasswordTemplateProps): ReactElement => {
-  const headersList = headers();
-  const origin = headersList.get('origin');
-
   return (
     <div>
       <h1>{`Reset Password for ${APP_NAME} account`}</h1>
