@@ -1,5 +1,3 @@
-'use client';
-
 import { Check } from '@phosphor-icons/react';
 import { useState } from 'react';
 
@@ -29,7 +27,7 @@ export const ConfirmReorderingButton = () => {
       onClick={handleClick}
       onAnimationEnd={handleAnimationEnd}
     >
-      <Check size="20" />
+      <Check weight="bold" size="20" />
     </Button>
   );
 };

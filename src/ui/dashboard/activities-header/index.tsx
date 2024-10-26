@@ -3,12 +3,13 @@ import { useState, useEffect } from 'react';
 import { AddActivityButton } from '@/ui/dashboard/activities-header/add-activity-button';
 import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activity-icon';
 import { ConfirmReorderingButton } from '@/ui/dashboard/activities-header/confirm-reordering-button';
+import { StopRecordButton } from '@/ui/dashboard/activities-header/stop-record-button';
 import { useRouter } from '@/ui/hooks/use-router';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
-import { useStopwatch } from '@/ui/hooks/use-stopwatch';
-import { getSecondsPassed } from '@/lib/utils';
+import { useRecord } from '@/ui/dashboard/providers/record';
 import { cn } from '@/lib/utils';
 import { ActivityExtended } from '@/lib/definitions';
+import {useSharedStopwatch} from '@/ui/hooks/use-shared-stopwatch';
 
 const TitleComponent = ({
   className,
@@ -24,7 +25,7 @@ const TitleComponent = ({
   color: string;
 }) => (
   <div
-    className={cn('flex items-center', className)}
+    className={cn('flex items-center truncate', className)}
     onAnimationEnd={onAnimationEnd}
   >
     <span className="mx-2 truncate font-semibold">
@@ -38,30 +39,16 @@ const TitleComponent = ({
   </div>
 );
 
-const StopwatchComponent = ({
-  className,
-  activityId,
-  dateStr,
-}: {
-  className: string;
-  activityId: string;
-  dateStr?: string
-}) => {
-  const date = new Date();
-  date.setSeconds(date.getSeconds() + getSecondsPassed(dateStr));
-
-  const {
-    hours,
-    minutes,
-    seconds,
-  } = useStopwatch(activityId);
+const StopwatchComponent = ({ className }: { className: string; }) => {
+  const { value } = useSharedStopwatch();
+  const timeValues = useCalculateTimeValues(value);
 
   return (
     <span
       className={className}
       suppressHydrationWarning
     >
-     {`${hours}:${minutes}:${seconds}`}
+     {`${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`}
     </span>
   );
 }
@@ -72,22 +59,25 @@ const headerBlockClasses =
 export const ActivitiesHeader = ({
   totalTimeSpent,
   activitiesNumber,
-  activity,
+  activities,
   dateStr,
 }: {
   totalTimeSpent: number;
   activitiesNumber: number;
-  activity?: ActivityExtended;
+  activities: ActivityExtended[];
   dateStr?: string;
 }) => {
   const [animationClass, setAnimationClass] = useState('opacity-0');
   const { searchParams } = useRouter();
+  const { activeId, setActiveId } = useRecord();
 
   useEffect(() => {
-    if (activity) {
+    if (activeId) {
       setAnimationClass('animate-fly-in opacity-0');
     }
-  }, [activity, setAnimationClass]);
+  }, [activeId, setAnimationClass]);
+
+  const activity = activities.find(({ id }) => id === activeId);
 
   const handleAnimationEnd = () => setAnimationClass('');
 
@@ -113,9 +103,7 @@ export const ActivitiesHeader = ({
   const Stopwatch = activity ? (
     <StopwatchComponent
       key={activity.id}
-      activityId={activity.id}
       className={animationClass}
-      dateStr={dateStr}
     />
   ) : (
     <span className="animate-vertical-shake">
@@ -129,7 +117,13 @@ export const ActivitiesHeader = ({
     </span>
   );
 
+  const handleStopRecord = () => setActiveId(null);
+
   const reorderMode = Boolean(searchParams.get('reorder'));
+
+  const Button = reorderMode
+    ? <ConfirmReorderingButton />
+    : activeId ? <StopRecordButton onClick={handleStopRecord} /> : <AddActivityButton />
 
   return (
     <div className="mx-auto flex w-full max-w-2xl justify-between">
@@ -139,7 +133,7 @@ export const ActivitiesHeader = ({
 
       <div className="relative">
         <span className="absolute -left-2 box-content h-full w-full rounded-full bg-muted px-2" />
-        {reorderMode ? <ConfirmReorderingButton /> : <AddActivityButton />}
+        {Button}
       </div>
 
       <div className={`${headerBlockClasses} rounded-r-full`}>

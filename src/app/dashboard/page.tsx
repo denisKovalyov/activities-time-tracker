@@ -33,13 +33,10 @@ export default async function Activities() {
     return { ...acc, [curr.id]: value };
   }, {});
 
-  const currentActivity = activities.find(({ id }) => id === activeActivity?.[0]);
-
   return (
     <>
       <ProvidersWrapper
         activeActivity={activeActivity}
-        currentActivity={currentActivity}
         activities={activities}
         activitiesTimeMap={activitiesTimeMap}
         totalTimeSpent={totalTimeSpent}

@@ -28,7 +28,7 @@ export async function createRecord({
 }: CreateUpdateRecordParams): Promise<string> {
   try {
     const record = await sql.query(
-      `INSERT INTO record(user_id, date, current_activity, activities) VALUES($1, $2, $3, $4}) RETURNING *`,
+      `INSERT INTO record(user_id, date, current_activity, activities) VALUES($1, $2, $3, $4) RETURNING *`,
       [
       userId,
       formatDate(date),

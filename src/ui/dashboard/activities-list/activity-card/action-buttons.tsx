@@ -1,7 +1,7 @@
 import { forwardRef, CSSProperties } from 'react';
 import { ArrowsDownUp, NotePencil, X } from '@phosphor-icons/react';
 
-import { Button } from '@/ui/common/button';
+import { Button, ButtonProps } from '@/ui/common/button';
 import { cn } from '@/lib/utils';
 
 const BUTTON_WIDTH = 55;
@@ -9,19 +9,21 @@ export const BUTTONS_WIDTH = BUTTON_WIDTH * 3;
 const buttonClassNames =
   'absolute h-full px-3 rounded-none shadow-none border-y border-r dark:border-gray-200';
 
-type ButtonProps = {
+interface ActionButtonProps extends ButtonProps {
   onClick: () => void;
-  applyTransition?: boolean;
+  applyTransition: boolean;
   style?: CSSProperties;
 }
 
 export const ReorderButton = ({
   onClick,
-}: ButtonProps) => (
+  ...props
+}: Omit<ActionButtonProps, 'applyTransition'>) => (
   <Button
     className={`${buttonClassNames} border-secondary`}
     variant="secondary"
     onClick={onClick}
+    {...props}
   >
     <ArrowsDownUp size="30" />
   </Button>
@@ -32,7 +34,7 @@ export const EditButton = ({
   applyTransition,
   onClick,
   style,
-}: ButtonProps) => (
+}: ActionButtonProps) => (
   <Button
     className={cn(
       `${buttonClassNames} border-secondary transition-transform duration-0 will-change-transform`,
@@ -52,7 +54,7 @@ export const DeleteButton = ({
     applyTransition,
     onClick,
     style,
-  }: ButtonProps) => (
+  }: ActionButtonProps) => (
   <Button
     className={cn(
       `${buttonClassNames} rounded-r-md border-destructive will-change-transform`,
@@ -88,7 +90,6 @@ export const ActionButtons = forwardRef<
       <div ref={ref} className="rounded-r-m absolute bottom-0 right-0 top-0">
         <ReorderButton
           onClick={onReorder}
-          applyTransition={applyTransition}
         />
         <EditButton
           onClick={onEdit}

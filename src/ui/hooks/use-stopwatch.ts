@@ -9,6 +9,7 @@ import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
 import { useRecord } from '@/ui/dashboard/providers/record';
 import { padWithZero } from '@/ui/utils';
 import { getSecondsPassed } from '@/lib/utils';
+import { updateState } from '@/ui/hooks/use-shared-stopwatch';
 
 const DEBOUNCE_DELAY = 500;
 
@@ -121,6 +122,7 @@ export const useStopwatch = (activityId: string) => {
   useEffect(() => {
     if (isActive && userId && !isRunning) {
       start();
+      // startStopwatch();
       void debouncedStart({ userId, currentActivity: [activityId, new Date()] });
     }
 
@@ -137,13 +139,20 @@ export const useStopwatch = (activityId: string) => {
     }
   }, [isActive, isRunning, userId, activeId, activityId, start, pause]);
 
-  if (isActive && checkMidnightBorder(totalSeconds)) {
-    setActivitiesTimeMap((activitiesMap) =>
-      Object.keys(activitiesMap).reduce((acc, curr) => ({ ...acc, [curr]: 0 }), {})
-    );
-    reset();
-    void handleMidnightBorder(userId, activityId, totalSeconds - 1);
-  }
+  useEffect(() => {
+    if (isActive && checkMidnightBorder(totalSeconds)) {
+      setActivitiesTimeMap((activitiesMap) =>
+        Object.keys(activitiesMap).reduce((acc, curr) => ({ ...acc, [curr]: 0 }), {})
+      );
+      reset();
+      void handleMidnightBorder(userId, activityId, totalSeconds - 1);
+    }
+  }, [isActive, totalSeconds]);
+
+  useEffect(() => {
+    if (!isActive) return;
+    updateState(totalSeconds - timeSpent);
+  }, [isActive, totalSeconds, timeSpent]);
 
   const onStartStop = () => {
     setActiveId((activeId) =>

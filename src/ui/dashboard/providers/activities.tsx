@@ -16,7 +16,7 @@ interface ActivitiesContextProps {
   handleReorderDebounced: (activitiesList: ActivityExtended[]) => void;
 }
 
-export const Activities = createContext<ActivitiesContextProps>({
+const Activities = createContext<ActivitiesContextProps>({
   activitiesList: [],
   handleReorder: noop,
   handleReorderDebounced: noop,

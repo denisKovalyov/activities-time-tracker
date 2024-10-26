@@ -10,7 +10,6 @@ import { ProvidersWrapperProps } from '@/ui/dashboard/types';
 
 export const ProvidersWrapper = ({
   activeActivity,
-  currentActivity,
   activities,
   activitiesTimeMap,
   totalTimeSpent,
@@ -26,7 +25,7 @@ export const ProvidersWrapper = ({
           totalTimeSpent={totalTimeSpent}
         >
           <ActivitiesHeader
-            activity={currentActivity}
+            activities={activities}
             dateStr={activeActivity?.[1]}
             totalTimeSpent={totalTimeSpent}
             activitiesNumber={activities.length}

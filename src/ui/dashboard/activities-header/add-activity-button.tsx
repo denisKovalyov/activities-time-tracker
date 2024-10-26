@@ -1,5 +1,3 @@
-'use client';
-
 import { Plus } from '@phosphor-icons/react';
 
 import { Button } from '@/ui/common/button';
@@ -18,7 +16,7 @@ export const AddActivityButton = () => {
       size="iconLg"
       onClick={handleClick}
     >
-      <Plus size="20" />
+      <Plus weight="bold" size="20" />
     </Button>
   );
 };

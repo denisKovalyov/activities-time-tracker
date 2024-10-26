@@ -4,7 +4,8 @@ import React, {
   ReactNode,
   createContext,
   useContext,
-  useState, useEffect,
+  useState,
+  useEffect,
 } from 'react';
 
 import { noop } from '@/lib/utils';
@@ -19,7 +20,7 @@ interface RecordContextProps {
   setActivitiesTimeMap: Dispatch<SetStateAction<{}>>,
 }
 
-export const Record = createContext<RecordContextProps>({
+const Record = createContext<RecordContextProps>({
   runningTimestamp: null,
   activeId: null,
   setActiveId: noop,
