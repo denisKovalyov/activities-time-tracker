@@ -12,7 +12,7 @@ import { getSecondsPassed } from '@/lib/utils';
 export default async function Activities() {
   const session = await auth();
   const userId = session?.user?.id!;
-  const cookiesStore = cookies();
+  const cookiesStore = await cookies();
   const { value: dateStr } = cookiesStore.get('user-date') || {};
 
   const date = dateStr ? new Date(dateStr) : new Date();
