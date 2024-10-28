@@ -17,9 +17,8 @@ import { Logo } from '@/ui/common/logo';
 import { TextSeparator } from '@/ui/common/separator';
 import { GoogleSignIn } from './google-sign-in';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
-import { cn } from '@/lib/utils';
-import { matchFieldErrors } from '@/ui/utils';
-import {SetCookies} from '@/ui/auth/set-cookies';
+import { SetCookies } from '@/ui/auth/set-cookies';
+import { cn, matchFieldErrors } from '@/lib/utils';
 
 export function SignInForm() {
   const [loginError, setLoginError] = useState<string | null>(null);

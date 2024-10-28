@@ -15,7 +15,7 @@ import { ColorPicker } from '@/ui/dashboard/activity-form/color-picker';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
 import { createActivity, updateActivity } from '@/lib/actions/activity';
 import { useToast } from '@/ui/hooks/use-toast';
-import { matchFieldErrors } from '@/ui/utils';
+import { matchFieldErrors } from '@/lib/utils';
 import {
   checkActivityExists,
   retrieveUpdatedValues,

@@ -7,8 +7,7 @@ import { createNewRecord, getRecord as getRecordAction, updateRecord } from '@/l
 import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
 import { useRecord } from '@/ui/dashboard/providers/record';
-import { padWithZero } from '@/ui/utils';
-import { getSecondsPassed } from '@/lib/utils';
+import { getSecondsPassed, padWithZero } from '@/lib/utils';
 import { updateState } from '@/ui/hooks/use-shared-stopwatch';
 
 const DEBOUNCE_DELAY = 500;

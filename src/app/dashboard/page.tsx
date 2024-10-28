@@ -1,5 +1,4 @@
 import { auth } from '@/auth';
-import { cookies } from 'next/headers';
 
 import { ActivityDialog } from '@/ui/dashboard/activity-dialog';
 import { RemoveActivityDialog } from '@/ui/dashboard/remove-activity-dialog';
@@ -8,14 +7,12 @@ import { SetCookies } from '@/ui/dashboard/set-cookies';
 import { getActivities } from '@/lib/actions/activity';
 import { getRecord } from '@/lib/actions/record';
 import { getSecondsPassed } from '@/lib/utils';
+import { retrieveDateFromCookies } from '@/app/dashboard/next-api-helpers';
 
 export default async function Activities() {
   const session = await auth();
   const userId = session?.user?.id!;
-  const cookiesStore = await cookies();
-  const { value: dateStr } = cookiesStore.get('user-date') || {};
-
-  const date = dateStr ? new Date(dateStr) : new Date();
+  const date = await retrieveDateFromCookies();
 
   const [activities, record] = await Promise.all([
     getActivities(userId!, date),

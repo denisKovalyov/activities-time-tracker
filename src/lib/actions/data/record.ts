@@ -20,6 +20,21 @@ export async function getRecord(
   }
 }
 
+export async function getRecords(
+  userId: string,
+  startDate: Date,
+  endDate: Date,
+): Promise<ActivityRecord[] | []> {
+  try {
+    const record =
+      await sql<ActivityRecord>`SELECT * FROM record WHERE user_id=${userId} AND date BETWEEN ${formatDate(endDate)} AND ${formatDate(startDate)}`;
+    return record.rows;
+  } catch (error) {
+    console.error('DB: Failed to fetch record:', error);
+    throw new Error('Failed to fetch record.');
+  }
+}
+
 export async function createRecord({
   userId,
   date,

@@ -17,7 +17,7 @@ export async function getRecord(
     return await dbGetRecord(userId, date);
   } catch (error: unknown) {
     return {
-      message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE,
+      message: error instanceof Error ? error?.message as string : DEFAULT_ERROR_MESSAGE,
     };
   }
 }
