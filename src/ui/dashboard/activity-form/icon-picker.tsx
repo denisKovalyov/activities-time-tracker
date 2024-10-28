@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useMediaQuery } from '@raddix/use-media-query';
+import { useMediaQuery } from 'usehooks-ts';
 import { CaretUpDown } from '@phosphor-icons/react';
 
 import { Button } from '@/ui/common/button';

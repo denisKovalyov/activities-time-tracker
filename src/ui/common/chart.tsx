@@ -355,14 +355,14 @@ function getPayloadConfigFromPayload(
 }
 
 const TIME_SPENT_LABEL_WIDTH = 56;
-const TIME_SPENT_LABEL_HEIGHT = 17;
+const LABEL_HEIGHT = 17;
 const PIXEL_CORRECTNESS = 3; // Align label along bar height
 
 interface ExtendedLabelProps extends RechartsPrimitive.LabelProps {
   minWidth?: number;
 }
 
-const CustomLabel = ({
+const CustomLabelRightInside = ({
   x: coordX,
   y: coordY,
   width: barWidth,
@@ -385,16 +385,17 @@ const CustomLabel = ({
   return width > labelMinWidth ? (
     <text
       x={x + width - TIME_SPENT_LABEL_WIDTH - offset}
-      y={y + height - (height - TIME_SPENT_LABEL_HEIGHT) / 2 - PIXEL_CORRECTNESS}
+      y={y + height - (height - LABEL_HEIGHT) / 2 - PIXEL_CORRECTNESS}
       fill={fill}
       className={className}
       fontSize={fontSize}
       fontWeight={fontWeight}
     >
-      {formatter ? formatter(value) : formatter}
+      {formatter ? formatter(value) : value}
     </text>
   ) : null;
 };
+
 
 export {
   ChartContainer,
@@ -403,5 +404,5 @@ export {
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
-  CustomLabel,
+  CustomLabelRightInside,
 }

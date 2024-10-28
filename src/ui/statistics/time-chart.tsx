@@ -1,7 +1,8 @@
 'use client';
 
-import { JSX } from 'react';
+import { JSX, useMemo, useRef } from 'react';
 import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts';
+import { useResizeObserver } from 'usehooks-ts';
 import { TrendUp, TrendDown, PresentationChart } from '@phosphor-icons/react';
 import { ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
@@ -18,11 +19,15 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  CustomLabel,
+  CustomLabelRightInside,
 } from '@/ui/common/chart';
 import { formatReadableDate, getMonthStartDate, getWeekStartDate } from '@/lib/utils';
 import { EmptyState } from '@/ui/common/empty-state';
 import { calculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
+
+const LABEL_OFFSET = 20;
+const LABEL_FONT_SIZE = 14;
+const CHART_MOBILE_WIDTH = 320;
 
 const chartConfig = {
   value: {
@@ -58,7 +63,14 @@ export function TimeChart({
   delta = 0,
   period,
 }: TimeChartProps) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const { width = 0 } = useResizeObserver({ ref });
+
+  const labelFontSize = width <= CHART_MOBILE_WIDTH ? 12 : LABEL_FONT_SIZE;
   const hasValues = data.some(({ value }) => value > 0);
+  const maxLabelLength = useMemo(() =>
+    data.reduce((acc, { name }) => name.length > acc ? name.length : acc, 0),
+  [data]);
 
   const periodText = period === 'day' ? 'yesterday' : `last ${period}`;
   let footer: JSX.Element | string = hasValues
@@ -76,6 +88,8 @@ export function TimeChart({
     return `${timeSpent[0]}:${timeSpent[1]}:${timeSpent[2]}`;
   };
 
+  const approximateLabelWidth = maxLabelLength * (LABEL_FONT_SIZE / 2) + LABEL_OFFSET;
+
   return (
     <Card>
       <CardHeader>
@@ -83,13 +97,15 @@ export function TimeChart({
         <CardDescription>{dateStr}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer ref={ref} config={chartConfig}>
           {hasValues ? (
             <BarChart
               accessibilityLayer
               data={data}
               layout="vertical"
-              margin={{right: 40}}
+              margin={{
+                right: approximateLabelWidth,
+              }}
             >
               <YAxis
                 dataKey="name"
@@ -97,7 +113,6 @@ export function TimeChart({
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
                 hide
               />
               <XAxis
@@ -126,17 +141,17 @@ export function TimeChart({
                   dataKey="name"
                   position="right"
                   offset={8}
+                  fontSize={labelFontSize}
+                  width={approximateLabelWidth}
                   className="fill-accent"
-                  fontSize={14}
-                  width={120}
                 />
                 <LabelList
                   dataKey="value"
                   offset={8}
                   content={(
-                    <CustomLabel
+                    <CustomLabelRightInside
                       className="fill-[--color-label]"
-                      fontSize={14}
+                      fontSize={labelFontSize}
                       formatter={formatTimeValue}
                     />
                   )}
