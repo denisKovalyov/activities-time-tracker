@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useFormState } from 'react-dom';
+import { useState, useActionState } from 'react';
 import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -23,7 +22,7 @@ import { cn, matchFieldErrors  } from '@/lib/utils';
 
 export function SignUpForm() {
   const [signUpError, setSignUpError] = useState<string | null>(null);
-  const [errorMsgGoogle, dispatchGoogle] = useFormState(
+  const [errorMsgGoogle, dispatchGoogle] = useActionState(
     googleAuthenticate,
     undefined,
   );

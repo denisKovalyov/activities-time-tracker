@@ -11,9 +11,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/ui/common/tooltip';
-import { SignOutButton } from '@/ui/dashboard/layout/sign-out-button';
+import { SignOutButton } from '@/ui/layout/sign-out-button';
 import { Logo } from '@/ui/common/logo';
-import { MENU_ITEMS } from '@/ui/dashboard/layout/constants';
+import { MENU_ITEMS } from '@/ui/layout/constants';
 import { cn } from '@/lib/utils';
 
 const itemClassNames =
@@ -33,7 +33,7 @@ const MenuItem = ({
   <Tooltip>
     <TooltipTrigger asChild>
       <Link
-        href={`/dashboard/${path}`}
+        href={`/${path}`}
         className={cn(itemClassNames, {
           'text-accent hover:text-accent': active,
         })}

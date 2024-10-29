@@ -4,8 +4,8 @@ import { usePathname } from 'next/navigation';
 
 const PATH_NAME_MAP = {
   '/dashboard': 'Activities',
-  '/dashboard/statistics': 'Statistics',
-  '/dashboard/settings': 'Settings',
+  '/statistics': 'Statistics',
+  '/settings': 'Settings',
 };
 
 export const PageName = () => {

@@ -92,3 +92,12 @@ export async function deleteActivity(id: string): Promise<void> {
     throw new Error('Failed to delete activity.');
   }
 }
+
+export async function deleteActivities(userId: string): Promise<void> {
+  try {
+    await sql`DELETE FROM activity WHERE name="test"`;
+  } catch (error) {
+    console.error('DB: failed to delete activities:', error);
+    throw new Error('Failed to delete activities.');
+  }
+}

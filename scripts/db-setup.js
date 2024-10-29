@@ -53,10 +53,11 @@ async function setupRecord(client) {
       CREATE TABLE IF NOT EXISTS record (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         user_id UUID,
-        date DATE NOT NULL DEFAULT CURRENT_DATE UNIQUE,
+        date DATE NOT NULL DEFAULT CURRENT_DATE,
         current_activity JSONB DEFAULT NULL,
         activities JSONB NOT NULL,
-        CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES "user"(id)
+        CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES "user"(id),
+        CONSTRAINT unique_date_user_id UNIQUE(user_id, date)
       );
     `;
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { resendVerificationEmail } from '@/lib/actions/auth/email-verification';
@@ -15,7 +15,7 @@ export function EmailVerificationRequestForm() {
   const email = searchParams.get('email');
   const verificationSent = Boolean(searchParams.get('verification_sent'));
 
-  const [formState, action] = useFormState(
+  const [formState, action] = useActionState(
     resendVerificationEmail.bind(null, decodeURIComponent(email!)),
     undefined,
   );

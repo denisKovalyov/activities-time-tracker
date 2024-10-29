@@ -50,3 +50,14 @@ export async function updateUser(
     throw new Error('Failed to update user.');
   }
 }
+
+export async function deleteUser(
+  id: string,
+): Promise<void> {
+  try {
+    await sql`DELETE FROM "user" WHERE id = ${id}`;
+  } catch (error) {
+    console.error('DB: failed to delete user:', error);
+    throw new Error('Failed to delete user.');
+  }
+}

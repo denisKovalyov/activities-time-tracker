@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import type { Icon } from '@phosphor-icons/react';
-import { MENU_ITEMS } from '@/ui/dashboard/layout/constants';
+import { MENU_ITEMS } from '@/ui/layout/constants';
 import { cn } from '@/lib/utils';
 
 const MenuItem = ({
@@ -49,7 +49,7 @@ const MenuItem = ({
     </div>
   ) : (
     <Link
-      href={`/dashboard/${path}`}
+      href={`/${path}`}
       className={className}
       onClick={handleAnimationEnd}
     >
@@ -59,7 +59,7 @@ const MenuItem = ({
 };
 
 export const MobileNavigation = () => {
-  const pathname = usePathname().slice('/dashboard/'.length);
+  const pathname = usePathname().slice(1);
 
   return (
     <nav className="relative flex h-full w-full items-center justify-center pb-1">

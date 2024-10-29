@@ -3,7 +3,7 @@ import { auth } from '@/auth';
 import { TimeChart } from '@/ui/statistics/time-chart';
 import { getActivities, getActivitiesRange } from '@/lib/actions/activity';
 import { getRecord } from '@/lib/actions/record';
-import { retrieveDateFromCookies } from '@/app/dashboard/next-api-helpers';
+import { retrieveDateFromCookies } from '@/app/(dashboard)/next-api-helpers';
 import { calculateTimeDiff, getSecondsPassed, getTimeRanges, prepareChartData } from '@/lib/utils';
 
 export default async function Statistics() {

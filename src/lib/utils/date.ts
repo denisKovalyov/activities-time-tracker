@@ -1,5 +1,8 @@
-export const formatReadableDate = (date: Date = new Date()) => {
-  const dateTimeFormatter = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
+export const formatReadableDate = (
+  date: Date = new Date(),
+  options: Intl.DateTimeFormatOptions = { dateStyle: 'long' },
+) => {
+  const dateTimeFormatter = new Intl.DateTimeFormat('en-US', options);
   return dateTimeFormatter.format(date);
 }
 

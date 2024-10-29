@@ -354,8 +354,11 @@ function getPayloadConfigFromPayload(
     : config[key as keyof typeof config]
 }
 
+const DEFAULT_FONT_SIZE = 12;
 const TIME_SPENT_LABEL_WIDTH = 56;
+const TIME_SPENT_LABEL_WIDTH_MOBILE = 47.8;
 const LABEL_HEIGHT = 17;
+const LABEL_HEIGHT_MOBILE = 14.5;
 const PIXEL_CORRECTNESS = 3; // Align label along bar height
 
 interface ExtendedLabelProps extends RechartsPrimitive.LabelProps {
@@ -371,21 +374,29 @@ const CustomLabelRightInside = ({
   value,
   className,
   fill,
-  fontSize,
+  fontSize = DEFAULT_FONT_SIZE,
   fontWeight,
   formatter,
-  minWidth = TIME_SPENT_LABEL_WIDTH,
+  minWidth
 }: ExtendedLabelProps) => {
   const x = Number(coordX) || 0;
   const y = Number(coordY) || 0;
   const width = Number(barWidth) || 0;
   const height = Number(barHeight) || 0;
-  const labelMinWidth = minWidth + offset;
+
+  const labelWidth = parseInt(String(fontSize), 10) <= DEFAULT_FONT_SIZE
+    ? TIME_SPENT_LABEL_WIDTH_MOBILE
+    : TIME_SPENT_LABEL_WIDTH;
+  const labelHeight = parseInt(String(fontSize), 10) <= DEFAULT_FONT_SIZE
+    ? LABEL_HEIGHT_MOBILE
+    : LABEL_HEIGHT;
+
+  const labelMinWidth = (minWidth || labelWidth) + offset * 2;
 
   return width > labelMinWidth ? (
     <text
-      x={x + width - TIME_SPENT_LABEL_WIDTH - offset}
-      y={y + height - (height - LABEL_HEIGHT) / 2 - PIXEL_CORRECTNESS}
+      x={x + width - labelWidth - offset}
+      y={y + height - (height - labelHeight) / 2 - PIXEL_CORRECTNESS}
       fill={fill}
       className={className}
       fontSize={fontSize}

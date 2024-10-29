@@ -9,7 +9,7 @@ import { Credentials } from '@/lib/definitions';
 import { SignInSchema } from '@/lib/validation';
 import { isUsersEmailVerified } from '@/lib/actions/auth/email-verification';
 import { signIn } from '@/auth';
-import { PROTECTED_PAGE_PATH } from '@/auth.config';
+import { PROTECTED_PAGES } from '@/auth.config';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function googleAuthenticate(
@@ -59,7 +59,7 @@ export async function authenticate(values: Credentials) {
   }
 
   if (isEmailVerified) {
-    redirect(PROTECTED_PAGE_PATH);
+    redirect(PROTECTED_PAGES[0]);
   } else {
     redirect(`/email/verify/send?email=${values.email}`);
   }

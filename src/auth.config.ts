@@ -2,7 +2,7 @@ import type { NextAuthConfig } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { AdapterUser } from '@auth/core/adapters';
 
-export const PROTECTED_PAGE_PATH = '/dashboard';
+export const PROTECTED_PAGES = ['/dashboard', '/statistics', '/settings'];
 const SIGN_IN_PATH = '/sign-in';
 
 export const authConfig = {
@@ -13,13 +13,13 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnProtectedPage =
-        nextUrl.pathname.startsWith(PROTECTED_PAGE_PATH);
+        PROTECTED_PAGES.some((path) =>  nextUrl.pathname.startsWith(path));
       if (isOnProtectedPage) {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       } else if (isLoggedIn) {
         if (nextUrl.pathname === SIGN_IN_PATH) {
-          return NextResponse.redirect(new URL(PROTECTED_PAGE_PATH, nextUrl));
+          return NextResponse.redirect(new URL(PROTECTED_PAGES[0], nextUrl));
         }
       }
       return true;

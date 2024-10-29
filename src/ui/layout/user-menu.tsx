@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/common/dropdown-menu';
 import { Button } from '@/ui/common/button';
-import { SignOutButton } from '@/ui/dashboard/layout/sign-out-button';
+import { SignOutButton } from '@/ui/layout/sign-out-button';
 
 export const UserMenu = () => (
   <DropdownMenu>
@@ -25,12 +25,24 @@ export const UserMenu = () => (
     <DropdownMenuContent align="end">
       <DropdownMenuLabel>Account</DropdownMenuLabel>
       <DropdownMenuSeparator />
-      <Link href="/dashboard/settings">
-        <DropdownMenuItem>Settings</DropdownMenuItem>
+      <Link href="/settings">
+        <DropdownMenuItem
+          className="cursor-pointer"
+        >
+          Settings
+        </DropdownMenuItem>
       </Link>
-      <DropdownMenuItem>Support</DropdownMenuItem>
+      <a href={`mailto:${process.env.APP_SUPPORT_EMAIL}?subject=${process.env.APP_SHORT_NAME}: Support Request`}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+        >
+          Support
+        </DropdownMenuItem>
+      </a>
       <DropdownMenuSeparator />
-      <DropdownMenuItem>
+      <DropdownMenuItem
+        className="cursor-pointer"
+      >
         <SignOutButton className="w-full rounded-sm text-left">
           <span>Logout</span>
         </SignOutButton>

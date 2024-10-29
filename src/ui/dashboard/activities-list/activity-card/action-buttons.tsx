@@ -17,13 +17,11 @@ interface ActionButtonProps extends ButtonProps {
 
 export const ReorderButton = ({
   onClick,
-  ...props
 }: Omit<ActionButtonProps, 'applyTransition'>) => (
   <Button
     className={`${buttonClassNames} border-secondary`}
     variant="secondary"
     onClick={onClick}
-    {...props}
   >
     <ArrowsDownUp size="30" />
   </Button>

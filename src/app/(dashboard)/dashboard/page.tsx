@@ -7,7 +7,7 @@ import { SetCookies } from '@/ui/dashboard/set-cookies';
 import { getActivities } from '@/lib/actions/activity';
 import { getRecord } from '@/lib/actions/record';
 import { getSecondsPassed } from '@/lib/utils';
-import { retrieveDateFromCookies } from '@/app/dashboard/next-api-helpers';
+import { retrieveDateFromCookies } from '@/app/(dashboard)/next-api-helpers';
 
 export default async function Activities() {
   const session = await auth();

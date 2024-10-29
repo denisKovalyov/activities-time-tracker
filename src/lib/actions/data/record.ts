@@ -104,3 +104,14 @@ export async function deleteActivityRecords(
     throw new Error('Failed to remove activity from record data.');
   }
 }
+
+export async function deleteRecords(
+  userId: string,
+): Promise<void> {
+  try {
+    await sql`DELETE FROM record WHERE user_id=${userId}`;
+  } catch (error) {
+    console.error('DB: failed to delete records:', error);
+    throw new Error('Failed to delete records.');
+  }
+}

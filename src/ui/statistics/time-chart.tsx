@@ -66,7 +66,9 @@ export function TimeChart({
   const ref = useRef<HTMLDivElement | null>(null);
   const { width = 0 } = useResizeObserver({ ref });
 
-  const labelFontSize = width <= CHART_MOBILE_WIDTH ? 12 : LABEL_FONT_SIZE;
+  const isDesktop = width > CHART_MOBILE_WIDTH;
+
+  const labelFontSize = isDesktop ? LABEL_FONT_SIZE : 12;
   const hasValues = data.some(({ value }) => value > 0);
   const maxLabelLength = useMemo(() =>
     data.reduce((acc, { name }) => name.length > acc ? name.length : acc, 0),
@@ -79,16 +81,20 @@ export function TimeChart({
   if (delta < 0) footer = <>{`Total time down ${Math.abs(delta).toFixed()}% compared to ${periodText} `} <TrendDown className="h-4 w-4" /></>;
   if (delta > 0) footer = <>{`Total time up ${delta.toFixed()}% over ${periodText} `} <TrendUp className="h-4 w-4" /></>;
 
-  let dateStr = formatReadableDate();
-  if (period === 'week') dateStr = `${formatReadableDate(getWeekStartDate())} - ` + dateStr;
-  if (period === 'month') dateStr = `${formatReadableDate(getMonthStartDate())} - ` + dateStr;
+  let dateStr = formatReadableDate(new Date(), { dateStyle: isDesktop ? 'long' : 'medium' });
+  if (period === 'week') {
+    dateStr = `${formatReadableDate(getWeekStartDate(), { dateStyle: isDesktop ? 'long' : 'medium' })} - ` + dateStr;
+  }
+  if (period === 'month') {
+    dateStr = `${formatReadableDate(getMonthStartDate(), { dateStyle: isDesktop ? 'long' : 'medium' })} - ` + dateStr;
+  }
 
   const formatTimeValue = (value?: ValueType) => {
     const timeSpent = calculateTimeValues(Number(value));
     return `${timeSpent[0]}:${timeSpent[1]}:${timeSpent[2]}`;
   };
 
-  const approximateLabelWidth = maxLabelLength * (LABEL_FONT_SIZE / 2) + LABEL_OFFSET;
+  const approximateLabelWidth = maxLabelLength * (LABEL_FONT_SIZE * 0.5) + LABEL_OFFSET;
 
   return (
     <Card>

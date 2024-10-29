@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
-import { MainNavigation } from '@/ui/dashboard/layout/main-navigation';
-import { MobileNavigation } from '@/ui/dashboard/layout/mobile-navigation';
-import { InputSearch } from '@/ui/dashboard/layout/input-search';
-import { UserMenu } from '@/ui/dashboard/layout/user-menu';
-import { PageName } from '@/ui/dashboard/layout/page-name';
+import { MainNavigation } from '@/ui/layout/main-navigation';
+import { MobileNavigation } from '@/ui/layout/mobile-navigation';
+import { InputSearch } from '@/ui/layout/input-search';
+import { UserMenu } from '@/ui/layout/user-menu';
+import { PageName } from '@/ui/layout/page-name';
 import { Logo } from '@/ui/common/logo';
 
 export default function Layout({ children }: { children: ReactNode }) {
