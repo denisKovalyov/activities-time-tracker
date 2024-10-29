@@ -6,13 +6,10 @@ import { ReorderListItem } from '@/ui/dashboard/activities-list/reorder-list-ite
 import { useActivities } from '@/ui/dashboard/providers/activities';
 
 export const ReorderList = ({
+  activitiesList,
   ...props
 }: ActivitiesListProps) => {
-  const {
-    activitiesList,
-    handleReorder,
-    handleReorderDebounced,
-  } = useActivities();
+  const { handleReorder, handleReorderDebounced } = useActivities();
 
   useEffect(() => {
     return () => handleReorder();

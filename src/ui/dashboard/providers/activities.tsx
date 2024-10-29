@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { ActivityExtended } from '@/lib/definitions';
@@ -6,6 +6,7 @@ import { reorderActivities } from '@/lib/actions/activity';
 import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { getReorderedActivities, isListHasChanged } from '@/ui/dashboard/activities-list/utils';
 import { useToast } from '@/ui/hooks/use-toast';
+import { useRouter } from '@/ui/hooks/use-router';
 import { noop } from '@/lib/utils';
 
 const DEBOUNCE_DELAY = 2000;
@@ -30,7 +31,7 @@ export const ActivitiesProviderComponent: React.FC<{
   children,
 }) => {
   const [activitiesList, setActivitiesList] =
-    useState<ActivityExtended[]>(activities);
+    useState<(ActivityExtended & { hidden?: boolean })[]>(activities);
   const [previousList, setPreviousList] = useState<ActivityExtended[]>([]);
 
   if (isListHasChanged(previousList, activities)) {
@@ -39,6 +40,19 @@ export const ActivitiesProviderComponent: React.FC<{
   }
 
   const { toast } = useToast();
+
+  const { searchParams } = useRouter();
+  const search = searchParams.get('search')?.toLowerCase();
+
+  useEffect(() => {
+    setActivitiesList((activitiesList) => activitiesList.map((activity) => {
+      return {
+        ...activity,
+        hidden: search ? !activity.name.toLowerCase().includes(search) : false,
+      };
+    }));
+  }, [search, setActivitiesList]);
+
 
   const reorderActivitiesList = async (updatedActivities: ActivityExtended[]) => {
     const diff = getReorderedActivities(activities, updatedActivities);
@@ -72,10 +86,12 @@ export const ActivitiesProviderComponent: React.FC<{
     [debouncedReorder],
   );
 
+  const list = useMemo(() => activitiesList.filter(({ hidden }) => !hidden), [activitiesList]);
+
   return (
     <Activities.Provider
       value={{
-        activitiesList,
+        activitiesList: list,
         handleReorderDebounced,
         handleReorder,
       }}

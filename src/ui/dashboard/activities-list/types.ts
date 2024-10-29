@@ -1,5 +1,8 @@
+import { ActivityExtended } from '@/lib/definitions';
+
 export type ActivitiesListProps = {
-  recordingId: string | null
+  activitiesList: ActivityExtended[];
+  recordingId: string | null;
   onRecord: (id: string) => void;
   onEdit: (id: string) => void;
   onRemove: (id: string) => void;

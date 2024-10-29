@@ -121,7 +121,6 @@ export const useStopwatch = (activityId: string) => {
   useEffect(() => {
     if (isActive && userId && !isRunning) {
       start();
-      // startStopwatch();
       void debouncedStart({ userId, currentActivity: [activityId, new Date()] });
     }
 

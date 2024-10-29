@@ -7,6 +7,7 @@ import { ActivitiesProvider } from '@/ui/dashboard/providers/activities';
 import { RecordProvider } from '@/ui/dashboard/providers/record';
 import { ActivitiesListWrapper } from '@/ui/dashboard/activities-list';
 import { EmptyState } from '@/ui/common/empty-state';
+import { BackgroundStopwatch } from '@/ui/dashboard/background-stopwatch';
 import { ProvidersWrapperProps } from '@/ui/dashboard/types';
 
 export const ProvidersWrapper = ({
@@ -31,7 +32,6 @@ export const ProvidersWrapper = ({
             totalTimeSpent={totalTimeSpent}
             activitiesNumber={activities.length}
           />
-
           {activities.length === 0 ? (
             <EmptyState
               icon={FolderOpen}
@@ -40,6 +40,7 @@ export const ProvidersWrapper = ({
           ) : (
             <ActivitiesListWrapper />
           )}
+          <BackgroundStopwatch />
         </RecordProvider>
       </ActivitiesProvider>
     </div>

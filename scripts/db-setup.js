@@ -30,7 +30,7 @@ async function setupActivity(client) {
         user_id UUID,
         name VARCHAR(255) NOT NULL,
         color CHAR(6) NOT NULL,
-        icon VARCHAR(20) NOT NULL,
+        icon VARCHAR(100) NOT NULL,
         "order" INTEGER NOT NULL,
         is_archived BOOLEAN NOT NULL DEFAULT false,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,

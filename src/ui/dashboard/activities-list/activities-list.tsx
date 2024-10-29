@@ -1,14 +1,12 @@
 import { useState } from 'react';
 
 import { ActivityListItem } from '@/ui/dashboard/activities-list/activity-list-item';
-import { useActivities } from '@/ui/dashboard/providers/activities';
 import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
 
 export const ActivitiesList = ({
+  activitiesList,
   ...props
 }: ActivitiesListProps) => {
-  const { activitiesList  } = useActivities();
-
   const [swiped, setSwiped] = useState<string | null>(null);
   const handleSwipe = (id: string) => setSwiped(id);
   const handleSwipeCancel = () => setSwiped(() => null);
