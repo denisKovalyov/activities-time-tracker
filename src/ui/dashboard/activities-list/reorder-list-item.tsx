@@ -3,7 +3,7 @@ import { Reorder, useDragControls } from 'framer-motion';
 
 import { ActivityCard } from '@/ui/dashboard/activities-list/activity-card/activity-card';
 import { DragButton } from '@/ui/dashboard/activities-list/activity-card/drag-button';
-import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
+import { ActivitiesListItemProps } from '@/ui/dashboard/activities-list/types';
 import { ActivityExtended } from '@/lib/definitions';
 import { useStopwatch } from '@/ui/hooks/use-stopwatch';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,7 @@ export const ReorderListItem = ({
   onRemove,
 }: {
   activity: ActivityExtended;
-} & ActivitiesListProps) => {
+} & ActivitiesListItemProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const { id } = activity;

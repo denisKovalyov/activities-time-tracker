@@ -9,7 +9,7 @@ import {
 import { ActivityCard } from '@/ui/dashboard/activities-list/activity-card/activity-card';
 import { useStopwatch } from '@/ui/hooks/use-stopwatch';
 import { ActivityExtended } from '@/lib/definitions';
-import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
+import { ActivitiesListItemProps } from '@/ui/dashboard/activities-list/types';
 import { cn } from '@/lib/utils';
 
 export const ActivityListItem = ({
@@ -25,7 +25,7 @@ export const ActivityListItem = ({
   swiped: boolean;
   onSwipe: (id: string) => void;
   onCancelSwipe: () => void;
-} & ActivitiesListProps) => {
+} & ActivitiesListItemProps) => {
   const [shift, setShift] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const ref = useRef(null);
