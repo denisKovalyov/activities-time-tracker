@@ -3,7 +3,7 @@ import { User } from '@phosphor-icons/react';
 
 import { DialogWrapper } from '@/ui/common/dialog';
 import { Button } from '@/ui/common/button';
-import { deleteUser } from '@/lib/actions/auth/delete-user';
+import { deleteUserData } from '@/lib/actions/auth/delete-user-data';
 import { signOut } from '@/lib/actions/auth/sign-out';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/ui/hooks/use-toast';
@@ -26,7 +26,7 @@ export const RemoveAccountDialog = ({
   const handleConfirm = async () => {
     setIsLoading(true);
 
-    const result = await deleteUser(session?.user?.id!);
+    const result = await deleteUserData(session?.user?.id!);
 
     const hasError = 'message' in result;
 

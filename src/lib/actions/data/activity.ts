@@ -95,7 +95,7 @@ export async function deleteActivity(id: string): Promise<void> {
 
 export async function deleteActivities(userId: string): Promise<void> {
   try {
-    await sql`DELETE FROM activity WHERE name="test"`;
+    await sql`DELETE FROM activity WHERE user_id=${userId}`;
   } catch (error) {
     console.error('DB: failed to delete activities:', error);
     throw new Error('Failed to delete activities.');
