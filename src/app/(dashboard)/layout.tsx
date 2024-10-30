@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 import { MainNavigation } from '@/ui/layout/main-navigation';
 import { MobileNavigation } from '@/ui/layout/mobile-navigation';
 import { InputSearch } from '@/ui/layout/input-search';
@@ -20,7 +20,11 @@ export default function Layout({ children }: { children: ReactNode }) {
           <div className="hidden w-20 pr-2 sm:block">
             <PageName />
           </div>
-          <InputSearch />
+
+          <Suspense>
+            <InputSearch />
+          </Suspense>
+
           <UserMenu />
         </header>
 
