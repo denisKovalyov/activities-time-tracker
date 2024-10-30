@@ -82,7 +82,23 @@ export function SignUpForm() {
         <GoogleSignIn />
       </form>
 
-      <div className="mt-4 flex items-center justify-center">
+      <div className="my-3 text-sm text-center">
+        {`By proceeding, you acknowledge and accept our `}
+        <Link
+          className={cn(
+            buttonVariants({
+              variant: 'link',
+              className: 'h-auto px-0 py-0 inline',
+            }),
+          )}
+          target="_blank"
+          href="/privacy-policy"
+        >
+          Privacy Policy
+        </Link>.
+      </div>
+
+      <div className="flex items-center justify-center">
         <span className="mr-2 text-sm">Already an have account?</span>
         <Link
           className={cn(

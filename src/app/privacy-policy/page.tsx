@@ -58,17 +58,8 @@ export default function PrivacyPolicy() {
           account with us or as necessary to fulfill the purposes outlined in this policy.
         </li>
         <li className="mb-2">
-          <span className="font-semibold">Deletion:</span>
-          <span>
-            {` You may request to delete your account and personal
-            information at any time by contacting us at `}
-          </span>
-          <a href={`mailto:${process.env.APP_SUPPORT_EMAIL}?subject=${process.env.APP_SHORT_NAME}: Support Request`}>
-            {process.env.APP_SUPPORT_EMAIL}
-          </a>
-          <span>
-            {` Upon receiving a deletion request, we will make reasonable efforts to securely delete your data from our records.`}
-          </span>
+          <span className="font-semibold">Deletion:</span> You may delete your account and associated data at any time by using the delete button in your account settings.
+          This action will permanently remove your data from our systems.
         </li>
         <li className="mb-2">
           <span className="font-semibold">Loss or Data Deletion:</span> During app development, there may be instances
