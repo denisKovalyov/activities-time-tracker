@@ -3,7 +3,6 @@ import { auth } from '@/auth';
 import { ActivityDialog } from '@/ui/dashboard/activity-dialog';
 import { RemoveActivityDialog } from '@/ui/dashboard/remove-activity-dialog';
 import { ProvidersWrapper} from '@/ui/dashboard';
-import { SetCookies } from '@/ui/dashboard/set-cookies';
 import { getActivities } from '@/lib/actions/activity';
 import { getRecord } from '@/lib/actions/record';
 import { getSecondsPassed } from '@/lib/utils';
@@ -40,7 +39,6 @@ export default async function Activities() {
       />
       <ActivityDialog activities={activities} />
       <RemoveActivityDialog activities={activities} />
-      <SetCookies />
     </>
   );
 }

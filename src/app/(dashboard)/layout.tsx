@@ -5,10 +5,13 @@ import { InputSearch } from '@/ui/layout/input-search';
 import { UserMenu } from '@/ui/layout/user-menu';
 import { PageName } from '@/ui/layout/page-name';
 import { Logo } from '@/ui/common/logo';
+import { SetCookies } from '@/ui/layout/set-cookies';
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-dvh w-full flex-col">
+      <SetCookies />
+
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r border-secondary sm:flex">
         <MainNavigation />
       </aside>

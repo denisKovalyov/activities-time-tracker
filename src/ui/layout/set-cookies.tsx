@@ -18,7 +18,7 @@ export const SetCookies = () => {
     const date = formatDate(new Date());
 
     if (!cookies[USER_DATE_COOKIE_NAME] || date !== cookies[USER_DATE_COOKIE_NAME]) {
-      document.cookie = `${USER_DATE_COOKIE_NAME}=${date}; path=/dashboard; secure; SameSite=Lax`;
+      document.cookie = `${USER_DATE_COOKIE_NAME}=${date}; path=/; secure; SameSite=Lax`;
       window.location.reload();
     }
   }, []);
