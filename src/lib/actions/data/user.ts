@@ -15,14 +15,17 @@ export async function getUser(email: string): Promise<User | undefined> {
 export async function createUser({
   email,
   password: hashedPassword,
-  emailVerificationToken,
-}: Credentials & { emailVerificationToken: string }): Promise<void> {
+  emailVerificationToken = null,
+}: Credentials & { emailVerificationToken?: string | null }): Promise<User> {
   try {
     const date = new Date().toISOString();
 
-    await sql`
+    const result = await sql`
       INSERT INTO "user"(name, email, password, email_verification_token, created_at, updated_at)
-      VALUES ('', ${email}, ${hashedPassword}, ${emailVerificationToken}, ${date}, ${date})`;
+      VALUES ('', ${email}, ${hashedPassword}, ${emailVerificationToken}, ${date}, ${date})
+      RETURNING *`;
+
+    return result.rows[0] as User;
   } catch (error) {
     console.error('DB: Failed to create user:', error);
     throw new Error('Failed to create user.');

@@ -2,7 +2,7 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  email_verified: Date | null;
+  email_verified: Date | null | boolean;
   email_verification_token: string | null;
   password: string;
   created_at: Date;

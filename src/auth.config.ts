@@ -4,6 +4,7 @@ import { AdapterUser } from '@auth/core/adapters';
 
 export const PROTECTED_PAGES = ['/dashboard', '/statistics', '/settings'];
 const SIGN_IN_PATH = '/sign-in';
+const SIGN_UP_PATH = '/sign-up';
 
 export const authConfig = {
   pages: {
@@ -18,18 +19,23 @@ export const authConfig = {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       } else if (isLoggedIn) {
-        if (nextUrl.pathname === SIGN_IN_PATH) {
+        if (nextUrl.pathname === SIGN_IN_PATH || nextUrl.pathname === SIGN_UP_PATH) {
           return NextResponse.redirect(new URL(PROTECTED_PAGES[0], nextUrl));
         }
       }
       return true;
     },
-    async session({ session, token, user }) {
+    async session({ session, token }) {
       session.user = token.user as AdapterUser;
       return session;
     },
-    async jwt({ token, user, trigger, session }) {
-      if (user) token.user = user;
+    async jwt({ token, user, trigger, session, account }) {
+      if (user) {
+        token.user = {
+          ...user,
+          id: account?.providerAccountId || user.id,
+        };
+      }
       if (trigger === 'update' && session) {
         token = { ...token, user: session };
         return token;

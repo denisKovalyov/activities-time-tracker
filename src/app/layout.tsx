@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     template: `%s | ${process.env.APP_SHORT_NAME}`,
     default: process.env.APP_NAME as string,
   },
+  icons: {
+    icon: '/logo.svg',
+  },
   description: `${process.env.APP_DESCRIPTION}`,
   metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
 };
