@@ -1,8 +1,7 @@
-'use client';
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/common/tabs';
 import { useRouter } from '@/ui/hooks/use-router';
 import { Account } from '@/ui/settings/account';
+import { TabsProps } from '@/ui/settings/types';
 
 const TABS = [
   { key: 'account', name: 'Account', component: <Account />},
@@ -11,9 +10,7 @@ const TABS = [
 
 export function SettingsTabs({
   activeTab = TABS[0].key,
-}: {
-  activeTab?: string,
-}) {
+}: TabsProps) {
   const { router } = useRouter();
 
   const handleTabChange = (tabId: string) => {

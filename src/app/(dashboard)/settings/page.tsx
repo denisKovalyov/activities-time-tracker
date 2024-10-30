@@ -1,13 +1,7 @@
-import { Suspense } from 'react';
-
-import { SettingsTabs } from '@/ui/settings/tabs';
+import { PageWrapper } from '@/ui/settings';
 
 export default async function Settings({ searchParams }: { searchParams: Promise<{tab?: string}> }) {
   const activeTab = (await searchParams).tab;
 
-  return (
-    <Suspense>
-      <SettingsTabs activeTab={activeTab} />
-    </Suspense>
-  );
+  return (<PageWrapper activeTab={activeTab} />);
 }
