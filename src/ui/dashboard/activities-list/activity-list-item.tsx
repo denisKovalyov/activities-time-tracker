@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useSwipeable } from 'react-swipeable';
+import { useLongPress } from 'use-long-press';
 
 import {
   ActionButtons,
@@ -64,6 +65,8 @@ export const ActivityListItem = ({
     },
   });
 
+  const bindLongPress = useLongPress(onReorder);
+
   const handleClickOutsideButtons = () => {
     setShift(0);
     if (swiped) onCancelSwipe();
@@ -85,6 +88,7 @@ export const ActivityListItem = ({
       )}
       style={{transform: `translateX(${shift}px)`}}
       {...handlers}
+      {...bindLongPress()}
     >
       <ActivityCard
         className={shift !== 0 ? 'rounded-r-none shadow-none' : ''}

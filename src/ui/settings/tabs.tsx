@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/common/tabs';
 import { useRouter } from '@/ui/hooks/use-router';
 import { Account } from '@/ui/settings/account';
 import { TabsProps } from '@/ui/settings/types';
+import {useRouter as useRouterNext} from 'next/dist/client/components/navigation';
 
 const TABS = [
   { key: 'account', name: 'Account', component: <Account />},
@@ -11,7 +12,7 @@ const TABS = [
 export function SettingsTabs({
   activeTab = TABS[0].key,
 }: TabsProps) {
-  const { router } = useRouter();
+  const router = useRouterNext();
 
   const handleTabChange = (tabId: string) => {
     router.push(`?tab=${tabId}`);
