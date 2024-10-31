@@ -10,9 +10,7 @@ export const getSecondsPassed = (dateStr: string | null | undefined) =>
   dateStr ? Math.floor((+new Date() - +new Date(dateStr)) / 1000) : 0;
 
 export const formatDate = (date: Date) =>
-  new Date(`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`)
-    .toISOString()
-    .split('T')[0];
+  `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
 
 export const getWeekStartDate = (date: Date = new Date()) => {
   const currentDate = new Date(date);
