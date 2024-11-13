@@ -16,7 +16,7 @@ export const SetCookies = () => {
       }, {} as Record<string, string>);
 
     const date = formatDate(new Date());
-
+    console.log('cookies date', date, cookies[USER_DATE_COOKIE_NAME]);
     if (!cookies[USER_DATE_COOKIE_NAME] || date !== cookies[USER_DATE_COOKIE_NAME]) {
       document.cookie = `${USER_DATE_COOKIE_NAME}=${date}; path=/; secure; SameSite=Lax`;
       window.location.reload();

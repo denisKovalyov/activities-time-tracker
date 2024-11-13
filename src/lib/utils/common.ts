@@ -21,7 +21,7 @@ export const getRandomValue = <T>(arr: T[]): T => {
 };
 
 const getTotalTimeSpent = (activities: ActivityExtended[]) => activities
-  .reduce((acc, { timeSpent }) => acc + timeSpent, 0);
+  .reduce((acc, { time_spent }) => acc + time_spent, 0);
 
 export const calculateTimeDiff = (activitiesCurrent: ActivityExtended[], activitiesPrevious: ActivityExtended[]) => {
   const currentTotalTime = getTotalTimeSpent(activitiesCurrent);
@@ -39,7 +39,7 @@ export const prepareChartData = (
   currentTimeSpent: number,
   activeActivity?: [string, string] | null,
 ) =>
-  activities.map(({ id, name, color, timeSpent: value }) => ({
+  activities.map(({ id, name, color, time_spent: value }) => ({
     name,
     fill: `#${color}`,
     value: id === activeActivity?.[0] ? (value + currentTimeSpent) : value,

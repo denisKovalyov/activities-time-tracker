@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
-import { ActivityExtended } from '@/lib/definitions';
 import { reorderActivities } from '@/lib/actions/activity';
 import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { getReorderedActivities, isListHasChanged } from '@/ui/dashboard/activities-list/utils';
 import { useToast } from '@/ui/hooks/use-toast';
 import { useRouter } from '@/ui/hooks/use-router';
+import { ActivityExtended } from '@/lib/definitions';
 
 const DEBOUNCE_DELAY = 2000;
 
@@ -21,10 +21,13 @@ export const useActivities = (activities: ActivityExtended[]): UseActivities => 
     useState<(ActivityExtended & { hidden?: boolean })[]>(activities);
   const [previousList, setPreviousList] = useState<ActivityExtended[]>([]);
 
-  if (isListHasChanged(previousList, activities)) {
-    setActivitiesList(activities);
-    setPreviousList(activities);
-  }
+  useEffect(() => {
+    if (isListHasChanged(previousList, activities)) {
+      console.log('list changed!');
+      setActivitiesList(activities);
+      setPreviousList(activities);
+    }
+  }, [activities, previousList, setActivitiesList, setPreviousList]);
 
   const { toast } = useToast();
 
@@ -47,10 +50,6 @@ export const useActivities = (activities: ActivityExtended[]): UseActivities => 
     if (!diff.length) return;
 
     const result = await reorderActivities(diff);
-
-    if ('success' in result) {
-      await refetchActivities();
-    }
 
     toast({
       title: 'message' in result ? result.message : 'Activities order was successfully updated!',

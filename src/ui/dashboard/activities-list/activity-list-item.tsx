@@ -50,7 +50,6 @@ export const ActivityListItem = ({
   const handlers = useSwipeable({
     onSwipedLeft: () => onSwipe(id),
     onSwiping: (e) => {
-      console.log('swiping', reorderMode)
       if (reorderMode) return;
       if (!isSwiping) setIsSwiping(true);
       if (e.dir === 'Left' && Math.abs(shift) <= BUTTONS_WIDTH)

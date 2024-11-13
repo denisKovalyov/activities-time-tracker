@@ -13,8 +13,20 @@ export const getReorderedActivities = (activitiesList: ActivityExtended[], reord
 export const isListHasChanged = (list: ActivityExtended[], updatedList: ActivityExtended[]) => {
   if (list.length !== updatedList.length) return true;
 
-  return list.some(({ updated_at: updatedAt, timeSpent }, index) => {
-    const updatedItem = updatedList[index];
-    if (+updatedAt !== +updatedItem.updated_at || timeSpent !== updatedItem.timeSpent) return true;
+  const activitiesHashMap = updatedList.reduce((acc, { id, ...activity }) => ({
+    [id]: activity,
+    ...acc,
+  }), {});
+
+  return list.some(({ id, name, color, icon, is_archived, time_spent }) => {
+    const updatedItem = activitiesHashMap[id];
+
+    if (
+      name !== updatedItem.name ||
+      color !== updatedItem.color ||
+      icon !== updatedItem.icon ||
+      is_archived !== updatedItem.is_archived ||
+      time_spent !== updatedItem.time_spent
+    ) return true;
   });
 };

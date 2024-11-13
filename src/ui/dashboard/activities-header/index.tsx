@@ -16,13 +16,11 @@ const TitleComponent = ({
   onAnimationEnd,
   name,
   icon,
-  color,
 }: {
   className: string;
   onAnimationEnd: () => void;
   name: string;
   icon: string;
-  color: string;
 }) => (
   <div
     className={cn('flex items-center truncate', className)}
@@ -34,7 +32,8 @@ const TitleComponent = ({
     <ActivityIcon
       className="flex-none"
       name={icon}
-      color={`#${color}`}
+      color="white"
+      weight="duotone"
     />
   </div>
 );
@@ -84,7 +83,6 @@ export const ActivitiesHeader = ({
       className={animationClass}
       onAnimationEnd={handleAnimationEnd}
       name={activity.name}
-      color={activity.color}
       icon={activity.icon}
     />
   ) : (

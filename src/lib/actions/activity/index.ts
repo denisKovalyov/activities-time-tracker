@@ -28,7 +28,7 @@ export async function getActivities(
 
     return activities.map((activity) => ({
       ...activity,
-      timeSpent: record?.activities?.[activity.id] || 0,
+      time_spent: record?.activities?.[activity.id] || 0,
     }));
   } catch (error: unknown) {
     return { message: 'Something went wrong.' };
@@ -53,7 +53,7 @@ export async function getActivitiesRange(
 
     return activities.map((activity) => ({
       ...activity,
-      timeSpent: recordsTotal[activity.id] || 0,
+      time_spent: recordsTotal[activity.id] || 0,
     }));
   } catch (error: unknown) {
     return {

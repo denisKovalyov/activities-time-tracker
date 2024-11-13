@@ -62,7 +62,7 @@ export async function updateActivity(
 
 export async function reorderActivities(
   activitiesList: { id: string; order: number }[],
-): Promise<ActivityExtended[]> {
+): Promise<Activity[]> {
   try {
     const updatedAt = new Date().toISOString();
     const dataSet = activitiesList.reduce((str, { id, order}, i) => {

@@ -12,7 +12,7 @@ export default async function Activities() {
   const session = await auth();
   const userId = session?.user?.id!;
   const date = await retrieveDateFromCookies();
-
+  // console.log('date from cookies', date);
   const [activities, record] = await Promise.all([
     getActivities(userId!, date),
     getRecord(userId!, date),
@@ -24,7 +24,7 @@ export default async function Activities() {
 
   let totalTimeSpent = getSecondsPassed(activeActivity?.[1]);
   const activitiesTimeMap = activities.reduce((acc, curr) => {
-    const value = curr.timeSpent;
+    const value = curr.time_spent;
     totalTimeSpent += value;
     return { ...acc, [curr.id]: value };
   }, {});
