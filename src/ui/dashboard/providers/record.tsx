@@ -10,7 +10,7 @@ import React, {
 
 import { noop } from '@/lib/utils';
 import { ActivityRecord } from '@/lib/definitions';
-import { ProvidersWrapperProps } from '@/ui/dashboard/types';
+import { DashboardWrapperProps } from '@/ui/dashboard/types';
 
 interface RecordContextProps {
   runningTimestamp: string | null;
@@ -30,7 +30,7 @@ const Record = createContext<RecordContextProps>({
 
 export const RecordProvider: React.FC<{
   activeActivity: ActivityRecord['current_activity'] | null;
-  activitiesMap: ProvidersWrapperProps['activitiesTimeMap'];
+  activitiesMap: DashboardWrapperProps['activitiesTimeMap'];
   totalTimeSpent: number;
   children: ReactNode;
 }> = ({

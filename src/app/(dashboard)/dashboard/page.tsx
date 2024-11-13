@@ -2,7 +2,7 @@ import { auth } from '@/auth';
 
 import { ActivityDialog } from '@/ui/dashboard/activity-dialog';
 import { RemoveActivityDialog } from '@/ui/dashboard/remove-activity-dialog';
-import { ProvidersWrapper} from '@/ui/dashboard';
+import { DashboardWrapper } from '@/ui/dashboard';
 import { getActivities } from '@/lib/actions/activity';
 import { getRecord } from '@/lib/actions/record';
 import { getSecondsPassed } from '@/lib/utils';
@@ -31,14 +31,15 @@ export default async function Activities() {
 
   return (
     <>
-      <ProvidersWrapper
-        activeActivity={activeActivity}
+      <DashboardWrapper
         activities={activities}
         activitiesTimeMap={activitiesTimeMap}
+        activeActivity={activeActivity}
         totalTimeSpent={totalTimeSpent}
       />
-      <ActivityDialog activities={activities} />
-      <RemoveActivityDialog activities={activities} />
+
+      <ActivityDialog activities={activities}/>
+      <RemoveActivityDialog activities={activities}/>
     </>
   );
 }

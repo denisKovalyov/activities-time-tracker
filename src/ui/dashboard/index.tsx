@@ -3,46 +3,41 @@
 import { FolderOpen } from '@phosphor-icons/react';
 
 import { ActivitiesHeader } from '@/ui/dashboard/activities-header';
-import { ActivitiesProvider } from '@/ui/dashboard/providers/activities';
 import { RecordProvider } from '@/ui/dashboard/providers/record';
-import { ActivitiesListWrapper } from '@/ui/dashboard/activities-list';
+import { ActivitiesList } from '@/ui/dashboard/activities-list';
 import { EmptyState } from '@/ui/common/empty-state';
-import { BackgroundStopwatch } from '@/ui/dashboard/background-stopwatch';
-import { ProvidersWrapperProps } from '@/ui/dashboard/types';
+import { DashboardWrapperProps } from '@/ui/dashboard/types';
 
-export const ProvidersWrapper = ({
+export const DashboardWrapper = ({
   activeActivity,
   activities,
   activitiesTimeMap,
   totalTimeSpent,
-}: ProvidersWrapperProps) => {
+}: DashboardWrapperProps) => {
   return (
     <div className="flex h-full w-full flex-col">
-      <ActivitiesProvider
-        activities={activities}
+      <RecordProvider
+        activeActivity={activeActivity}
+        activitiesMap={activitiesTimeMap}
+        totalTimeSpent={totalTimeSpent}
       >
-        <RecordProvider
-          activeActivity={activeActivity}
-          activitiesMap={activitiesTimeMap}
+        <ActivitiesHeader
+          activities={activities}
           totalTimeSpent={totalTimeSpent}
-        >
-          <ActivitiesHeader
-            activities={activities}
-            dateStr={activeActivity?.[1]}
-            totalTimeSpent={totalTimeSpent}
-            activitiesNumber={activities.length}
+          activitiesNumber={activities.length}
+        />
+
+        {activities.length === 0 ? (
+          <EmptyState
+            icon={FolderOpen}
+            text="You don't have any activities yet"
           />
-          {activities.length === 0 ? (
-            <EmptyState
-              icon={FolderOpen}
-              text="You don't have any activities yet"
-            />
-          ) : (
-            <ActivitiesListWrapper />
-          )}
-          <BackgroundStopwatch />
-        </RecordProvider>
-      </ActivitiesProvider>
+        ) : (
+          <ActivitiesList
+            activities={activities}
+          />
+        )}
+      </RecordProvider>
     </div>
   );
 }

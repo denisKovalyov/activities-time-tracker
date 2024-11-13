@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { ActivityExtended } from '@/lib/definitions';
@@ -7,29 +7,16 @@ import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { getReorderedActivities, isListHasChanged } from '@/ui/dashboard/activities-list/utils';
 import { useToast } from '@/ui/hooks/use-toast';
 import { useRouter } from '@/ui/hooks/use-router';
-import { noop } from '@/lib/utils';
 
 const DEBOUNCE_DELAY = 2000;
 
-interface ActivitiesContextProps {
+type UseActivities = {
   activitiesList: ActivityExtended[];
   handleReorder: () => void;
   handleReorderDebounced: (activitiesList: ActivityExtended[]) => void;
 }
 
-const Activities = createContext<ActivitiesContextProps>({
-  activitiesList: [],
-  handleReorder: noop,
-  handleReorderDebounced: noop,
-});
-
-export const ActivitiesProviderComponent: React.FC<{
-  activities: ActivityExtended[];
-  children: ReactNode;
-}> = ({
-  activities,
-  children,
-}) => {
+export const useActivities = (activities: ActivityExtended[]): UseActivities => {
   const [activitiesList, setActivitiesList] =
     useState<(ActivityExtended & { hidden?: boolean })[]>(activities);
   const [previousList, setPreviousList] = useState<ActivityExtended[]>([]);
@@ -61,13 +48,13 @@ export const ActivitiesProviderComponent: React.FC<{
 
     const result = await reorderActivities(diff);
 
-    if (result.success) {
+    if ('success' in result) {
       await refetchActivities();
     }
 
     toast({
-      title: result?.message || 'Activities order was successfully updated!',
-      variant: result?.message ? 'destructive' : 'success',
+      title: 'message' in result ? result.message : 'Activities order was successfully updated!',
+      variant: 'message' in result ? 'destructive' : 'success',
     });
   };
 
@@ -88,25 +75,9 @@ export const ActivitiesProviderComponent: React.FC<{
 
   const list = useMemo(() => activitiesList.filter(({ hidden }) => !hidden), [activitiesList]);
 
-  return (
-    <Activities.Provider
-      value={{
-        activitiesList: list,
-        handleReorderDebounced,
-        handleReorder,
-      }}
-    >
-      {children}
-    </Activities.Provider>
-  );
+  return {
+    activitiesList: list,
+    handleReorderDebounced,
+    handleReorder,
+  };
 };
-
-export const useActivities = () => {
-  const context = useContext(Activities);
-  if (!context) {
-    throw new Error('useActivities must be used within an ActivitiesProvider');
-  }
-  return context;
-};
-
-export const ActivitiesProvider = React.memo(ActivitiesProviderComponent);
