@@ -7,8 +7,8 @@ import { createNewRecord, getRecord as getRecordAction, updateRecord } from '@/l
 import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
 import { useRecord } from '@/ui/dashboard/providers/record';
-import { getSecondsPassed, padWithZero } from '@/lib/utils';
 import { updateState } from '@/ui/hooks/use-shared-stopwatch';
+import { getSecondsPassed, padWithZero } from '@/lib/utils';
 
 const DEBOUNCE_DELAY = 500;
 
@@ -52,7 +52,7 @@ const getRecord = async (userId: string, date: Date) => {
 
 const startRecord = async ({ userId, currentActivity }: { userId: string, currentActivity: [string, Date] }) => {
   const record = await getRecord(userId, currentActivity[1]);
-  const storedActivity = record?.current_activity || null;
+  const storedActivity = (record && 'current_activity' in record) ? record.current_activity : null;
 
   if (storedActivity?.[0] === currentActivity[0]) return;
 

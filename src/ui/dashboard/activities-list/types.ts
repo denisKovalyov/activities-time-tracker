@@ -1,6 +1,11 @@
 import { ActivityExtended } from '@/lib/definitions';
 
 export type ActivitiesListItemProps = {
+  activity: ActivityExtended;
+  swiped: boolean;
+  onSwipe: (id: string) => void;
+  onCancelSwipe: () => void;
+  reorderMode: boolean;
   recordingId: string | null;
   onRecord: (id: string) => void;
   onEdit: (id: string) => void;
@@ -9,5 +14,5 @@ export type ActivitiesListItemProps = {
 };
 
 export type ActivitiesListProps = {
-  activitiesList: ActivityExtended[];
-} & ActivitiesListItemProps;
+  activities: ActivityExtended[];
+};

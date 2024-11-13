@@ -7,9 +7,9 @@ import { StopRecordButton } from '@/ui/dashboard/activities-header/stop-record-b
 import { useRouter } from '@/ui/hooks/use-router';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
 import { useRecord } from '@/ui/dashboard/providers/record';
-import { cn } from '@/lib/utils';
+import { useSharedStopwatch } from '@/ui/hooks/use-shared-stopwatch';
 import { ActivityExtended } from '@/lib/definitions';
-import {useSharedStopwatch} from '@/ui/hooks/use-shared-stopwatch';
+import { cn } from '@/lib/utils';
 
 const TitleComponent = ({
   className,
@@ -60,12 +60,10 @@ export const ActivitiesHeader = ({
   totalTimeSpent,
   activitiesNumber,
   activities,
-  dateStr,
 }: {
   totalTimeSpent: number;
   activitiesNumber: number;
   activities: ActivityExtended[];
-  dateStr?: string;
 }) => {
   const [animationClass, setAnimationClass] = useState('opacity-0');
   const { searchParams } = useRouter();
