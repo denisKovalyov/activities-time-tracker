@@ -2,7 +2,7 @@ import React from 'react';
 import { IconProps, Empty } from '@phosphor-icons/react';
 import { icons } from './icon-list';
 
-const Icon: React.FC<IconProps> = ({
+export const Icon: React.FC<IconProps> = ({
   name,
   size = 24,
   className = '',
@@ -16,7 +16,4 @@ const Icon: React.FC<IconProps> = ({
   );
 };
 
-export {
-  Icon,
-  IconProps,
-}
+export type { IconProps };

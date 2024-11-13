@@ -1,7 +1,5 @@
 import { icons } from '@/ui/common/icon/icon-list';
-import { Icon } from '@/ui/common/icon/icon';
+import { Icon, IconProps } from '@/ui/common/icon/icon';
 
 export { icons, Icon };
-
-export class IconProps {
-}
+export type { IconProps };

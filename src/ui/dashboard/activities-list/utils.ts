@@ -13,7 +13,7 @@ export const getReorderedActivities = (activitiesList: ActivityExtended[], reord
 export const isListHasChanged = (list: ActivityExtended[], updatedList: ActivityExtended[]) => {
   if (list.length !== updatedList.length) return true;
 
-  const activitiesHashMap = updatedList.reduce((acc, { id, ...activity }) => ({
+  const activitiesHashMap: Record<string, Omit<ActivityExtended, 'id'>> = updatedList.reduce((acc, { id, ...activity }) => ({
     [id]: activity,
     ...acc,
   }), {});
