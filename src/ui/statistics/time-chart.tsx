@@ -48,23 +48,26 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const TITLE_MAP = {
-  day: 'Today',
-  week: 'This Week',
-  month: 'This Month',
-}
+type Period = 'day' | 'week' | 'month' | 'last7days';
+
+const TEXT_MAP: Record<Period, { title: string; footer: string }> = {
+  day: { title: 'Today', footer: 'today' },
+  week: { title: 'This Week', footer: 'this week' },
+  month: { title: 'This Month', footer: 'this month' },
+  last7days: { title: 'Total Over the Last 7 Day', footer: 'over the last 7 days' },
+};
 
 type DataItem = {
-  id: string;
   name: string;
-  fill: string;
   value: number;
+  id?: string;
+  fill?: string;
   aggregate?: boolean;
 }
 
 type TimeChartProps = {
   data: DataItem[];
-  period: 'day' | 'week' | 'month';
+  period: Period;
   total: number;
 }
 
@@ -101,7 +104,7 @@ export function TimeChart({
           id: 'other-id',
           name: 'Others',
           aggregate: true,
-          fill: 'hsl(var(--primary))',
+          fill: 'hsl(var(--accent))',
           value: lowestValues.values().reduce((acc, { value }) => acc + value, 0),
       }];
 
@@ -109,20 +112,28 @@ export function TimeChart({
     }
 
     if (activeActivity) {
-      const storedValue = data.find(({ id }) => id === activeActivity.id)?.value || 0;
+      const isAggregate = period === 'last7days';
+
+      const storedValue = isAggregate
+        ? data[0].value
+        : data.find(({ id }) => id === activeActivity.id)?.value || 0;
+
       setStoredActiveValue(storedValue);
       setBasicData([{
           id: activeActivity.id,
-          name: activeActivity.name,
-          fill: `#${activeActivity.color}`,
+          name: isAggregate ? 'Today' : activeActivity.name,
+          fill: isAggregate ? 'hsl(var(--primary)' : `#${activeActivity.color}`,
           value: storedValue,
-        }, ...chartData.filter(({ id }) => id !== activeActivity.id)],
-      )
+        },
+          ...chartData
+            .filter(({ id, name }) => storedValue ? name !=='Today' : id !== activeActivity.id)
+        ],
+      );
       return;
     }
 
     setBasicData(chartData);
-  }, [basicData, activeActivity, data, setBasicData, setStoredActiveValue]);
+  }, [period, basicData, activeActivity, data, setBasicData, setStoredActiveValue]);
 
   const isDesktop = width > CHART_MOBILE_WIDTH;
   const labelFontSize = isDesktop ? LABEL_FONT_SIZE : 12;
@@ -131,9 +142,11 @@ export function TimeChart({
     data.reduce((acc, { name }) => name.length > acc ? name.length : acc, 0),
   [data]);
 
-  const periodText = period === 'day' ? 'today' : `this ${period}`;
   const timeValues = useCalculateTimeValues(total + dynamicSeconds);
-  const footer = hasValues ? `Total time spent ${periodText} ${timeValues[0]}:${timeValues[1]}:${timeValues[2]}` : 'No data';
+  const title = TEXT_MAP[period].title;
+  const footer = hasValues
+    ? `Total time spent ${TEXT_MAP[period].footer} ${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`
+    : 'No data';
 
   let dateStr = formatReadableDate(new Date(), { dateStyle: isDesktop ? 'long' : 'medium' });
   if (period === 'week' || period === 'month') {
@@ -157,7 +170,7 @@ export function TimeChart({
   return (
     <Card>
       <CardHeader className="pb-4">
-        <CardTitle>{TITLE_MAP[period]}</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <CardDescription>{dateStr}</CardDescription>
       </CardHeader>
       <CardContent className="pb-4">
