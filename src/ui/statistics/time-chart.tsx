@@ -105,7 +105,7 @@ export function TimeChart({
           name: 'Others',
           aggregate: true,
           fill: 'hsl(var(--accent))',
-          value: lowestValues.values().reduce((acc, { value }) => acc + value, 0),
+          value: sortedArr.reduce((acc, { value }) => acc + value, 0),
       }];
 
       setAggregateBar(sortedArr.map(({ name }) => name));
