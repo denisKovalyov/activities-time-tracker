@@ -20,29 +20,27 @@ export const getRandomValue = <T>(arr: T[]): T => {
   return arr[randomIndex];
 };
 
-const getTotalTimeSpent = (activities: ActivityExtended[]) => activities
+export const getTotalTimeSpent = (activities: ActivityExtended[]) => activities
   .reduce((acc, { time_spent }) => acc + time_spent, 0);
-
-export const calculateTimeDiff = (activitiesCurrent: ActivityExtended[], activitiesPrevious: ActivityExtended[]) => {
-  const currentTotalTime = getTotalTimeSpent(activitiesCurrent);
-  const previousTotalTime = getTotalTimeSpent(activitiesPrevious);
-
-  if (previousTotalTime === 0) {
-    return currentTotalTime > 0 ? 100 : 0;
-  }
-
-  return ((currentTotalTime - previousTotalTime) / previousTotalTime) * 100;
-}
 
 export const prepareChartData = (
   activities: ActivityExtended[],
-  currentTimeSpent: number,
-  activeActivity?: [string, string] | null,
 ) =>
-  activities.map(({ id, name, color, time_spent: value }) => ({
-    name,
-    fill: `#${color}`,
-    value: id === activeActivity?.[0] ? (value + currentTimeSpent) : value,
-  }));
+  activities
+    .map(({ id, name, color, time_spent: value }) => ({
+      id,
+      name,
+      fill: `#${color}`,
+      value,
+    }))
+    .filter(({ value }) => value > 0);
+
+export const getCookies = () => document.cookie
+  .split('; ')
+  .reduce((prev, current) => {
+    const [name, ...rest] = current.split('=');
+    prev[name] = rest.join('=');
+    return prev;
+  }, {} as Record<string, string>);
 
 export const noop = () => {};

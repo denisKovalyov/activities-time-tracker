@@ -6,7 +6,7 @@ import { ConfirmReorderingButton } from '@/ui/dashboard/activities-header/confir
 import { StopRecordButton } from '@/ui/dashboard/activities-header/stop-record-button';
 import { useRouter } from '@/ui/hooks/use-router';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
-import { useRecord } from '@/ui/dashboard/providers/record';
+import { useRecord } from '@/ui/providers/record-provider';
 import { useSharedStopwatch } from '@/ui/hooks/use-shared-stopwatch';
 import { ActivityExtended } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
@@ -57,16 +57,16 @@ const headerBlockClasses =
 
 export const ActivitiesHeader = ({
   totalTimeSpent,
-  activitiesNumber,
   activities,
 }: {
   totalTimeSpent: number;
-  activitiesNumber: number;
   activities: ActivityExtended[];
 }) => {
   const [animationClass, setAnimationClass] = useState('opacity-0');
   const { searchParams } = useRouter();
   const { activeId, setActiveId } = useRecord();
+
+  const activitiesNumber = activities.length;
 
   useEffect(() => {
     if (activeId) {

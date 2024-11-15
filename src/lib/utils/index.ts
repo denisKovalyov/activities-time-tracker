@@ -2,13 +2,13 @@ export {
   cn,
   setDelay,
   getRandomValue,
-  calculateTimeDiff,
+  getTotalTimeSpent,
   prepareChartData,
+  getCookies,
   noop,
 } from './common';
 
 export {
-  getTimeRanges,
   getSecondsPassed,
   formatDate,
   getWeekStartDate,

@@ -26,28 +26,3 @@ export const getMonthStartDate = (date: Date = new Date()) => {
   currentDate.setDate(1);
   return currentDate;
 }
-
-export const getTimeRanges = (today: Date) => {
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-
-  const weekStart = getWeekStartDate(today);
-  const lastWeekStart = new Date(weekStart);
-  lastWeekStart.setDate(weekStart.getDate() - 7);
-  const lastWeekEnd = new Date(weekStart);
-  lastWeekEnd.setDate(weekStart.getDate() - 1);
-
-  const monthStart = getMonthStartDate(today);
-  const lastMonthStart = new Date(monthStart);
-  lastMonthStart.setMonth(monthStart.getMonth() - 1);
-  const lastMonthEnd = new Date(monthStart);
-  lastMonthEnd.setDate(monthStart.getDate() - 1);
-
-  return {
-    yesterday,
-    weekStart,
-    monthStart,
-    lastWeek: [lastWeekStart, lastWeekEnd],
-    lastMonth: [lastMonthStart, lastMonthEnd],
-  }
-}

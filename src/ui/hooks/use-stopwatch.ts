@@ -6,13 +6,13 @@ import debounce from 'debounce';
 import { createNewRecord, getRecord as getRecordAction, updateRecord } from '@/lib/actions/record';
 import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
-import { useRecord } from '@/ui/dashboard/providers/record';
+import { useRecord } from '@/ui/providers/record-provider';
 import { updateState } from '@/ui/hooks/use-shared-stopwatch';
 import { getSecondsPassed, padWithZero } from '@/lib/utils';
 
 const DEBOUNCE_DELAY = 500;
 
-export const getOffset = (timeSpent: number) => {
+const getOffset = (timeSpent: number) => {
   const date = new Date();
   date.setSeconds(date.getSeconds() + timeSpent);
   return date;

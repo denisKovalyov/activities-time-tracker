@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { reorderActivities } from '@/lib/actions/activity';
-import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { getReorderedActivities, isListHasChanged } from '@/ui/dashboard/activities-list/utils';
 import { useToast } from '@/ui/hooks/use-toast';
 import { useRouter } from '@/ui/hooks/use-router';
@@ -10,20 +9,19 @@ import { ActivityExtended } from '@/lib/definitions';
 
 const DEBOUNCE_DELAY = 2000;
 
-type UseActivities = {
+type UseActivitiesList = {
   activitiesList: ActivityExtended[];
   handleReorder: () => void;
   handleReorderDebounced: (activitiesList: ActivityExtended[]) => void;
 }
 
-export const useActivities = (activities: ActivityExtended[]): UseActivities => {
+export const useActivitiesList = (activities: ActivityExtended[]): UseActivitiesList => {
   const [activitiesList, setActivitiesList] =
     useState<(ActivityExtended & { hidden?: boolean })[]>(activities);
   const [previousList, setPreviousList] = useState<ActivityExtended[]>([]);
 
   useEffect(() => {
     if (isListHasChanged(previousList, activities)) {
-      console.log('list changed!');
       setActivitiesList(activities);
       setPreviousList(activities);
     }

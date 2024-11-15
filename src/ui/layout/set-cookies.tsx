@@ -3,24 +3,26 @@
 import { useEffect } from 'react';
 
 import { USER_DATE_COOKIE_NAME } from '@/lib/constants';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getCookies } from '@/lib/utils';
+
+const handleDateCookies = () => {
+  const cookies = getCookies();
+  const date = formatDate(new Date());
+  console.log('cookies date', date, cookies[USER_DATE_COOKIE_NAME]);
+  if (!cookies[USER_DATE_COOKIE_NAME] || date !== cookies[USER_DATE_COOKIE_NAME]) {
+    document.cookie = `${USER_DATE_COOKIE_NAME}=${date}; path=/; secure; SameSite=Lax`;
+    window.location.reload();
+  }
+}
 
 export const SetCookies = () => {
   useEffect(() => {
-    const cookies = document.cookie
-      .split('; ')
-      .reduce((prev, current) => {
-        const [name, ...rest] = current.split('=');
-        prev[name] = rest.join('=');
-        return prev;
-      }, {} as Record<string, string>);
+    handleDateCookies();
 
-    const date = formatDate(new Date());
-    console.log('cookies date', date, cookies[USER_DATE_COOKIE_NAME]);
-    if (!cookies[USER_DATE_COOKIE_NAME] || date !== cookies[USER_DATE_COOKIE_NAME]) {
-      document.cookie = `${USER_DATE_COOKIE_NAME}=${date}; path=/; secure; SameSite=Lax`;
-      window.location.reload();
-    }
+    document.addEventListener('visibilitychange', handleDateCookies);
+    return () => {
+      document.removeEventListener('visibilitychange', handleDateCookies);
+    };
   }, []);
 
   return null;

@@ -4,7 +4,7 @@ import { Reorder } from 'framer-motion';
 
 import { ActivityListItem } from '@/ui/dashboard/activities-list/activity-list-item';
 import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
-import { useActivities } from '@/ui/hooks/use-activities';
+import { useActivitiesList } from '@/ui/hooks/use-activities-list';
 
 export const ActivitiesList = ({
   activities,
@@ -13,7 +13,7 @@ export const ActivitiesList = ({
   const [swiped, setSwiped] = useState<string | null>(null);
 
   const { router, pathname, searchParams, stringifyQueryParams } = useRouter();
-  const { activitiesList, handleReorder, handleReorderDebounced } = useActivities(activities);
+  const { activitiesList, handleReorder, handleReorderDebounced } = useActivitiesList(activities);
 
   useEffect(() => {
     window.addEventListener('beforeunload', handleReorder);

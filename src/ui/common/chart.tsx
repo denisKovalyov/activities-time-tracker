@@ -103,19 +103,20 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
-const ChartTooltipContent = React.forwardRef<
-  HTMLDivElement,
+type ChartTooltipContentProps<T> =
   React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<"div"> & {
-  hideLabel?: boolean
-  hideIndicator?: boolean
-  indicator?: "line" | "dot" | "dashed"
-  nameKey?: string
-  labelKey?: string
-  valueFormatter: (value?: ValueType) =>  string | number;
+    hideLabel? : boolean
+    hideIndicator? : boolean
+    indicator? : "line" | "dot" | "dashed"
+    nameKey? : string
+    labelKey? : string
+    valueFormatter: (value?: ValueType) => string | number;
+    labelFormatter: (item: T) => React.ReactNode;
 }
->(
-  (
+
+const ChartTooltipContent = React.forwardRef(
+  <T, >(
     {
       active,
       payload,
@@ -131,8 +132,8 @@ const ChartTooltipContent = React.forwardRef<
       color,
       nameKey,
       labelKey,
-    },
-    ref
+    }: ChartTooltipContentProps<T>,
+    ref: React.Ref<HTMLDivElement>
   ) => {
     const { config } = useChart()
 
@@ -150,7 +151,7 @@ const ChartTooltipContent = React.forwardRef<
       if (labelFormatter) {
         return (
           <div className={cn("font-medium", labelClassName)}>
-            {labelFormatter(value, payload)}
+            {labelFormatter(item.payload)}
           </div>
         )
       }
@@ -252,7 +253,9 @@ const ChartTooltipContent = React.forwardRef<
       </div>
     )
   }
-)
+) as (<T extends {[key: string]: any}>(
+  props: ChartTooltipContentProps<T> & { ref?: React.Ref<HTMLDivElement> }
+) => JSX.Element) & { displayName?: string };
 ChartTooltipContent.displayName = "ChartTooltip"
 
 const ChartLegend = RechartsPrimitive.Legend
@@ -366,19 +369,19 @@ interface ExtendedLabelProps extends RechartsPrimitive.LabelProps {
 }
 
 const CustomLabelRightInside = ({
-  x: coordX,
-  y: coordY,
-  width: barWidth,
-  height: barHeight,
-  offset = 0,
-  value,
-  className,
-  fill,
-  fontSize = DEFAULT_FONT_SIZE,
-  fontWeight,
-  formatter,
-  minWidth
-}: ExtendedLabelProps) => {
+                                  x: coordX,
+                                  y: coordY,
+                                  width: barWidth,
+                                  height: barHeight,
+                                  offset = 0,
+                                  value,
+                                  className,
+                                  fill,
+                                  fontSize = DEFAULT_FONT_SIZE,
+                                  fontWeight,
+                                  formatter,
+                                  minWidth
+                                }: ExtendedLabelProps) => {
   const x = Number(coordX) || 0;
   const y = Number(coordY) || 0;
   const width = Number(barWidth) || 0;

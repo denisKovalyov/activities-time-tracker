@@ -1,9 +1,9 @@
 'use client';
 
-import { JSX, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts';
 import { useResizeObserver } from 'usehooks-ts';
-import { TrendUp, TrendDown, PresentationChart } from '@phosphor-icons/react';
+import { PresentationChart } from '@phosphor-icons/react';
 import { ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 import {
@@ -23,11 +23,19 @@ import {
 } from '@/ui/common/chart';
 import { formatReadableDate, getMonthStartDate, getWeekStartDate } from '@/lib/utils';
 import { EmptyState } from '@/ui/common/empty-state';
-import { calculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
+import { calculateTimeValues, useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
+import { useSharedStopwatch } from '@/ui/hooks/use-shared-stopwatch';
+import { useActivities } from '@/ui/providers/activities-provider';
 
+const MAX_BAR_ITEMS = 8;
 const LABEL_OFFSET = 20;
 const LABEL_FONT_SIZE = 14;
 const CHART_MOBILE_WIDTH = 320;
+
+const formatTimeValue = (value?: ValueType) => {
+  const timeSpent = calculateTimeValues(Number(value));
+  return `${timeSpent[0]}:${timeSpent[1]}:${timeSpent[2]}`;
+};
 
 const chartConfig = {
   value: {
@@ -47,67 +55,117 @@ const TITLE_MAP = {
 }
 
 type DataItem = {
+  id: string;
   name: string;
   fill: string;
   value: number;
+  aggregate?: boolean;
 }
 
 type TimeChartProps = {
   data: DataItem[];
   period: 'day' | 'week' | 'month';
-  delta: number;
+  total: number;
 }
 
 export function TimeChart({
   data,
-  delta = 0,
+  total = 0,
   period,
 }: TimeChartProps) {
+  const [basicData, setBasicData] = useState<DataItem[]>([]);
+  const [storedActiveValue, setStoredActiveValue] = useState(0);
+  const [aggregateBar, setAggregateBar] = useState<string[]>([]);
+
   const ref = useRef<HTMLDivElement | null>(null);
   const { width = 0 } = useResizeObserver({ ref });
+  const { activeActivity } = useActivities();
+  const { value: dynamicSeconds } = useSharedStopwatch();
+
+  useEffect(() => {
+    if (basicData.length) return;
+
+    let chartData = [...data];
+
+    if (chartData.length > MAX_BAR_ITEMS) {
+      const sortedArr = chartData
+        .filter(({ id }) => id !== activeActivity?.id)
+        .toSorted(({ value: valueA }, { value: valueB}) => valueA - valueB)
+        // + 1 is used as we add "Other" bar
+        .slice(0, chartData.length - MAX_BAR_ITEMS + 1);
+
+      const lowestValues = new Set(sortedArr);
+
+      chartData = [
+        ...chartData.filter((activity) => !lowestValues.has(activity) && activity.id !== activeActivity?.id), {
+          id: 'other-id',
+          name: 'Others',
+          aggregate: true,
+          fill: 'hsl(var(--primary))',
+          value: lowestValues.values().reduce((acc, { value }) => acc + value, 0),
+      }];
+
+      setAggregateBar(sortedArr.map(({ name }) => name));
+    }
+
+    if (activeActivity) {
+      const storedValue = data.find(({ id }) => id === activeActivity.id)?.value || 0;
+      setStoredActiveValue(storedValue);
+      setBasicData([{
+          id: activeActivity.id,
+          name: activeActivity.name,
+          fill: `#${activeActivity.color}`,
+          value: storedValue,
+        }, ...chartData.filter(({ id }) => id !== activeActivity.id)],
+      )
+      return;
+    }
+
+    setBasicData(chartData);
+  }, [basicData, activeActivity, data, setBasicData, setStoredActiveValue]);
 
   const isDesktop = width > CHART_MOBILE_WIDTH;
-
   const labelFontSize = isDesktop ? LABEL_FONT_SIZE : 12;
   const hasValues = data.some(({ value }) => value > 0);
   const maxLabelLength = useMemo(() =>
     data.reduce((acc, { name }) => name.length > acc ? name.length : acc, 0),
   [data]);
 
-  const periodText = period === 'day' ? 'yesterday' : `last ${period}`;
-  let footer: JSX.Element | string = hasValues
-    ? `Total time unchanged from ${periodText}`
-    : 'No data';
-  if (delta < 0) footer = <>{`Total time down ${Math.abs(delta).toFixed()}% compared to ${periodText} `} <TrendDown className="h-4 w-4" /></>;
-  if (delta > 0) footer = <>{`Total time up ${delta.toFixed()}% over ${periodText} `} <TrendUp className="h-4 w-4" /></>;
+  const periodText = period === 'day' ? 'today' : `this ${period}`;
+  const timeValues = useCalculateTimeValues(total + dynamicSeconds);
+  const footer = hasValues ? `Total time spent ${periodText} ${timeValues[0]}:${timeValues[1]}:${timeValues[2]}` : 'No data';
 
   let dateStr = formatReadableDate(new Date(), { dateStyle: isDesktop ? 'long' : 'medium' });
-  if (period === 'week') {
-    dateStr = `${formatReadableDate(getWeekStartDate(), { dateStyle: isDesktop ? 'long' : 'medium' })} - ` + dateStr;
+  if (period === 'week' || period === 'month') {
+    dateStr = `${formatReadableDate((period === 'week' ? getWeekStartDate : getMonthStartDate)(), 
+      { dateStyle: isDesktop ? 'long' : 'medium' })} - ` + dateStr;
   }
-  if (period === 'month') {
-    dateStr = `${formatReadableDate(getMonthStartDate(), { dateStyle: isDesktop ? 'long' : 'medium' })} - ` + dateStr;
-  }
-
-  const formatTimeValue = (value?: ValueType) => {
-    const timeSpent = calculateTimeValues(Number(value));
-    return `${timeSpent[0]}:${timeSpent[1]}:${timeSpent[2]}`;
-  };
 
   const approximateLabelWidth = maxLabelLength * (LABEL_FONT_SIZE * 0.5) + LABEL_OFFSET;
 
+  const chartData = useMemo(() => {
+    if (dynamicSeconds && activeActivity) {
+      const active = basicData.find(({ id }) => activeActivity.id === id)!;
+      active.value = storedActiveValue + dynamicSeconds;
+    }
+
+    return basicData;
+  }, [basicData, activeActivity, storedActiveValue, dynamicSeconds]);
+
+  const formatLabel = ({ name, aggregate }: DataItem) => aggregate ? aggregateBar.join(', ') : name;
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-4">
         <CardTitle>{TITLE_MAP[period]}</CardTitle>
         <CardDescription>{dateStr}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-4">
         <ChartContainer ref={ref} config={chartConfig}>
           {hasValues ? (
             <BarChart
               accessibilityLayer
-              data={data}
+              data={chartData}
               layout="vertical"
               margin={{
                 right: approximateLabelWidth,
@@ -130,8 +188,9 @@ export function TimeChart({
               <ChartTooltip
                 cursor={false}
                 content={(
-                  <ChartTooltipContent
+                  <ChartTooltipContent<DataItem>
                     indicator="line"
+                    labelFormatter={formatLabel}
                     valueFormatter={formatTimeValue}
                   />
                 )}
@@ -163,7 +222,8 @@ export function TimeChart({
                   )}
                 />
               </Bar>
-            </BarChart>) : (
+            </BarChart>
+          ) : (
             <EmptyState
               icon={PresentationChart}
               text="You haven't tracked any activities yet"
@@ -171,10 +231,8 @@ export function TimeChart({
           )}
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex items-center gap-2 leading-none text-muted-foreground">
-          {footer}
-        </div>
+      <CardFooter className="flex-col items-start gap-2 text-sm leading-none font-semibold text-muted-foreground">
+        {footer}
       </CardFooter>
     </Card>
   )

@@ -1,9 +1,8 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import { useEffect, useState}  from 'react';
 
 import { DialogWrapper } from '@/ui/common/dialog';
-import { ActivityExtended } from '@/lib/definitions';
 import { Button } from '@/ui/common/button';
 import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activity-icon';
 import { deleteActivity } from '@/lib/actions/activity';
@@ -11,12 +10,10 @@ import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { useRouter } from '@/ui/hooks/use-router';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/ui/hooks/use-toast';
+import { useActivities } from '@/ui/providers/activities-provider';
 
-export const RemoveActivityDialog = ({
-  activities,
-}: {
-  activities: ActivityExtended[];
-}) => {
+export const RemoveActivityDialog = () => {
+  const { activities } = useActivities();
   const [isLoading, setIsLoading] = useState(false);
 
   const { data: session } = useSession();

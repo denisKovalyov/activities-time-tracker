@@ -1,4 +1,6 @@
 import { ReactNode, Suspense } from 'react';
+import { auth } from '@/auth';
+
 import { MainNavigation } from '@/ui/layout/main-navigation';
 import { MobileNavigation } from '@/ui/layout/mobile-navigation';
 import { InputSearch } from '@/ui/layout/input-search';
@@ -6,8 +8,35 @@ import { UserMenu } from '@/ui/layout/user-menu';
 import { PageName } from '@/ui/layout/page-name';
 import { Logo } from '@/ui/common/logo';
 import { SetCookies } from '@/ui/layout/set-cookies';
+import { retrieveDateFromCookies } from '@/app/(dashboard)/next-api-helpers';
+import { getActivities } from '@/lib/actions/activity';
+import { getRecord } from '@/lib/actions/record';
+import { getSecondsPassed } from '@/lib/utils';
+import { ActivitiesProvider } from '@/ui/providers/activities-provider';
+import { RecordProvider } from '@/ui/providers/record-provider';
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default async function Layout({ children }: { children: ReactNode }) {
+  const session = await auth();
+  const userId = session?.user?.id!;
+  const date = await retrieveDateFromCookies();
+
+  const [activities, record] = await Promise.all([
+    getActivities(userId!, date),
+    getRecord(userId!, date),
+  ]);
+
+  if ('message' in activities) return null;
+
+  const activeActivity =  record && 'current_activity' in record ? record.current_activity : null;
+
+  let totalTimeSpent = getSecondsPassed(activeActivity?.[1]);
+  const activitiesTimeMap = activities.reduce((acc, curr) => {
+    const value = curr.time_spent;
+    totalTimeSpent += value;
+    return { ...acc, [curr.id]: value };
+  }, {});
+
+
   return (
     <div className="flex h-dvh w-full flex-col">
       <SetCookies />
@@ -32,7 +61,18 @@ export default function Layout({ children }: { children: ReactNode }) {
         </header>
 
         <main className="h-[calc(100%-112px)] overflow-auto p-4 sm:h-full sm:pb-0">
-          {children}
+          <RecordProvider
+            activeActivity={activeActivity}
+            activitiesMap={activitiesTimeMap}
+            totalTimeSpent={totalTimeSpent}
+          >
+            <ActivitiesProvider
+              activities={activities}
+              totalTimeSpent={totalTimeSpent}
+            >
+              {children}
+            </ActivitiesProvider>
+          </RecordProvider>
         </main>
 
         <footer className="relative z-10 mt-auto h-14 border-t border-accent bg-primary px-4 sm:hidden">

@@ -1,3 +1,5 @@
+'use client';
+
 import React, {
   Dispatch,
   SetStateAction,
@@ -10,7 +12,6 @@ import React, {
 
 import { noop } from '@/lib/utils';
 import { ActivityRecord } from '@/lib/definitions';
-import { DashboardWrapperProps } from '@/ui/dashboard/types';
 
 interface RecordContextProps {
   runningTimestamp: string | null;
@@ -20,7 +21,7 @@ interface RecordContextProps {
   setActivitiesTimeMap: Dispatch<SetStateAction<{}>>,
 }
 
-const Record = createContext<RecordContextProps>({
+const RecordContext = createContext<RecordContextProps>({
   runningTimestamp: null,
   activeId: null,
   setActiveId: noop,
@@ -30,7 +31,7 @@ const Record = createContext<RecordContextProps>({
 
 export const RecordProvider: React.FC<{
   activeActivity: ActivityRecord['current_activity'] | null;
-  activitiesMap: DashboardWrapperProps['activitiesTimeMap'];
+  activitiesMap: {[id: string]: number};
   totalTimeSpent: number;
   children: ReactNode;
 }> = ({
@@ -53,7 +54,7 @@ export const RecordProvider: React.FC<{
   }, [activitiesMap, previousNumber, totalTimeSpent, setPreviousNumber]);
 
   return (
-    <Record.Provider
+    <RecordContext.Provider
       value={{
         runningTimestamp: activeActivity?.[1] || null,
         activeId,
@@ -63,12 +64,12 @@ export const RecordProvider: React.FC<{
       }}
     >
       {children}
-    </Record.Provider>
+    </RecordContext.Provider>
   );
 };
 
 export const useRecord = () => {
-  const context = useContext(Record);
+  const context = useContext(RecordContext);
   if (!context) {
     throw new Error('useRecord must be used within an RecordProvider');
   }
