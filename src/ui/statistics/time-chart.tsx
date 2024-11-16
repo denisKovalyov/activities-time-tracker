@@ -86,7 +86,7 @@ export function TimeChart({
   const { value: dynamicSeconds } = useSharedStopwatch();
 
   useEffect(() => {
-    if (basicData.length) return;
+    if (basicData.length || !data.length) return;
 
     let chartData = [...data];
 
@@ -133,7 +133,15 @@ export function TimeChart({
     }
 
     setBasicData(chartData);
-  }, [period, basicData, activeActivity, data, setBasicData, setStoredActiveValue]);
+  }, [
+    period,
+    basicData,
+    activeActivity,
+    data,
+    setBasicData,
+    setStoredActiveValue,
+    setAggregateBar,
+  ]);
 
   const isDesktop = width > CHART_MOBILE_WIDTH;
   const labelFontSize = isDesktop ? LABEL_FONT_SIZE : 12;
