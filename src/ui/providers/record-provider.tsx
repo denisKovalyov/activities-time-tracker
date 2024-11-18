@@ -14,19 +14,21 @@ import { noop } from '@/lib/utils';
 import { ActivityRecord } from '@/lib/definitions';
 
 interface RecordContextProps {
-  runningTimestamp: string | null;
+  activityStartDate: string | null;
   activeId: string | null;
   activitiesTimeMap: { [id: string]: number },
   setActiveId: Dispatch<SetStateAction<string | null>>,
-  setActivitiesTimeMap: Dispatch<SetStateAction<{}>>,
+  updateActivitiesTimeMap: (id: string, totalSeconds: number) => void,
+  resetActivitiesTimeMap: () => void,
 }
 
 const RecordContext = createContext<RecordContextProps>({
-  runningTimestamp: null,
+  activityStartDate: null,
   activeId: null,
   setActiveId: noop,
   activitiesTimeMap: {},
-  setActivitiesTimeMap: noop,
+  updateActivitiesTimeMap: noop,
+  resetActivitiesTimeMap: noop,
 });
 
 export const RecordProvider: React.FC<{
@@ -53,14 +55,22 @@ export const RecordProvider: React.FC<{
     }
   }, [activitiesMap, previousNumber, totalTimeSpent, setPreviousNumber]);
 
+  const updateActivitiesTimeMap = (id: string, totalSeconds: number) =>
+    setActivitiesTimeMap((activitiesMap) => ({ ...activitiesMap, [id]: totalSeconds }));
+
+  const resetActivitiesTimeMap = () => setActivitiesTimeMap((activitiesMap) =>
+    Object.keys(activitiesMap).reduce((acc, curr) => ({ ...acc, [curr]: 0 }), {})
+  );
+
   return (
     <RecordContext.Provider
       value={{
-        runningTimestamp: activeActivity?.[1] || null,
+        activityStartDate: activeActivity?.[1] || null,
         activeId,
         setActiveId,
         activitiesTimeMap,
-        setActivitiesTimeMap,
+        updateActivitiesTimeMap,
+        resetActivitiesTimeMap,
       }}
     >
       {children}

@@ -69,9 +69,8 @@ export const ActivitiesHeader = ({
   const activitiesNumber = activities.length;
 
   useEffect(() => {
-    if (activeId) {
-      setAnimationClass('animate-fly-in opacity-0');
-    }
+    if (!activeId) return;
+    setAnimationClass('animate-fly-in opacity-0');
   }, [activeId, setAnimationClass]);
 
   const activity = activities.find(({ id }) => id === activeId);

@@ -18,18 +18,13 @@ const getOffset = (timeSpent: number) => {
   return date;
 }
 
-const checkMidnightBorder = (totalSeconds: number): boolean => {
-  const date = new Date();
-  date.setSeconds(date.getSeconds() - totalSeconds);
-  return new Date().getDate() !== date.getDate();
-}
+const isNextDay = (dateStr: string): boolean => new Date().getDate() !== new Date(dateStr).getDate();
 
 const handleMidnightBorder = async (userId: string, activityId: string, seconds: number) => {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-
   const today = new Date();
+  const yesterday = new Date();
   today.setSeconds(0);
+  yesterday.setDate(yesterday.getDate() - 1);
 
   await Promise.all([
     updateRecord({
@@ -38,7 +33,11 @@ const handleMidnightBorder = async (userId: string, activityId: string, seconds:
       currentActivity: null,
       activityRecord: [activityId, seconds],
     }),
-    createNewRecord({ userId, date: today, currentActivity: [activityId, today] }),
+    createNewRecord({
+      userId,
+      date: today,
+      currentActivity: [activityId, today],
+    }),
   ]);
 
   void refetchActivities();
@@ -91,15 +90,16 @@ const stopRecord = async ({
 const debouncedStart = debounce(startRecord, DEBOUNCE_DELAY);
 
 export const useStopwatch = (activityId: string) => {
+  const { data: session } = useSession();
+
   const {
-    runningTimestamp,
+    activityStartDate,
     activeId,
     setActiveId,
     activitiesTimeMap,
-    setActivitiesTimeMap,
+    updateActivitiesTimeMap,
+    resetActivitiesTimeMap,
   } = useRecord();
-
-  const { data: session } = useSession();
 
   const userId = session?.user?.id!;
   const isActive = activeId === activityId;
@@ -115,7 +115,7 @@ export const useStopwatch = (activityId: string) => {
     pause,
     reset,
   } = useStopwatchHook({
-    offsetTimestamp: getOffset(timeSpent + (isActive ? getSecondsPassed(runningTimestamp) : 0)),
+    offsetTimestamp: getOffset(timeSpent + (isActive ? getSecondsPassed(activityStartDate) : 0)),
   });
 
   useEffect(() => {
@@ -126,7 +126,7 @@ export const useStopwatch = (activityId: string) => {
 
     if (!isActive && userId && isRunning) {
       pause();
-      setActivitiesTimeMap((activitiesMap) => ({ ...activitiesMap, [activityId]: totalSeconds }));
+      updateActivitiesTimeMap(activityId, totalSeconds);
       const date = new Date();
       void stopRecord({
         userId,
@@ -135,18 +135,26 @@ export const useStopwatch = (activityId: string) => {
         activityRecord: [activityId, totalSeconds],
       });
     }
-  }, [isActive, isRunning, userId, activeId, activityId, start, pause]);
+  }, [
+    isActive,
+    isRunning,
+    userId,
+    activeId,
+    activityId,
+    start,
+    pause,
+    totalSeconds,
+  ]);
 
+  // Handle midnight
   useEffect(() => {
-    if (isActive && checkMidnightBorder(totalSeconds)) {
-      setActivitiesTimeMap((activitiesMap) =>
-        Object.keys(activitiesMap).reduce((acc, curr) => ({ ...acc, [curr]: 0 }), {})
-      );
-      reset();
-      void handleMidnightBorder(userId, activityId, totalSeconds - 1);
-    }
-  }, [isActive, totalSeconds]);
+    if (!isActive || !activityStartDate || !isNextDay(activityStartDate)) return;
+    void handleMidnightBorder(userId, activityId, totalSeconds - 1);
+    resetActivitiesTimeMap();
+    reset();
+  }, [isActive, totalSeconds, activityStartDate]);
 
+  // Handle shared stopwatch
   useEffect(() => {
     if (!isActive) return;
     updateState(totalSeconds - timeSpent);
