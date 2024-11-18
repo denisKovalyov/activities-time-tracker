@@ -141,18 +141,28 @@ export const useStopwatch = (activityId: string) => {
     userId,
     activeId,
     activityId,
+    totalSeconds,
     start,
     pause,
-    totalSeconds,
+    updateActivitiesTimeMap,
   ]);
 
   // Handle midnight
   useEffect(() => {
     if (!isActive || !activityStartDate || !isNextDay(activityStartDate)) return;
+
     void handleMidnightBorder(userId, activityId, totalSeconds - 1);
     resetActivitiesTimeMap();
     reset();
-  }, [isActive, totalSeconds, activityStartDate]);
+  }, [
+    isActive,
+    userId,
+    activityId,
+    totalSeconds,
+    activityStartDate,
+    reset,
+    resetActivitiesTimeMap,
+  ]);
 
   // Handle shared stopwatch
   useEffect(() => {
