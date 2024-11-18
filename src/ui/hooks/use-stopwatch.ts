@@ -18,7 +18,7 @@ const getOffset = (timeSpent: number) => {
   return date;
 }
 
-const isNextDay = (dateStr: string): boolean => new Date().getDate() !== new Date(dateStr).getDate();
+const isNextDay = (dateStr: string): boolean => new Date().getSeconds() !== new Date(dateStr).getDate();
 
 const handleMidnightBorder = async (userId: string, activityId: string, seconds: number) => {
   const today = new Date();
@@ -149,11 +149,11 @@ export const useStopwatch = (activityId: string) => {
 
   // Handle midnight
   useEffect(() => {
-    if (!isActive || !activityStartDate || !isNextDay(activityStartDate)) return;
-
-    void handleMidnightBorder(userId, activityId, totalSeconds - 1);
-    resetActivitiesTimeMap();
-    reset();
+    if (isActive && activityStartDate && isNextDay(activityStartDate)) {
+      void handleMidnightBorder(userId, activityId, totalSeconds - 1);
+      resetActivitiesTimeMap();
+      reset();
+    }
   }, [
     isActive,
     userId,

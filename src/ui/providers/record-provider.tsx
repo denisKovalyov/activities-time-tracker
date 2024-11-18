@@ -8,6 +8,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
 } from 'react';
 
 import { noop } from '@/lib/utils';
@@ -55,12 +56,15 @@ export const RecordProvider: React.FC<{
     }
   }, [activitiesMap, previousNumber, totalTimeSpent, setPreviousNumber]);
 
-  const updateActivitiesTimeMap = (id: string, totalSeconds: number) =>
-    setActivitiesTimeMap((activitiesMap) => ({ ...activitiesMap, [id]: totalSeconds }));
+  const updateActivitiesTimeMap = useCallback((id: string, totalSeconds: number) =>
+    setActivitiesTimeMap((activitiesMap) => ({ ...activitiesMap, [id]: totalSeconds })),
+    [setActivitiesTimeMap]);
 
-  const resetActivitiesTimeMap = () => setActivitiesTimeMap((activitiesMap) =>
-    Object.keys(activitiesMap).reduce((acc, curr) => ({ ...acc, [curr]: 0 }), {})
-  );
+  const resetActivitiesTimeMap = useCallback(() => {
+    setActivitiesTimeMap((activitiesMap) =>
+      Object.keys(activitiesMap).reduce((acc, curr) => ({ ...acc, [curr]: 0 }), {})
+    );
+  }, [setActivitiesTimeMap]);
 
   return (
     <RecordContext.Provider

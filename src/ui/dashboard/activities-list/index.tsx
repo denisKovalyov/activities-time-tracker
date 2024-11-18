@@ -46,7 +46,6 @@ export const ActivitiesList = ({
         onReorder={handleReorderDebounced}
         values={activitiesList}
         layoutScroll
-        style={{ overflowY: 'scroll', overflowX: 'hidden' }}
       >
         {activitiesList.map((activity) => (
           <ActivityListItem
