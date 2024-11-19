@@ -1,4 +1,10 @@
-import React, { PointerEvent, useEffect, useRef, useState } from 'react';
+import React, {
+  PointerEvent,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useSwipeable } from 'react-swipeable';
 import { useLongPress } from 'use-long-press';
@@ -69,7 +75,6 @@ export const ActivityListItem = ({
   });
 
   const controls = useDragControls();
-
   const bindLongPress = useLongPress(isSwiping ? noop : onReorder);
 
   const handleClickOutsideButtons = () => {
@@ -79,6 +84,9 @@ export const ActivityListItem = ({
 
   useOnClickOutside(ref, handleClickOutsideButtons, 'touchstart');
 
+  // In case item is hidden skip rendering but call useStopwatch hook anyway
+  if (activity.hidden) return null;
+
   const handleEdit = () => onEdit(id);
   const handleRemove = () => onRemove(id);
   const handleRecord = () => onStartStop();
@@ -87,57 +95,62 @@ export const ActivityListItem = ({
   const handleDragStart = () => setIsDragging(true);
   const handleDragEnd = () => setIsDragging(false);
 
-  return (
-    <Reorder.Item
-      value={activity}
-      dragListener={false}
-      dragControls={controls}
-      onDragStart={handleDragStart}
-      onDragTransitionEnd={handleDragEnd}
-      className={cn({
-        'relative z-10 shadow-[0_0_16px_0_rgba(14,35,70,0.35)]': isDragging,
-      })}
-    >
-      <div
-        className={cn(
-          'mb-4 w-full transition-transform duration-300 ease-in-out will-change-transform',
-          {
-            'cursor-grabbing [&_button]:cursor-grabbing': isDragging,
-            'duration-0': isSwiping || isDragging,
-
-          },
-        )}
-        style={{transform: `translateX(${shift}px)`}}
-        {...handlers}
-        {...bindLongPress()}
+  const renderItem = (children: ReactNode) => reorderMode
+    ? (
+      <Reorder.Item
+        value={activity}
+        dragListener={false}
+        dragControls={controls}
+        onDragStart={handleDragStart}
+        onDragTransitionEnd={handleDragEnd}
+        className={cn({
+          'relative z-10 shadow-[0_0_16px_0_rgba(14,35,70,0.35)]': isDragging,
+        })}
       >
-        <ActivityCard
-          className={shift !== 0 ? 'rounded-r-none shadow-none' : ''}
-          activity={activity}
-          isActive={isActive}
-          onReorder={onReorder}
-          onEdit={handleEdit}
-          onRemove={handleRemove}
-          onRecord={handleRecord}
-        >
-          {reorderMode ? (
-            <DragButton onDragStart={startDrag}/>
-          ) : (
-            <span className="text-accent-foreground" suppressHydrationWarning>
+        {children}
+      </Reorder.Item>
+    ) : children;
+
+  return renderItem(
+    <div
+      className={cn(
+        'mb-4 w-full transition-transform duration-300 ease-in-out will-change-transform',
+        {
+          'cursor-grabbing [&_button]:cursor-grabbing': isDragging,
+          'duration-0': isSwiping || isDragging,
+
+        },
+      )}
+      style={{transform: `translateX(${shift}px)`}}
+      {...handlers}
+      {...bindLongPress()}
+    >
+      <ActivityCard
+        className={shift !== 0 ? 'rounded-r-none shadow-none' : ''}
+        activity={activity}
+        isActive={isActive}
+        onReorder={onReorder}
+        onEdit={handleEdit}
+        onRemove={handleRemove}
+        onRecord={handleRecord}
+      >
+        {reorderMode ? (
+          <DragButton onDragStart={startDrag}/>
+        ) : (
+          <span className="text-accent-foreground" suppressHydrationWarning>
             {`${hours}:${minutes}:${seconds}`}
           </span>
-          )}
-        </ActivityCard>
+        )}
+      </ActivityCard>
 
-        <ActionButtons
-          ref={ref}
-          visibleWidth={-shift}
-          applyTransition={!isSwiping}
-          onReorder={onReorder}
-          onEdit={handleEdit}
-          onRemove={handleRemove}
-        />
-      </div>
-    </Reorder.Item>
+      <ActionButtons
+        ref={ref}
+        visibleWidth={-shift}
+        applyTransition={!isSwiping}
+        onReorder={onReorder}
+        onEdit={handleEdit}
+        onRemove={handleRemove}
+      />
+    </div>
   );
 };

@@ -1,7 +1,7 @@
 import { ActivityExtended } from '@/lib/definitions';
 
 export type ActivitiesListItemProps = {
-  activity: ActivityExtended;
+  activity: ActivityExtended & { hidden?: boolean };
   swiped: boolean;
   onSwipe: (id: string) => void;
   onCancelSwipe: () => void;

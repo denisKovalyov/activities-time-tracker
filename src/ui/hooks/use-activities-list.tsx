@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { reorderActivities } from '@/lib/actions/activity';
@@ -41,7 +41,6 @@ export const useActivitiesList = (activities: ActivityExtended[]): UseActivities
     }));
   }, [search, setActivitiesList]);
 
-
   const reorderActivitiesList = async (updatedActivities: ActivityExtended[]) => {
     const diff = getReorderedActivities(activities, updatedActivities);
 
@@ -70,10 +69,8 @@ export const useActivitiesList = (activities: ActivityExtended[]): UseActivities
     [debouncedReorder],
   );
 
-  const list = useMemo(() => activitiesList.filter(({ hidden }) => !hidden), [activitiesList]);
-
   return {
-    activitiesList: list,
+    activitiesList,
     handleReorderDebounced,
     handleReorder,
   };

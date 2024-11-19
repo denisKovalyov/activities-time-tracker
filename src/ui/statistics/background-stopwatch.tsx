@@ -11,6 +11,9 @@ export const BackgroundStopwatch = () => {
   const { activeId } = useRecord();
 
   return activeId ? (
-    <Stopwatch id={activeId} />
+    <Stopwatch
+      key={activeId}
+      id={activeId}
+    />
   ) : null;
 };

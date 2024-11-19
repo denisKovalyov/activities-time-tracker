@@ -18,7 +18,7 @@ const getOffset = (timeSpent: number) => {
   return date;
 }
 
-const isNextDay = (dateStr: string): boolean => new Date().getSeconds() !== new Date(dateStr).getDate();
+const isNextDay = (dateStr: string): boolean => new Date().getDate() !== new Date(dateStr).getDate();
 
 const handleMidnightBorder = async (userId: string, activityId: string, seconds: number) => {
   const today = new Date();

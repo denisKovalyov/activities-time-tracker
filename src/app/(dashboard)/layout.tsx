@@ -8,12 +8,12 @@ import { UserMenu } from '@/ui/layout/user-menu';
 import { PageName } from '@/ui/layout/page-name';
 import { Logo } from '@/ui/common/logo';
 import { SetCookies } from '@/ui/layout/set-cookies';
-import { retrieveDateFromCookies } from '@/app/(dashboard)/next-api-helpers';
-import { getActivities } from '@/lib/actions/activity';
-import { getRecord } from '@/lib/actions/record';
-import { getSecondsPassed } from '@/lib/utils';
 import { ActivitiesProvider } from '@/ui/providers/activities-provider';
 import { RecordProvider } from '@/ui/providers/record-provider';
+import { getSecondsPassed } from '@/lib/utils';
+import { getActivities } from '@/lib/actions/activity';
+import { getRecord } from '@/lib/actions/record';
+import { retrieveDateFromCookies } from '@/app/(dashboard)/next-api-helpers';
 
 export default async function Layout({ children }: { children: ReactNode }) {
   const session = await auth();
