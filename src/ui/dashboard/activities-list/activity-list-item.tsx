@@ -1,5 +1,6 @@
 import React, {
   PointerEvent,
+  RefObject,
   ReactNode,
   useEffect,
   useRef,
@@ -33,7 +34,7 @@ export const ActivityListItem = ({
   const [shift, setShift] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   const { id } = activity;
 
@@ -82,7 +83,11 @@ export const ActivityListItem = ({
     if (swiped) onCancelSwipe();
   };
 
-  useOnClickOutside(ref, handleClickOutsideButtons, 'touchstart');
+  useOnClickOutside(
+    ref as RefObject<HTMLDivElement>,
+    handleClickOutsideButtons,
+    'touchstart',
+  );
 
   // In case item is hidden skip rendering but call useStopwatch hook anyway
   if (activity.hidden) return null;
