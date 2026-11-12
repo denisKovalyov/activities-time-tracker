@@ -255,7 +255,7 @@ const ChartTooltipContent = React.forwardRef(
   }
 ) as (<T extends {[key: string]: any}>(
   props: ChartTooltipContentProps<T> & { ref?: React.Ref<HTMLDivElement> }
-) => JSX.Element) & { displayName?: string };
+) => React.JSX.Element) & { displayName?: string };
 ChartTooltipContent.displayName = "ChartTooltip"
 
 const ChartLegend = RechartsPrimitive.Legend

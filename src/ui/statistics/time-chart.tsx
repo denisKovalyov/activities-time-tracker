@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts';
 import { useResizeObserver } from 'usehooks-ts';
 import { PresentationChart } from '@phosphor-icons/react';
@@ -80,8 +80,10 @@ export function TimeChart({
   const [storedActiveValue, setStoredActiveValue] = useState(0);
   const [aggregateBar, setAggregateBar] = useState<string[]>([]);
 
-  const ref = useRef<HTMLDivElement | null>(null);
-  const { width = 0 } = useResizeObserver({ ref });
+  const ref = useRef<HTMLDivElement>(null);
+  const { width = 0 } = useResizeObserver({
+    ref: ref as RefObject<HTMLDivElement>,
+  });
   const { activeActivity } = useActivities();
   const { value: dynamicSeconds } = useSharedStopwatch();
 
