@@ -31,7 +31,9 @@ export const ActivityDropdownMenu = ({
   onRemove: () => void;
   onReorder?: () => void;
 }) => {
-  const menuItems = handlers.onReorder ? ITEMS : ITEMS.filter(({ label }) => label !== 'Reorder');
+  const menuItems = handlers.onReorder
+    ? ITEMS
+    : ITEMS.filter(({ label }) => label !== 'Reorder');
 
   return (
     <DropdownMenu>

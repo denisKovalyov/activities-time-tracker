@@ -48,11 +48,7 @@ const MenuItem = ({
       {Item}
     </div>
   ) : (
-    <Link
-      href={`/${path}`}
-      className={className}
-      onClick={handleAnimationEnd}
-    >
+    <Link href={`/${path}`} className={className} onClick={handleAnimationEnd}>
       {Item}
     </Link>
   );

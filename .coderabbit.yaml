@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en-US
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+  path_filters:
+    - '!package-lock.json'
+    - '!**/*.tsbuildinfo'
+    - '!next-env.d.ts'
+  path_instructions:
+    - path: 'src/**/*.{ts,tsx}'
+      instructions: >-
+        Next.js 16 (App Router) + React 19. Check correct use of Server and
+        Client Components, server actions security (auth checks, input
+        validation with zod), and hooks rules.
+    - path: 'src/lib/actions/**'
+      instructions: >-
+        Server actions: verify the user session is checked before any data
+        access and SQL queries are parameterized.
+chat:
+  auto_reply: true

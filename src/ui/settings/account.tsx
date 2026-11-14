@@ -4,7 +4,13 @@ import { CheckCircle, Trash } from '@phosphor-icons/react';
 import { useMediaQuery } from 'usehooks-ts';
 
 import { Button } from '@/ui/common/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/ui/common/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from '@/ui/common/card';
 import { RemoveAccountDialog } from '@/ui/settings/remove-account-dialog';
 import { formatReadableDate } from '@/lib/utils';
 import { User } from '@/lib/definitions';
@@ -19,7 +25,8 @@ export const Account = () => {
   const isDesktop = useMediaQuery('(min-width: 640px)');
 
   const user = session?.user as User;
-  const handleDialogOpenClose = () => setShowRemoveAccountDialog((state) => !state);
+  const handleDialogOpenClose = () =>
+    setShowRemoveAccountDialog((state) => !state);
 
   return (
     <>
@@ -28,28 +35,37 @@ export const Account = () => {
           <CardDescription>{SUB_TITLE}</CardDescription>
         </CardHeader>
         <CardContent className="text-sm sm:text-base">
-          <div className="flex mb-4">
+          <div className="mb-4 flex">
             <span className={`flex items-center ${paramNameStyle}`}>
               <span>Email</span>
-              {user?.email_verified ? <CheckCircle className="w-4 h-4 ml-1 text-success" weight="bold"/> : null}
+              {user?.email_verified ? (
+                <CheckCircle
+                  className="ml-1 h-4 w-4 text-success"
+                  weight="bold"
+                />
+              ) : null}
             </span>
-            <span className="px-4 truncate">{user?.email}</span>
+            <span className="truncate px-4">{user?.email}</span>
           </div>
 
-          <div className="flex mb-4">
+          <div className="mb-4 flex">
             <span className={paramNameStyle}>Created At</span>
-            <span className="px-4 truncate">
+            <span className="truncate px-4">
               {user?.created_at
-                ? formatReadableDate(new Date(user.created_at!), { dateStyle: isDesktop ? 'long' : 'medium' })
+                ? formatReadableDate(new Date(user.created_at!), {
+                    dateStyle: isDesktop ? 'long' : 'medium',
+                  })
                 : ''}
             </span>
           </div>
 
           <div className="flex">
             <span className={paramNameStyle}>Updated At</span>
-            <span className="px-4 truncate">
+            <span className="truncate px-4">
               {user?.updated_at
-                ? formatReadableDate(new Date(user.updated_at!), { dateStyle: isDesktop ? 'long' : 'medium' })
+                ? formatReadableDate(new Date(user.updated_at!), {
+                    dateStyle: isDesktop ? 'long' : 'medium',
+                  })
                 : ''}
             </span>
           </div>
@@ -71,5 +87,5 @@ export const Account = () => {
         onOpenChange={handleDialogOpenClose}
       />
     </>
-  )
+  );
 };

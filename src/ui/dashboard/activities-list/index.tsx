@@ -6,14 +6,13 @@ import { ActivityListItem } from '@/ui/dashboard/activities-list/activity-list-i
 import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
 import { useActivitiesList } from '@/ui/hooks/use-activities-list';
 
-export const ActivitiesList = ({
-  activities,
-}: ActivitiesListProps) => {
+export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
   const [recordingId, setRecordingId] = useState<string | null>(null);
   const [swiped, setSwiped] = useState<string | null>(null);
 
   const { router, pathname, searchParams, stringifyQueryParams } = useRouter();
-  const { activitiesList, handleReorder, handleReorderDebounced } = useActivitiesList(activities);
+  const { activitiesList, handleReorder, handleReorderDebounced } =
+    useActivitiesList(activities);
 
   useEffect(() => {
     window.addEventListener('beforeunload', handleReorder);
@@ -35,13 +34,13 @@ export const ActivitiesList = ({
     router.push(`${pathname}?${stringifyQueryParams({ removeActivity: id })}`);
 
   const handleRecord = (activityId: string) => {
-    setRecordingId((id) => id === activityId ? null : activityId);
-  }
+    setRecordingId((id) => (id === activityId ? null : activityId));
+  };
 
   const reorderMode = Boolean(searchParams.get('reorder'));
 
   return (
-    <div className="mx-auto mt-4 w-full h-full max-w-3xl overflow-x-hidden">
+    <div className="mx-auto mt-4 h-full w-full max-w-3xl overflow-x-hidden">
       <Reorder.Group
         onReorder={handleReorderDebounced}
         values={activitiesList}

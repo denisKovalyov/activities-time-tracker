@@ -30,9 +30,13 @@ export const ActivityCard = ({
 
   return (
     <Card
-      className={cn('flex w-full flex-none items-center justify-between p-4', className, {
-        'border border-accent': isActive,
-      })}
+      className={cn(
+        'flex w-full flex-none items-center justify-between p-4',
+        className,
+        {
+          'border border-accent': isActive,
+        },
+      )}
     >
       <div className="flex max-w-[70%] flex-none items-center overflow-hidden">
         <PlayPauseButton
@@ -43,11 +47,7 @@ export const ActivityCard = ({
         <span className="mx-2 truncate font-semibold text-accent-foreground">
           {name}
         </span>
-        <ActivityIcon
-          className="flex-none"
-          name={icon}
-          color={`#${color}`}
-        />
+        <ActivityIcon className="flex-none" name={icon} color={`#${color}`} />
       </div>
 
       <div className="flex flex-none items-center">
@@ -62,4 +62,4 @@ export const ActivityCard = ({
       </div>
     </Card>
   );
-}
+};

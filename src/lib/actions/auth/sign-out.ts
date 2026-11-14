@@ -1,7 +1,10 @@
 'use server';
 
 import { signOut as signOutFn } from '@/auth';
-import { DEFAULT_ERROR_MESSAGE, NEXT_REDIRECT_ERROR } from '@/lib/actions/constants';
+import {
+  DEFAULT_ERROR_MESSAGE,
+  NEXT_REDIRECT_ERROR,
+} from '@/lib/actions/constants';
 
 export async function signOut() {
   try {

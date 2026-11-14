@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState}  from 'react';
+import { useEffect, useState } from 'react';
 
 import { DialogWrapper } from '@/ui/common/dialog';
 import { Button } from '@/ui/common/button';

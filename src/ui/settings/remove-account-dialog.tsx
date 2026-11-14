@@ -13,7 +13,7 @@ export const RemoveAccountDialog = ({
   onOpenChange,
 }: {
   show: boolean;
-  onOpenChange: () => void,
+  onOpenChange: () => void;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
@@ -52,7 +52,7 @@ export const RemoveAccountDialog = ({
       show={show}
       onOpenChange={onOpenChange}
       header={
-        <span className="prose-xl flex justify-center items-center text-primary">
+        <span className="prose-xl flex items-center justify-center text-primary">
           Delete Account
           <User size={18} weight="bold" className="ml-2" />
         </span>
@@ -65,17 +65,10 @@ export const RemoveAccountDialog = ({
       }
       footer={
         <div className="flex w-full justify-end">
-          <Button
-            variant="outline"
-            onClick={onOpenChange}
-          >
+          <Button variant="outline" onClick={onOpenChange}>
             Cancel
           </Button>
-          <Button
-            className="ml-2"
-            loading={isLoading}
-            onClick={handleConfirm}
-          >
+          <Button className="ml-2" loading={isLoading} onClick={handleConfirm}>
             Ok
           </Button>
         </div>

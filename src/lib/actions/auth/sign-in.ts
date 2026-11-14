@@ -9,7 +9,10 @@ import { SignInSchema } from '@/lib/validation';
 import { isUsersEmailVerified } from '@/lib/actions/auth/email-verification';
 import { signIn } from '@/auth';
 import { PROTECTED_PAGES } from '@/auth.config';
-import { DEFAULT_ERROR_MESSAGE, NEXT_REDIRECT_ERROR } from '@/lib/actions/constants';
+import {
+  DEFAULT_ERROR_MESSAGE,
+  NEXT_REDIRECT_ERROR,
+} from '@/lib/actions/constants';
 
 export async function googleAuthenticate(
   prevState: string | undefined,
@@ -51,7 +54,10 @@ export async function authenticate(values: Credentials) {
       }
     }
 
-    if (!(error instanceof EmailNotVerifiedError) && (error as Error).message !== NEXT_REDIRECT_ERROR) {
+    if (
+      !(error instanceof EmailNotVerifiedError) &&
+      (error as Error).message !== NEXT_REDIRECT_ERROR
+    ) {
       console.error(error);
       return { message: DEFAULT_ERROR_MESSAGE };
     }

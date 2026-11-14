@@ -3,7 +3,10 @@
 import { DialogWrapper } from '@/ui/common/dialog';
 import { ActivityForm } from '@/ui/dashboard/activity-form/activity-form';
 import { useRouter } from '@/ui/hooks/use-router';
-import { goToActivitiesPage, refetchActivities } from '@/lib/actions/activity/next-api';
+import {
+  goToActivitiesPage,
+  refetchActivities,
+} from '@/lib/actions/activity/next-api';
 import { useActivities } from '@/ui/providers/activities-provider';
 
 const ADD_ACTIVITY_SUBHEADER =
@@ -27,7 +30,7 @@ export const ActivityDialog = () => {
   const handleSubmit = async () => {
     await refetchActivities();
     void goToActivitiesPage();
-  }
+  };
 
   return (
     <DialogWrapper

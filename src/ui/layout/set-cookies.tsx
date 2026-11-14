@@ -9,11 +9,14 @@ const handleDateCookies = () => {
   const cookies = getCookies();
   const date = formatDate(new Date());
 
-  if (!cookies[USER_DATE_COOKIE_NAME] || date !== cookies[USER_DATE_COOKIE_NAME]) {
+  if (
+    !cookies[USER_DATE_COOKIE_NAME] ||
+    date !== cookies[USER_DATE_COOKIE_NAME]
+  ) {
     document.cookie = `${USER_DATE_COOKIE_NAME}=${date}; path=/; secure; SameSite=Lax`;
     window.location.reload();
   }
-}
+};
 
 export const SetCookies = () => {
   useEffect(() => {
@@ -27,4 +30,4 @@ export const SetCookies = () => {
   }, []);
 
   return null;
-}
+};

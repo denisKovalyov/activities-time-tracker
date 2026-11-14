@@ -98,7 +98,11 @@ export function ActivityForm({
         : await createActivity({
             ...values,
             user_id: userId,
-            order: activities.reduce((acc, { order }) => acc > order ? acc : order, 0) + 1,
+            order:
+              activities.reduce(
+                (acc, { order }) => (acc > order ? acc : order),
+                0,
+              ) + 1,
           });
 
     if ('errors' in result && result.errors) {

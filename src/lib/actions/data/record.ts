@@ -45,11 +45,17 @@ export async function createRecord({
     const record = await sql.query(
       `INSERT INTO record(user_id, date, current_activity, activities) VALUES($1, $2, $3, $4) RETURNING *`,
       [
-      userId,
-      formatDate(date),
-        currentActivity ? JSON.stringify([currentActivity[0], currentActivity[1].toISOString()]) : null,
-      activityRecord ? { [activityRecord[0]]: activityRecord[1] }: {},
-    ]);
+        userId,
+        formatDate(date),
+        currentActivity
+          ? JSON.stringify([
+              currentActivity[0],
+              currentActivity[1].toISOString(),
+            ])
+          : null,
+        activityRecord ? { [activityRecord[0]]: activityRecord[1] } : {},
+      ],
+    );
     return record.rows[0].id;
   } catch (error) {
     console.error('DB: Failed to create new record:', error);
@@ -69,10 +75,7 @@ export async function updateRecord({
     ? 'activities=jsonb_set(activities, $3, $4), current_activity=$5'
     : 'current_activity=$3';
 
-  const values: (number | string | null)[] = [
-    userId,
-    formatDate(date),
-  ];
+  const values: (number | string | null)[] = [userId, formatDate(date)];
   const currentActivityValue = currentActivity
     ? JSON.stringify([currentActivity[0], currentActivity[1].toISOString()])
     : null;
@@ -105,9 +108,7 @@ export async function deleteActivityRecords(
   }
 }
 
-export async function deleteRecords(
-  userId: string,
-): Promise<void> {
+export async function deleteRecords(userId: string): Promise<void> {
   try {
     await sql`DELETE FROM record WHERE user_id=${userId}`;
   } catch (error) {
