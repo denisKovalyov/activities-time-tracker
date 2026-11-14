@@ -11,6 +11,12 @@ const eslintConfig = [
     },
   },
   {
+    files: ['**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+    },
+  },
+  {
     ignores: ['.next/**', 'node_modules/**', 'next-env.d.ts'],
   },
 ];

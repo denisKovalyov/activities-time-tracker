@@ -256,7 +256,7 @@ const ChartTooltipContent = React.forwardRef(
       </div>
     );
   },
-) as (<T extends { [key: string]: any }>(
+) as (<T extends Record<string, unknown>>(
   props: ChartTooltipContentProps<T> & { ref?: React.Ref<HTMLDivElement> },
 ) => React.JSX.Element) & { displayName?: string };
 ChartTooltipContent.displayName = 'ChartTooltip';
