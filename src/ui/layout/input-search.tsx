@@ -18,12 +18,12 @@ export const InputSearch = () => {
   const handleSearch = () => {
     if (value) router.push(`/dashboard?search=${value}`);
     else router.push(pathname);
-  }
+  };
 
   const handleReset = () => {
     setValue('');
     router.push(pathname);
-  }
+  };
 
   const debouncedCallback = useDebouncedCallback(handleSearch, DEBOUNCE_DELAY);
 
@@ -44,7 +44,7 @@ export const InputSearch = () => {
 
   return (
     <div className="relative ml-auto flex-1 md:grow-0">
-      <MagnifyingGlass className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/>
+      <MagnifyingGlass className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
       <Input
         type="search"
         placeholder="Search..."
@@ -57,11 +57,11 @@ export const InputSearch = () => {
         <button
           type="button"
           onClick={handleReset}
-          className="absolute bg-background w-3.5 h-3.5 right-3.5 top-3 cursor-pointer"
+          className="absolute right-3.5 top-3 h-3.5 w-3.5 cursor-pointer bg-background"
         >
-          <X className="w-3.5 h-3.5" />
+          <X className="h-3.5 w-3.5" />
         </button>
       )}
     </div>
   );
-}
+};

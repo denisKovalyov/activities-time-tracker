@@ -76,7 +76,8 @@ const config = {
       },
       animation: {
         'bounce-finished': 'bounce 1s cubic-bezier(0.25, 1, 0.5, 1)',
-        'fly-in': 'fly-in 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) 0.25s 1 forwards',
+        'fly-in':
+          'fly-in 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) 0.25s 1 forwards',
         'vertical-shake': 'vertical-shake 0.5s ease-in-out 1',
       },
       keyframes: {

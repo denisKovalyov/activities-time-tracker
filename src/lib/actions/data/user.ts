@@ -54,9 +54,7 @@ export async function updateUser(
   }
 }
 
-export async function deleteUser(
-  id: string,
-): Promise<void> {
+export async function deleteUser(id: string): Promise<void> {
   try {
     await sql`DELETE FROM "user" WHERE id = ${id}`;
   } catch (error) {

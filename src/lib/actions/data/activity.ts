@@ -65,9 +65,9 @@ export async function reorderActivities(
 ): Promise<Activity[]> {
   try {
     const updatedAt = new Date().toISOString();
-    const dataSet = activitiesList.reduce((str, { id, order}, i) => {
+    const dataSet = activitiesList.reduce((str, { id, order }, i) => {
       const value = `('${id}'::uuid, ${order})`;
-      return str + (i > 0 ? ', ' + value  : value);
+      return str + (i > 0 ? ', ' + value : value);
     }, '');
 
     const result = await sql.query(`

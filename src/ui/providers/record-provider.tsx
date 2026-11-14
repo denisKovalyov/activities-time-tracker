@@ -17,10 +17,10 @@ import { ActivityRecord } from '@/lib/definitions';
 interface RecordContextProps {
   activityStartDate: string | null;
   activeId: string | null;
-  activitiesTimeMap: { [id: string]: number },
-  setActiveId: Dispatch<SetStateAction<string | null>>,
-  updateActivitiesTimeMap: (id: string, totalSeconds: number) => void,
-  resetActivitiesTimeMap: () => void,
+  activitiesTimeMap: { [id: string]: number };
+  setActiveId: Dispatch<SetStateAction<string | null>>;
+  updateActivitiesTimeMap: (id: string, totalSeconds: number) => void;
+  resetActivitiesTimeMap: () => void;
 }
 
 const RecordContext = createContext<RecordContextProps>({
@@ -34,19 +34,17 @@ const RecordContext = createContext<RecordContextProps>({
 
 export const RecordProvider: React.FC<{
   activeActivity: ActivityRecord['current_activity'] | null;
-  activitiesMap: {[id: string]: number};
+  activitiesMap: { [id: string]: number };
   totalTimeSpent: number;
   children: ReactNode;
-}> = ({
-  activeActivity,
-  activitiesMap,
-  totalTimeSpent,
-  children,
-}) => {
+}> = ({ activeActivity, activitiesMap, totalTimeSpent, children }) => {
   const [activitiesTimeMap, setActivitiesTimeMap] = useState(activitiesMap);
-  const [previousNumber, setPreviousNumber] = useState(Object.keys(activitiesMap).length);
-  const [activeId, setActiveId] =
-    useState<string | null>(activeActivity?.[0] || null);
+  const [previousNumber, setPreviousNumber] = useState(
+    Object.keys(activitiesMap).length,
+  );
+  const [activeId, setActiveId] = useState<string | null>(
+    activeActivity?.[0] || null,
+  );
 
   useEffect(() => {
     const currentNumber = Object.keys(activitiesMap).length;
@@ -56,13 +54,21 @@ export const RecordProvider: React.FC<{
     }
   }, [activitiesMap, previousNumber, totalTimeSpent, setPreviousNumber]);
 
-  const updateActivitiesTimeMap = useCallback((id: string, totalSeconds: number) =>
-    setActivitiesTimeMap((activitiesMap) => ({ ...activitiesMap, [id]: totalSeconds })),
-    [setActivitiesTimeMap]);
+  const updateActivitiesTimeMap = useCallback(
+    (id: string, totalSeconds: number) =>
+      setActivitiesTimeMap((activitiesMap) => ({
+        ...activitiesMap,
+        [id]: totalSeconds,
+      })),
+    [setActivitiesTimeMap],
+  );
 
   const resetActivitiesTimeMap = useCallback(() => {
     setActivitiesTimeMap((activitiesMap) =>
-      Object.keys(activitiesMap).reduce((acc, curr) => ({ ...acc, [curr]: 0 }), {})
+      Object.keys(activitiesMap).reduce(
+        (acc, curr) => ({ ...acc, [curr]: 0 }),
+        {},
+      ),
     );
   }, [setActivitiesTimeMap]);
 

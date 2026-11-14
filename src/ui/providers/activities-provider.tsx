@@ -1,10 +1,6 @@
 'use client';
 
-import React, {
-  ReactNode,
-  createContext,
-  useContext,
-} from 'react';
+import React, { ReactNode, createContext, useContext } from 'react';
 
 import { useRecord } from '@/ui/providers/record-provider';
 import { ActivityExtended } from '@/lib/definitions';
@@ -20,11 +16,9 @@ const ActivitiesContext = createContext<ActivitiesContextProps>({
   activities: [],
 });
 
-export const ActivitiesProvider: React.FC<ActivitiesContextProps & { children: ReactNode }> = ({
-  activities,
-  totalTimeSpent,
-  children,
-}) => {
+export const ActivitiesProvider: React.FC<
+  ActivitiesContextProps & { children: ReactNode }
+> = ({ activities, totalTimeSpent, children }) => {
   const { activeId } = useRecord();
 
   return (

@@ -11,7 +11,7 @@ export const PlayPauseButton = ({
 }: {
   onClick: () => void;
   isRunning: boolean;
-  className?: string
+  className?: string;
 }) => {
   const Icon = isRunning ? Pause : PlayPause;
 

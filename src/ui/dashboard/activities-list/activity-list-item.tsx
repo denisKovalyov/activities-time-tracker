@@ -38,13 +38,7 @@ export const ActivityListItem = ({
 
   const { id } = activity;
 
-  const {
-    isActive,
-    hours,
-    minutes,
-    seconds,
-    onStartStop,
-  } = useStopwatch(id);
+  const { isActive, hours, minutes, seconds, onStartStop } = useStopwatch(id);
 
   useEffect(() => {
     if (swiped) setShift(-BUTTONS_WIDTH);
@@ -100,8 +94,8 @@ export const ActivityListItem = ({
   const handleDragStart = () => setIsDragging(true);
   const handleDragEnd = () => setIsDragging(false);
 
-  const renderItem = (children: ReactNode) => reorderMode
-    ? (
+  const renderItem = (children: ReactNode) =>
+    reorderMode ? (
       <Reorder.Item
         value={activity}
         dragListener={false}
@@ -114,7 +108,9 @@ export const ActivityListItem = ({
       >
         {children}
       </Reorder.Item>
-    ) : children;
+    ) : (
+      children
+    );
 
   return renderItem(
     <div
@@ -123,10 +119,9 @@ export const ActivityListItem = ({
         {
           'cursor-grabbing [&_button]:cursor-grabbing': isDragging,
           'duration-0': isSwiping || isDragging,
-
         },
       )}
-      style={{transform: `translateX(${shift}px)`}}
+      style={{ transform: `translateX(${shift}px)` }}
       {...handlers}
       {...bindLongPress()}
     >
@@ -140,7 +135,7 @@ export const ActivityListItem = ({
         onRecord={handleRecord}
       >
         {reorderMode ? (
-          <DragButton onDragStart={startDrag}/>
+          <DragButton onDragStart={startDrag} />
         ) : (
           <span className="text-accent-foreground" suppressHydrationWarning>
             {`${hours}:${minutes}:${seconds}`}
@@ -156,6 +151,6 @@ export const ActivityListItem = ({
         onEdit={handleEdit}
         onRemove={handleRemove}
       />
-    </div>
+    </div>,
   );
 };

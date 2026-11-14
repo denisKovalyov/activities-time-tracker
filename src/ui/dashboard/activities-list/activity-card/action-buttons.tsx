@@ -27,7 +27,6 @@ export const ReorderButton = ({
   </Button>
 );
 
-
 export const EditButton = ({
   applyTransition,
   onClick,
@@ -49,10 +48,10 @@ export const EditButton = ({
 );
 
 export const DeleteButton = ({
-    applyTransition,
-    onClick,
-    style,
-  }: ActionButtonProps) => (
+  applyTransition,
+  onClick,
+  style,
+}: ActionButtonProps) => (
   <Button
     className={cn(
       `${buttonClassNames} rounded-r-md border-destructive will-change-transform`,
@@ -69,39 +68,31 @@ export const DeleteButton = ({
 );
 
 export const ActionButtons = forwardRef<
-  HTMLDivElement, {
+  HTMLDivElement,
+  {
     visibleWidth: number;
     applyTransition: boolean;
     onEdit: () => void;
     onRemove: () => void;
     onReorder: () => void;
   }
->(({
-  visibleWidth,
-  applyTransition,
-  onReorder,
-  onEdit,
-  onRemove,
-}, ref) => {
-    const shift = (visibleWidth / BUTTONS_WIDTH) * 100;
-    return (
-      <div ref={ref} className="rounded-r-m absolute bottom-0 right-0 top-0">
-        <ReorderButton
-          onClick={onReorder}
-        />
-        <EditButton
-          onClick={onEdit}
-          applyTransition={applyTransition}
-          style={{ transform: `translateX(${shift}%)` }}
-        />
-        <DeleteButton
-          onClick={onRemove}
-          applyTransition={applyTransition}
-          style={{ transform: `translateX(${shift * 2}%)` }}
-        />
-      </div>
-    );
-  },
-);
+>(({ visibleWidth, applyTransition, onReorder, onEdit, onRemove }, ref) => {
+  const shift = (visibleWidth / BUTTONS_WIDTH) * 100;
+  return (
+    <div ref={ref} className="rounded-r-m absolute bottom-0 right-0 top-0">
+      <ReorderButton onClick={onReorder} />
+      <EditButton
+        onClick={onEdit}
+        applyTransition={applyTransition}
+        style={{ transform: `translateX(${shift}%)` }}
+      />
+      <DeleteButton
+        onClick={onRemove}
+        applyTransition={applyTransition}
+        style={{ transform: `translateX(${shift * 2}%)` }}
+      />
+    </div>
+  );
+});
 
 ActionButtons.displayName = 'ActionButtons';

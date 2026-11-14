@@ -13,13 +13,17 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnProtectedPage =
-        PROTECTED_PAGES.some((path) =>  nextUrl.pathname.startsWith(path));
+      const isOnProtectedPage = PROTECTED_PAGES.some((path) =>
+        nextUrl.pathname.startsWith(path),
+      );
       if (isOnProtectedPage) {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       } else if (isLoggedIn) {
-        if (nextUrl.pathname === SIGN_IN_PATH || nextUrl.pathname === SIGN_UP_PATH) {
+        if (
+          nextUrl.pathname === SIGN_IN_PATH ||
+          nextUrl.pathname === SIGN_UP_PATH
+        ) {
           return NextResponse.redirect(new URL(PROTECTED_PAGES[0], nextUrl));
         }
       }

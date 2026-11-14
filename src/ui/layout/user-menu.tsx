@@ -26,23 +26,15 @@ export const UserMenu = () => (
       <DropdownMenuLabel>Account</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <Link href="/settings">
-        <DropdownMenuItem
-          className="cursor-pointer"
-        >
-          Settings
-        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer">Settings</DropdownMenuItem>
       </Link>
-      <a href={`mailto:${process.env.APP_SUPPORT_EMAIL}?subject=${process.env.APP_SHORT_NAME}: Support Request`}>
-        <DropdownMenuItem
-          className="cursor-pointer"
-        >
-          Support
-        </DropdownMenuItem>
+      <a
+        href={`mailto:${process.env.APP_SUPPORT_EMAIL}?subject=${process.env.APP_SHORT_NAME}: Support Request`}
+      >
+        <DropdownMenuItem className="cursor-pointer">Support</DropdownMenuItem>
       </a>
       <DropdownMenuSeparator />
-      <DropdownMenuItem
-        className="cursor-pointer"
-      >
+      <DropdownMenuItem className="cursor-pointer">
         <SignOutButton className="w-full rounded-sm text-left">
           <span>Logout</span>
         </SignOutButton>

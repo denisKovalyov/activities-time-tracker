@@ -49,7 +49,8 @@ export default async function Statistics() {
     getActivitiesRange(userId!, today, monthStart),
   ]);
 
-  if ('message' in todayData || 'message' in weekData || 'message' in monthData) return null;
+  if ('message' in todayData || 'message' in weekData || 'message' in monthData)
+    return null;
 
   const todayChartData = prepareChartData(todayData);
   const weekChartData = prepareChartData(weekData);
@@ -61,38 +62,44 @@ export default async function Statistics() {
 
   const last7days = [
     { name: 'Today', value: todayTotal },
-    { name: 'Yesterday', value:  'message' in yesterdayData ? 0 : getTotalTimeSpent(yesterdayData)},
-    { name: formatReadableDate(oneDayAgo), value: 'message' in oneDayAgoData ? 0 : getTotalTimeSpent(oneDayAgoData)},
-    { name: formatReadableDate(twoDaysAgo), value: 'message' in twoDaysAgoData ? 0 : getTotalTimeSpent(twoDaysAgoData)},
-    { name: formatReadableDate(threeDaysAgo), value: 'message' in threeDaysAgoData ? 0 : getTotalTimeSpent(threeDaysAgoData)},
-    { name: formatReadableDate(fourDaysAgo), value: 'message' in fourDaysAgoData ? 0 : getTotalTimeSpent(fourDaysAgoData)},
-    { name: formatReadableDate(fiveDaysAgo), value: 'message' in fiveDaysAgoData ? 0 : getTotalTimeSpent(fiveDaysAgoData)},
+    {
+      name: 'Yesterday',
+      value: 'message' in yesterdayData ? 0 : getTotalTimeSpent(yesterdayData),
+    },
+    {
+      name: formatReadableDate(oneDayAgo),
+      value: 'message' in oneDayAgoData ? 0 : getTotalTimeSpent(oneDayAgoData),
+    },
+    {
+      name: formatReadableDate(twoDaysAgo),
+      value:
+        'message' in twoDaysAgoData ? 0 : getTotalTimeSpent(twoDaysAgoData),
+    },
+    {
+      name: formatReadableDate(threeDaysAgo),
+      value:
+        'message' in threeDaysAgoData ? 0 : getTotalTimeSpent(threeDaysAgoData),
+    },
+    {
+      name: formatReadableDate(fourDaysAgo),
+      value:
+        'message' in fourDaysAgoData ? 0 : getTotalTimeSpent(fourDaysAgoData),
+    },
+    {
+      name: formatReadableDate(fiveDaysAgo),
+      value:
+        'message' in fiveDaysAgoData ? 0 : getTotalTimeSpent(fiveDaysAgoData),
+    },
   ];
 
   const last7daysTotal = last7days.reduce((acc, { value }) => acc + value, 0);
 
   return (
-    <div className="flex items-center flex-col gap-4 sm:flex-row sm:justify-center sm:flex-wrap [&>div]:w-full [&>div]:sm:w-[calc(50%-0.5rem)] lg:gap-8 [&>div]:lg:w-[calc(50%-1rem)] xl:h-full">
-      <TimeChart
-        period="last7days"
-        total={last7daysTotal}
-        data={last7days}
-      />
-      <TimeChart
-        period="day"
-        total={todayTotal}
-        data={todayChartData}
-      />
-      <TimeChart
-        period="week"
-        total={weekTotal}
-        data={weekChartData}
-      />
-      <TimeChart
-        period="month"
-        total={monthTotal}
-        data={monthChartData}
-      />
+    <div className="flex flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center lg:gap-8 xl:h-full [&>div]:w-full [&>div]:sm:w-[calc(50%-0.5rem)] [&>div]:lg:w-[calc(50%-1rem)]">
+      <TimeChart period="last7days" total={last7daysTotal} data={last7days} />
+      <TimeChart period="day" total={todayTotal} data={todayChartData} />
+      <TimeChart period="week" total={weekTotal} data={weekChartData} />
+      <TimeChart period="month" total={monthTotal} data={monthChartData} />
 
       <BackgroundStopwatch />
     </div>

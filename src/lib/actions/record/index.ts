@@ -17,7 +17,10 @@ export async function getRecord(
     return await dbGetRecord(userId, date);
   } catch (error: unknown) {
     return {
-      message: error instanceof Error ? error?.message as string : DEFAULT_ERROR_MESSAGE,
+      message:
+        error instanceof Error
+          ? (error?.message as string)
+          : DEFAULT_ERROR_MESSAGE,
     };
   }
 }
@@ -29,7 +32,12 @@ export async function createNewRecord({
   activityRecord,
 }: CreateUpdateRecordParams) {
   try {
-    const id = await dbCreateRecord({ userId, date, currentActivity, activityRecord });
+    const id = await dbCreateRecord({
+      userId,
+      date,
+      currentActivity,
+      activityRecord,
+    });
     return { success: true, id };
   } catch (error: unknown) {
     return {

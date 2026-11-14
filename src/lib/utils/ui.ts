@@ -13,4 +13,5 @@ export const matchFieldErrors = <T>(
     },
   );
 
-export const padWithZero = (value: number) => (value < 10 ? `0${value}` : `${value}`);
+export const padWithZero = (value: number) =>
+  value < 10 ? `0${value}` : `${value}`;

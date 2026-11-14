@@ -21,9 +21,16 @@ import {
   ChartTooltipContent,
   CustomLabelRightInside,
 } from '@/ui/common/chart';
-import { formatReadableDate, getMonthStartDate, getWeekStartDate } from '@/lib/utils';
+import {
+  formatReadableDate,
+  getMonthStartDate,
+  getWeekStartDate,
+} from '@/lib/utils';
 import { EmptyState } from '@/ui/common/empty-state';
-import { calculateTimeValues, useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
+import {
+  calculateTimeValues,
+  useCalculateTimeValues,
+} from '@/ui/hooks/use-calculate-time-values';
 import { useSharedStopwatch } from '@/ui/hooks/use-shared-stopwatch';
 import { useActivities } from '@/ui/providers/activities-provider';
 
@@ -44,7 +51,7 @@ const chartConfig = {
     color: 'hsl(var(--primary))',
   },
   label: {
-    color: "hsl(var(--background))",
+    color: 'hsl(var(--background))',
   },
 } satisfies ChartConfig;
 
@@ -54,7 +61,10 @@ const TEXT_MAP: Record<Period, { title: string; footer: string }> = {
   day: { title: 'Today', footer: 'today' },
   week: { title: 'This Week', footer: 'this week' },
   month: { title: 'This Month', footer: 'this month' },
-  last7days: { title: 'Total Over the Last 7 Day', footer: 'over the last 7 days' },
+  last7days: {
+    title: 'Total Over the Last 7 Day',
+    footer: 'over the last 7 days',
+  },
 };
 
 type DataItem = {
@@ -63,19 +73,15 @@ type DataItem = {
   id?: string;
   fill?: string;
   aggregate?: boolean;
-}
+};
 
 type TimeChartProps = {
   data: DataItem[];
   period: Period;
   total: number;
-}
+};
 
-export function TimeChart({
-  data,
-  total = 0,
-  period,
-}: TimeChartProps) {
+export function TimeChart({ data, total = 0, period }: TimeChartProps) {
   const [basicData, setBasicData] = useState<DataItem[]>([]);
   const [storedActiveValue, setStoredActiveValue] = useState(0);
   const [aggregateBar, setAggregateBar] = useState<string[]>([]);
@@ -95,20 +101,25 @@ export function TimeChart({
     if (chartData.length > MAX_BAR_ITEMS) {
       const sortedArr = chartData
         .filter(({ id }) => id !== activeActivity?.id)
-        .toSorted(({ value: valueA }, { value: valueB}) => valueA - valueB)
+        .toSorted(({ value: valueA }, { value: valueB }) => valueA - valueB)
         // + 1 is used as we add "Other" bar
         .slice(0, chartData.length - MAX_BAR_ITEMS + 1);
 
       const lowestValues = new Set(sortedArr);
 
       chartData = [
-        ...chartData.filter((activity) => !lowestValues.has(activity) && activity.id !== activeActivity?.id), {
+        ...chartData.filter(
+          (activity) =>
+            !lowestValues.has(activity) && activity.id !== activeActivity?.id,
+        ),
+        {
           id: 'other-id',
           name: 'Others',
           aggregate: true,
           fill: 'hsl(var(--accent))',
           value: sortedArr.reduce((acc, { value }) => acc + value, 0),
-      }];
+        },
+      ];
 
       setAggregateBar(sortedArr.map(({ name }) => name));
     }
@@ -121,16 +132,17 @@ export function TimeChart({
         : data.find(({ id }) => id === activeActivity.id)?.value || 0;
 
       setStoredActiveValue(storedValue);
-      setBasicData([{
+      setBasicData([
+        {
           id: activeActivity.id,
           name: isAggregate ? 'Today' : activeActivity.name,
           fill: isAggregate ? 'hsl(var(--primary)' : `#${activeActivity.color}`,
           value: storedValue,
         },
-          ...chartData
-            .filter(({ id, name }) => storedValue ? name !=='Today' : id !== activeActivity.id)
-        ],
-      );
+        ...chartData.filter(({ id, name }) =>
+          storedValue ? name !== 'Today' : id !== activeActivity.id,
+        ),
+      ]);
       return;
     }
 
@@ -148,9 +160,14 @@ export function TimeChart({
   const isDesktop = width > CHART_MOBILE_WIDTH;
   const labelFontSize = isDesktop ? LABEL_FONT_SIZE : 12;
   const hasValues = data.some(({ value }) => value > 0);
-  const maxLabelLength = useMemo(() =>
-    data.reduce((acc, { name }) => name.length > acc ? name.length : acc, 0),
-  [data]);
+  const maxLabelLength = useMemo(
+    () =>
+      data.reduce(
+        (acc, { name }) => (name.length > acc ? name.length : acc),
+        0,
+      ),
+    [data],
+  );
 
   const timeValues = useCalculateTimeValues(total + dynamicSeconds);
   const title = TEXT_MAP[period].title;
@@ -158,13 +175,19 @@ export function TimeChart({
     ? `Total time spent ${TEXT_MAP[period].footer} ${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`
     : 'No data';
 
-  let dateStr = formatReadableDate(new Date(), { dateStyle: isDesktop ? 'long' : 'medium' });
+  let dateStr = formatReadableDate(new Date(), {
+    dateStyle: isDesktop ? 'long' : 'medium',
+  });
   if (period === 'week' || period === 'month') {
-    dateStr = `${formatReadableDate((period === 'week' ? getWeekStartDate : getMonthStartDate)(), 
-      { dateStyle: isDesktop ? 'long' : 'medium' })} - ` + dateStr;
+    dateStr =
+      `${formatReadableDate(
+        (period === 'week' ? getWeekStartDate : getMonthStartDate)(),
+        { dateStyle: isDesktop ? 'long' : 'medium' },
+      )} - ` + dateStr;
   }
 
-  const approximateLabelWidth = maxLabelLength * (LABEL_FONT_SIZE * 0.5) + LABEL_OFFSET;
+  const approximateLabelWidth =
+    maxLabelLength * (LABEL_FONT_SIZE * 0.5) + LABEL_OFFSET;
 
   const chartData = useMemo(() => {
     if (dynamicSeconds && activeActivity) {
@@ -175,7 +198,8 @@ export function TimeChart({
     return basicData;
   }, [basicData, activeActivity, storedActiveValue, dynamicSeconds]);
 
-  const formatLabel = ({ name, aggregate }: DataItem) => aggregate ? aggregateBar.join(', ') : name;
+  const formatLabel = ({ name, aggregate }: DataItem) =>
+    aggregate ? aggregateBar.join(', ') : name;
 
   return (
     <Card>
@@ -202,21 +226,16 @@ export function TimeChart({
                 axisLine={false}
                 hide
               />
-              <XAxis
-                dataKey="value"
-                type="number"
-                allowDataOverflow
-                hide
-              />
+              <XAxis dataKey="value" type="number" allowDataOverflow hide />
               <ChartTooltip
                 cursor={false}
-                content={(
+                content={
                   <ChartTooltipContent<DataItem>
                     indicator="line"
                     labelFormatter={formatLabel}
                     valueFormatter={formatTimeValue}
                   />
-                )}
+                }
               />
               <Bar
                 dataKey="value"
@@ -236,13 +255,13 @@ export function TimeChart({
                 <LabelList
                   dataKey="value"
                   offset={8}
-                  content={(
+                  content={
                     <CustomLabelRightInside
                       className="fill-[--color-label]"
                       fontSize={labelFontSize}
                       formatter={formatTimeValue}
                     />
-                  )}
+                  }
                 />
               </Bar>
             </BarChart>
@@ -254,9 +273,9 @@ export function TimeChart({
           )}
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm leading-none font-semibold text-muted-foreground">
+      <CardFooter className="flex-col items-start gap-2 text-sm font-semibold leading-none text-muted-foreground">
         {footer}
       </CardFooter>
     </Card>
-  )
+  );
 }

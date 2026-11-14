@@ -12,7 +12,7 @@ import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email
 import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';
 import { hashPassword } from '@/lib/actions/auth/utils/hash-password';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
-import {headers} from 'next/headers';
+import { headers } from 'next/headers';
 
 const SENDING_RESET_LINK_MS = 1000;
 const NOT_FOUND_LINK = '/reset-password/request?not-found-link=true';

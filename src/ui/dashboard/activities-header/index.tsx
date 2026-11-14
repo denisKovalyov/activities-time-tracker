@@ -26,9 +26,7 @@ const TitleComponent = ({
     className={cn('flex items-center truncate', className)}
     onAnimationEnd={onAnimationEnd}
   >
-    <span className="mx-2 truncate font-semibold">
-      {name}
-    </span>
+    <span className="mx-2 truncate font-semibold">{name}</span>
     <ActivityIcon
       className="flex-none"
       name={icon}
@@ -38,19 +36,16 @@ const TitleComponent = ({
   </div>
 );
 
-const StopwatchComponent = ({ className }: { className: string; }) => {
+const StopwatchComponent = ({ className }: { className: string }) => {
   const { value } = useSharedStopwatch();
   const timeValues = useCalculateTimeValues(value);
 
   return (
-    <span
-      className={className}
-      suppressHydrationWarning
-    >
-     {`${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`}
+    <span className={className} suppressHydrationWarning>
+      {`${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`}
     </span>
   );
-}
+};
 
 const headerBlockClasses =
   'flex justify-center items-center w-full py-4 px-4 bg-primary text-white font-bold truncate';
@@ -86,29 +81,27 @@ export const ActivitiesHeader = ({
     />
   ) : (
     <span className="animate-vertical-shake">
-      {activitiesNumber
-        ? (<span>Time Spent:</span>)
-        : (<span className="truncate">Add New Activity</span>)
-      }
+      {activitiesNumber ? (
+        <span>Time Spent:</span>
+      ) : (
+        <span className="truncate">Add New Activity</span>
+      )}
     </span>
   );
 
   const timeValues = useCalculateTimeValues(totalTimeSpent);
 
   const Stopwatch = activity ? (
-    <StopwatchComponent
-      key={activity.id}
-      className={animationClass}
-    />
+    <StopwatchComponent key={activity.id} className={animationClass} />
   ) : (
     <span className="animate-vertical-shake">
-     {activitiesNumber ? (
-       <span suppressHydrationWarning>
-        {`${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`}
-      </span>
-     ) : (
-       <span className="truncate">To Start Using App</span>
-     )}
+      {activitiesNumber ? (
+        <span suppressHydrationWarning>
+          {`${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`}
+        </span>
+      ) : (
+        <span className="truncate">To Start Using App</span>
+      )}
     </span>
   );
 
@@ -116,24 +109,24 @@ export const ActivitiesHeader = ({
 
   const reorderMode = Boolean(searchParams.get('reorder'));
 
-  const Button = reorderMode
-    ? <ConfirmReorderingButton />
-    : activeId ? <StopRecordButton onClick={handleStopRecord} /> : <AddActivityButton />
+  const Button = reorderMode ? (
+    <ConfirmReorderingButton />
+  ) : activeId ? (
+    <StopRecordButton onClick={handleStopRecord} />
+  ) : (
+    <AddActivityButton />
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-2xl justify-between">
-      <div className={`${headerBlockClasses} rounded-l-full`}>
-        {Title}
-      </div>
+      <div className={`${headerBlockClasses} rounded-l-full`}>{Title}</div>
 
       <div className="relative">
         <span className="absolute -left-2 box-content h-full w-full rounded-full bg-muted px-2" />
         {Button}
       </div>
 
-      <div className={`${headerBlockClasses} rounded-r-full`}>
-        {Stopwatch}
-      </div>
+      <div className={`${headerBlockClasses} rounded-r-full`}>{Stopwatch}</div>
     </div>
   );
 };

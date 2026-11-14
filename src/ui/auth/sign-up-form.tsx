@@ -18,7 +18,7 @@ import { Logo } from '@/ui/common/logo';
 import { PasswordField } from './password-field';
 import { GoogleSignIn } from './google-sign-in';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
-import { cn, matchFieldErrors  } from '@/lib/utils';
+import { cn, matchFieldErrors } from '@/lib/utils';
 
 export function SignUpForm() {
   const [signUpError, setSignUpError] = useState<string | null>(null);
@@ -82,20 +82,21 @@ export function SignUpForm() {
         <GoogleSignIn />
       </form>
 
-      <div className="my-3 text-sm text-center">
+      <div className="my-3 text-center text-sm">
         {`By proceeding, you acknowledge and accept our `}
         <Link
           className={cn(
             buttonVariants({
               variant: 'link',
-              className: 'h-auto px-0 py-0 inline',
+              className: 'inline h-auto px-0 py-0',
             }),
           )}
           target="_blank"
           href="/privacy-policy"
         >
           Privacy Policy
-        </Link>.
+        </Link>
+        .
       </div>
 
       <div className="flex items-center justify-center">

@@ -1,6 +1,9 @@
 import { ActivityExtended } from '@/lib/definitions';
 
-export const getReorderedActivities = (activitiesList: ActivityExtended[], reorderedActivitiesList: ActivityExtended[]) => {
+export const getReorderedActivities = (
+  activitiesList: ActivityExtended[],
+  reorderedActivitiesList: ActivityExtended[],
+) => {
   const result: { id: string; order: number }[] = [];
 
   reorderedActivitiesList.forEach(({ id }, index) => {
@@ -10,13 +13,22 @@ export const getReorderedActivities = (activitiesList: ActivityExtended[], reord
   return result;
 };
 
-export const isListHasChanged = (list: ActivityExtended[], updatedList: ActivityExtended[]) => {
+export const isListHasChanged = (
+  list: ActivityExtended[],
+  updatedList: ActivityExtended[],
+) => {
   if (list.length !== updatedList.length) return true;
 
-  const activitiesHashMap: Record<string, Omit<ActivityExtended, 'id'>> = updatedList.reduce((acc, { id, ...activity }) => ({
-    [id]: activity,
-    ...acc,
-  }), {});
+  const activitiesHashMap: Record<
+    string,
+    Omit<ActivityExtended, 'id'>
+  > = updatedList.reduce(
+    (acc, { id, ...activity }) => ({
+      [id]: activity,
+      ...acc,
+    }),
+    {},
+  );
 
   return list.some(({ id, name, color, icon, is_archived, time_spent }) => {
     const updatedItem = activitiesHashMap[id];
@@ -27,6 +39,7 @@ export const isListHasChanged = (list: ActivityExtended[], updatedList: Activity
       icon !== updatedItem.icon ||
       is_archived !== updatedItem.is_archived ||
       time_spent !== updatedItem.time_spent
-    ) return true;
+    )
+      return true;
   });
 };

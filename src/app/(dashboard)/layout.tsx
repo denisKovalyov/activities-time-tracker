@@ -27,7 +27,8 @@ export default async function Layout({ children }: { children: ReactNode }) {
 
   if ('message' in activities) return null;
 
-  const activeActivity =  record && 'current_activity' in record ? record.current_activity : null;
+  const activeActivity =
+    record && 'current_activity' in record ? record.current_activity : null;
 
   let totalTimeSpent = getSecondsPassed(activeActivity?.[1]);
   const activitiesTimeMap = activities.reduce((acc, curr) => {
@@ -35,7 +36,6 @@ export default async function Layout({ children }: { children: ReactNode }) {
     totalTimeSpent += value;
     return { ...acc, [curr.id]: value };
   }, {});
-
 
   return (
     <div className="flex h-dvh w-full flex-col">
