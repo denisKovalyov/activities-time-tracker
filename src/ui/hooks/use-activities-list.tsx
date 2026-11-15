@@ -1,94 +1,57 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
+import { useOptimistic, useState, useTransition } from 'react';
 
-import { reorderActivities } from '@/lib/actions/activity';
+import { reorderActivities } from '@/lib/actions/activities';
+import type { Activity } from '@/lib/db/types';
 import {
-  getReorderedActivities,
-  isListHasChanged,
-} from '@/ui/dashboard/activities-list/utils';
+  getMoves,
+  mergeVisibleOrder,
+} from '@/ui/dashboard/activities-list/reorder';
 import { useToast } from '@/ui/hooks/use-toast';
-import { useRouter } from '@/ui/hooks/use-router';
-import { ActivityExtended } from '@/lib/definitions';
 
-const DEBOUNCE_DELAY = 2000;
-
-type UseActivitiesList = {
-  activitiesList: ActivityExtended[];
-  handleReorder: () => void;
-  handleReorderDebounced: (activitiesList: ActivityExtended[]) => void;
-};
-
-export const useActivitiesList = (
-  activities: ActivityExtended[],
-): UseActivitiesList => {
-  const [activitiesList, setActivitiesList] =
-    useState<(ActivityExtended & { hidden?: boolean })[]>(activities);
-  const [previousList, setPreviousList] = useState<ActivityExtended[]>([]);
-
-  useEffect(() => {
-    if (isListHasChanged(previousList, activities)) {
-      setActivitiesList(activities);
-      setPreviousList(activities);
-    }
-  }, [activities, previousList, setActivitiesList, setPreviousList]);
-
+// The list shown in the UI:
+// - while dragging, the order made by the drag (local only);
+// - after a drop, the new order is shown optimistically while it's being
+//   saved. React keeps it until the save and the re-render with fresh data
+//   finish, so data that arrives meanwhile (e.g. after leaving reorder mode)
+//   can't bring the old order back. If the save fails, the order from the
+//   server is shown again.
+// A new drag can't start until the save finishes: its moves are computed
+// against the order from the server, which must already include the
+// previous drop.
+export const useActivitiesList = (activities: Activity[]) => {
+  const [savingList, setSavingList] = useOptimistic(activities);
+  const [draggedList, setDraggedList] = useState<Activity[] | null>(null);
+  const [isSaving, startTransition] = useTransition();
   const { toast } = useToast();
 
-  const { searchParams } = useRouter();
-  const search = searchParams.get('search')?.toLowerCase();
+  const activitiesList = draggedList ?? savingList;
 
-  useEffect(() => {
-    setActivitiesList((activitiesList) =>
-      activitiesList.map((activity) => {
-        return {
-          ...activity,
-          hidden: search
-            ? !activity.name.toLowerCase().includes(search)
-            : false,
-        };
-      }),
+  const handleReorder = (visibleReordered: Activity[]) =>
+    setDraggedList(mergeVisibleOrder(activitiesList, visibleReordered));
+
+  const handleDrop = () => {
+    if (!draggedList) return;
+
+    const moves = getMoves(
+      activities.map(({ id }) => id),
+      draggedList.map(({ id }) => id),
     );
-  }, [search, setActivitiesList]);
+    const list = draggedList;
 
-  const reorderActivitiesList = async (
-    updatedActivities: ActivityExtended[],
-  ) => {
-    const diff = getReorderedActivities(activities, updatedActivities);
+    startTransition(async () => {
+      setSavingList(list);
+      if (!moves.length) return;
 
-    if (!diff.length) return;
-
-    const result = await reorderActivities(diff);
-
-    toast({
-      title:
-        'message' in result
-          ? result.message
-          : 'Activities order was successfully updated!',
-      variant: 'message' in result ? 'destructive' : 'success',
+      const result = await reorderActivities(moves).catch(() => null);
+      if (!result?.ok) {
+        toast({
+          title: result?.message ?? "Activities order wasn't saved.",
+          variant: 'destructive',
+        });
+      }
     });
+    setDraggedList(null);
   };
 
-  const debouncedReorder = useDebouncedCallback(
-    reorderActivitiesList,
-    DEBOUNCE_DELAY,
-  );
-
-  const handleReorderDebounced = useCallback(
-    (activitiesReordered: ActivityExtended[]) => {
-      setActivitiesList(activitiesReordered);
-      void debouncedReorder(activitiesReordered);
-    },
-    [debouncedReorder],
-  );
-
-  const handleReorder = useCallback(
-    () => debouncedReorder.flush(),
-    [debouncedReorder],
-  );
-
-  return {
-    activitiesList,
-    handleReorderDebounced,
-    handleReorder,
-  };
+  return { activitiesList, isSaving, handleReorder, handleDrop };
 };

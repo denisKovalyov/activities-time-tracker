@@ -2,13 +2,13 @@
 
 import { useEffect } from 'react';
 
-import { USER_DATE_COOKIE_NAME } from '@/lib/constants';
-import { formatDate } from '@/lib/utils';
+import { syncTimeZoneCookie } from '@/lib/utils/time-zone-cookie';
 
+// Sets the time zone cookie before sign-in, so the first dashboard render
+// already uses the user's "today".
 export const SetCookies = () => {
   useEffect(() => {
-    const date = formatDate(new Date());
-    document.cookie = `${USER_DATE_COOKIE_NAME}=${date}; path=/; secure; SameSite=Lax`;
+    syncTimeZoneCookie();
   }, []);
 
   return null;

@@ -4,16 +4,15 @@ import { useCallback, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useSession } from 'next-auth/react';
 
-import { ActivityExtended } from '@/lib/definitions';
+import type { Activity, ActivityFields } from '@/lib/db/types';
 import { ActivitySchema } from '@/lib/validation';
 import { Button } from '@/ui/common/button';
 import { Form, FormFieldInput } from '@/ui/common/form';
 import { IconPicker } from '@/ui/dashboard/activity-form/icon-picker';
 import { ColorPicker } from '@/ui/dashboard/activity-form/color-picker';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
-import { createActivity, updateActivity } from '@/lib/actions/activity';
+import { createActivity, updateActivity } from '@/lib/actions/activities';
 import { useToast } from '@/ui/hooks/use-toast';
 import { matchFieldErrors } from '@/lib/utils';
 import {
@@ -31,10 +30,9 @@ export function ActivityForm({
   activityId,
 }: {
   onSubmit: () => void;
-  activities: ActivityExtended[];
+  activities: Activity[];
   activityId?: string | null;
 }) {
-  const { data: session } = useSession();
   const { toast } = useToast();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -89,36 +87,19 @@ export function ActivityForm({
       return;
     }
 
-    const userId = session?.user?.id!;
     setIsLoading(true);
 
     const result =
       activityId && changedValues
         ? await updateActivity(activityId, changedValues)
-        : await createActivity({
-            ...values,
-            user_id: userId,
-            order:
-              activities.reduce(
-                (acc, { order }) => (acc > order ? acc : order),
-                0,
-              ) + 1,
-          });
+        : await createActivity(values);
 
-    if ('errors' in result && result.errors) {
-      matchFieldErrors<
-        Partial<Pick<ActivityExtended, 'name' | 'color' | 'icon'>>
-      >(result.errors, setError);
-      setIsLoading(false);
-      return;
-    }
-
-    if ('message' in result) {
-      toast({
-        title: result.message,
-        variant: 'destructive',
-      });
-
+    if (!result.ok) {
+      if (result.fieldErrors) {
+        matchFieldErrors<ActivityFields>(result.fieldErrors, setError);
+      } else {
+        toast({ title: result.message, variant: 'destructive' });
+      }
       setIsLoading(false);
       return;
     }

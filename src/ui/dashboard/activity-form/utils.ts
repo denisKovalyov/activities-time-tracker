@@ -1,11 +1,11 @@
-import { ActivityExtended } from '@/lib/definitions';
+import type { Activity, ActivityFields } from '@/lib/db/types';
 
-type ActivityForm = Pick<ActivityExtended, 'name' | 'color' | 'icon'>;
+type ActivityForm = ActivityFields;
 type ActivityKey = keyof ActivityForm;
 
 export const checkActivityExists = (
   activity: ActivityForm,
-  activitiesList: ActivityExtended[],
+  activitiesList: Activity[],
 ) =>
   activitiesList.find(
     ({ name, color, icon }) =>
@@ -15,7 +15,7 @@ export const checkActivityExists = (
   );
 
 export const retrieveUpdatedValues = (
-  activitySaved: ActivityExtended,
+  activitySaved: Activity,
   activityFormValues: ActivityForm,
 ) =>
   (Object.entries(activityFormValues) as [ActivityKey, string][]).reduce(

@@ -1,6 +1,14 @@
-import type { Credentials, User } from '@/lib/definitions';
+import 'server-only';
 import { sql } from '@vercel/postgres';
-import { getUpdatedFields } from '@/lib/actions/data/utils';
+
+import type { Credentials, User } from '@/lib/definitions';
+
+// "a=$1, b=$2" for an UPDATE. Field names are interpolated into SQL, so they
+// must come from the code, never from user input.
+const getUpdatedFields = (data: { [key: string]: unknown }) =>
+  Object.keys(data)
+    .map((field, i) => `${field}=$${i + 1}`)
+    .join(', ');
 
 export async function getUser(email: string): Promise<User | undefined> {
   try {
@@ -44,9 +52,11 @@ export async function updateUser(
 
     const fieldsString = getUpdatedFields(updatedFields);
 
+    const values = Object.values(updatedFields);
+
     await sql.query(
-      `UPDATE "user" SET ${fieldsString} WHERE email='${email}'`,
-      Object.values(updatedFields),
+      `UPDATE "user" SET ${fieldsString} WHERE email=$${values.length + 1}`,
+      [...values, email],
     );
   } catch (error) {
     console.error('DB: failed to update user:', error);

@@ -1,6 +1,6 @@
 'use client';
 
-import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import { RefObject, useMemo, useRef } from 'react';
 import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts';
 import { useResizeObserver } from 'usehooks-ts';
 import { PresentationChart } from '@phosphor-icons/react';
@@ -22,17 +22,20 @@ import {
   CustomLabelRightInside,
 } from '@/ui/common/chart';
 import {
-  formatReadableDate,
-  getMonthStartDate,
-  getWeekStartDate,
-} from '@/lib/utils';
+  type Day,
+  formatReadableDay,
+  getMonthStart,
+  getWeekStart,
+} from '@/lib/utils/day';
 import { EmptyState } from '@/ui/common/empty-state';
 import {
   calculateTimeValues,
   useCalculateTimeValues,
 } from '@/ui/hooks/use-calculate-time-values';
-import { useSharedStopwatch } from '@/ui/hooks/use-shared-stopwatch';
 import { useActivities } from '@/ui/providers/activities-provider';
+import { useLiveSeconds } from '@/ui/timer/use-live-seconds';
+import type { RunningTimer } from '@/lib/db/types';
+import type { DataItem } from '@/ui/statistics/chart-data';
 
 const MAX_BAR_ITEMS = 8;
 const LABEL_OFFSET = 20;
@@ -67,139 +70,122 @@ const TEXT_MAP: Record<Period, { title: string; footer: string }> = {
   },
 };
 
-type DataItem = {
-  name: string;
-  value: number;
-  id?: string;
-  fill?: string;
-  aggregate?: boolean;
-};
-
 type TimeChartProps = {
   data: DataItem[];
   period: Period;
   total: number;
+  // The running timer read together with the data, and when it was read,
+  // to add only the live time the data doesn't include
+  timer: RunningTimer | null;
+  countedAt: number;
+  // The user's day the data was loaded for, the same on server and client
+  today: Day;
 };
 
-export function TimeChart({ data, total = 0, period }: TimeChartProps) {
-  const [basicData, setBasicData] = useState<DataItem[]>([]);
-  const [storedActiveValue, setStoredActiveValue] = useState(0);
-  const [aggregateBar, setAggregateBar] = useState<string[]>([]);
+// Puts the running activity first and joins the smallest bars into "Others"
+// if there are too many.
+const getBars = (data: DataItem[], activeBar: DataItem | null) => {
+  const rest = data.filter(({ id }) => id !== activeBar?.id);
+  const limit = MAX_BAR_ITEMS - (activeBar ? 1 : 0);
+  if (rest.length <= limit) {
+    return { bars: activeBar ? [activeBar, ...rest] : rest, aggregated: [] };
+  }
 
+  // One place is left for the "Others" bar
+  const smallest = rest
+    .toSorted((a, b) => a.value - b.value)
+    .slice(0, rest.length - limit + 1);
+  const others: DataItem = {
+    id: 'other-id',
+    name: 'Others',
+    aggregate: true,
+    fill: 'hsl(var(--accent))',
+    value: smallest.reduce((sum, { value }) => sum + value, 0),
+  };
+  const kept = rest.filter((item) => !smallest.includes(item));
+
+  return {
+    bars: [...(activeBar ? [activeBar] : []), ...kept, others],
+    aggregated: smallest.map(({ name }) => name),
+  };
+};
+
+export function TimeChart({
+  data,
+  total = 0,
+  period,
+  timer,
+  countedAt,
+  today,
+}: TimeChartProps) {
   const ref = useRef<HTMLDivElement>(null);
   const { width = 0 } = useResizeObserver({
     ref: ref as RefObject<HTMLDivElement>,
   });
-  const { activeActivity } = useActivities();
-  const { value: dynamicSeconds } = useSharedStopwatch();
+  const activities = useActivities();
+  const activeId = timer?.activityId;
+  const liveSeconds = useLiveSeconds(timer, countedAt);
 
-  useEffect(() => {
-    if (basicData.length || !data.length) return;
+  const isDaysChart = period === 'last7days';
+  const activeActivity = isDaysChart
+    ? undefined
+    : activities.find(({ id }) => id === activeId);
 
-    let chartData = [...data];
+  const { bars, aggregated } = useMemo(
+    () =>
+      getBars(
+        data,
+        activeActivity
+          ? {
+              id: activeActivity.id,
+              name: activeActivity.name,
+              fill: `#${activeActivity.color}`,
+              value:
+                data.find(({ id }) => id === activeActivity.id)?.value ?? 0,
+            }
+          : null,
+      ),
+    [data, activeActivity],
+  );
 
-    if (chartData.length > MAX_BAR_ITEMS) {
-      const sortedArr = chartData
-        .filter(({ id }) => id !== activeActivity?.id)
-        .toSorted(({ value: valueA }, { value: valueB }) => valueA - valueB)
-        // + 1 is used as we add "Other" bar
-        .slice(0, chartData.length - MAX_BAR_ITEMS + 1);
-
-      const lowestValues = new Set(sortedArr);
-
-      chartData = [
-        ...chartData.filter(
-          (activity) =>
-            !lowestValues.has(activity) && activity.id !== activeActivity?.id,
-        ),
-        {
-          id: 'other-id',
-          name: 'Others',
-          aggregate: true,
-          fill: 'hsl(var(--accent))',
-          value: sortedArr.reduce((acc, { value }) => acc + value, 0),
-        },
-      ];
-
-      setAggregateBar(sortedArr.map(({ name }) => name));
-    }
-
-    if (activeActivity) {
-      const isAggregate = period === 'last7days';
-
-      const storedValue = isAggregate
-        ? data[0].value
-        : data.find(({ id }) => id === activeActivity.id)?.value || 0;
-
-      setStoredActiveValue(storedValue);
-      setBasicData([
-        {
-          id: activeActivity.id,
-          name: isAggregate ? 'Today' : activeActivity.name,
-          fill: isAggregate ? 'hsl(var(--primary)' : `#${activeActivity.color}`,
-          value: storedValue,
-        },
-        ...chartData.filter(({ id, name }) =>
-          storedValue ? name !== 'Today' : id !== activeActivity.id,
-        ),
-      ]);
-      return;
-    }
-
-    setBasicData(chartData);
-  }, [
-    period,
-    basicData,
-    activeActivity,
-    data,
-    setBasicData,
-    setStoredActiveValue,
-    setAggregateBar,
-  ]);
+  // The bar that grows while the timer runs: today's or the running activity's
+  const liveBarId = isDaysChart ? data[0]?.id : activeActivity?.id;
+  const chartData = useMemo(
+    () =>
+      bars.map((bar) =>
+        bar.id === liveBarId ? { ...bar, value: bar.value + liveSeconds } : bar,
+      ),
+    [bars, liveBarId, liveSeconds],
+  );
 
   const isDesktop = width > CHART_MOBILE_WIDTH;
   const labelFontSize = isDesktop ? LABEL_FONT_SIZE : 12;
-  const hasValues = data.some(({ value }) => value > 0);
-  const maxLabelLength = useMemo(
-    () =>
-      data.reduce(
-        (acc, { name }) => (name.length > acc ? name.length : acc),
-        0,
-      ),
-    [data],
+  const hasValues = chartData.some(({ value }) => value > 0);
+  const maxLabelLength = chartData.reduce(
+    (acc, { name }) => (name.length > acc ? name.length : acc),
+    0,
   );
 
-  const timeValues = useCalculateTimeValues(total + dynamicSeconds);
+  const timeValues = useCalculateTimeValues(total + liveSeconds);
   const title = TEXT_MAP[period].title;
   const footer = hasValues
     ? `Total time spent ${TEXT_MAP[period].footer} ${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`
     : 'No data';
 
-  let dateStr = formatReadableDate(new Date(), {
-    dateStyle: isDesktop ? 'long' : 'medium',
-  });
+  const dateStyle = isDesktop ? 'long' : 'medium';
+  let dateStr = formatReadableDay(today, dateStyle);
   if (period === 'week' || period === 'month') {
-    dateStr =
-      `${formatReadableDate(
-        (period === 'week' ? getWeekStartDate : getMonthStartDate)(),
-        { dateStyle: isDesktop ? 'long' : 'medium' },
-      )} - ` + dateStr;
+    const periodStart = (period === 'week' ? getWeekStart : getMonthStart)(
+      today,
+    );
+    dateStr = `${formatReadableDay(periodStart, dateStyle)} - ${dateStr}`;
   }
 
   const approximateLabelWidth =
     maxLabelLength * (LABEL_FONT_SIZE * 0.5) + LABEL_OFFSET;
 
-  const chartData = useMemo(() => {
-    if (dynamicSeconds && activeActivity) {
-      const active = basicData.find(({ id }) => activeActivity.id === id)!;
-      active.value = storedActiveValue + dynamicSeconds;
-    }
-
-    return basicData;
-  }, [basicData, activeActivity, storedActiveValue, dynamicSeconds]);
-
   const formatLabel = ({ name, aggregate }: DataItem) =>
-    aggregate ? aggregateBar.join(', ') : name;
+    aggregate ? aggregated.join(', ') : name;
 
   return (
     <Card>
