@@ -1,5 +1,4 @@
-'use server';
-
+import 'server-only';
 import { sql } from '@vercel/postgres';
 
 import { formatDate } from '@/lib/utils';

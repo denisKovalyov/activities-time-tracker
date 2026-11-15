@@ -1,7 +1,7 @@
+import 'server-only';
 import { sql } from '@vercel/postgres';
 
-import { getUpdatedFields } from '@/lib/actions/data/utils';
-import type { Activity, ActivityExtended } from '@/lib/definitions';
+import type { Activity } from '@/lib/definitions';
 
 export async function getActivities(userId: string): Promise<Activity[] | []> {
   try {
@@ -36,21 +36,33 @@ export async function createActivity({
   }
 }
 
+// Column names are interpolated into SQL, so they come only from this list.
+const UPDATABLE_FIELDS = ['name', 'color', 'icon'] as const;
+
 export async function updateActivity(
+  userId: string,
   id: string,
-  activity: Partial<Activity>,
+  activity: Partial<Pick<Activity, (typeof UPDATABLE_FIELDS)[number]>>,
 ): Promise<Activity> {
   try {
-    const updatedFields = {
-      ...activity,
-      updated_at: new Date().toISOString(),
-    };
-
-    const fieldsString = getUpdatedFields(updatedFields);
+    const fields = UPDATABLE_FIELDS.filter(
+      (field) => activity[field] !== undefined,
+    );
+    const setString = [...fields, 'updated_at']
+      .map((field, i) => `${field}=$${i + 1}`)
+      .join(', ');
+    const values = [
+      ...fields.map((field) => activity[field]),
+      new Date().toISOString(),
+      id,
+      userId,
+    ];
 
     const result = await sql.query(
-      `UPDATE activity SET ${fieldsString} WHERE id='${id}' RETURNING *`,
-      Object.values(updatedFields),
+      `UPDATE activity SET ${setString}
+      WHERE id=$${values.length - 1} AND user_id=$${values.length}
+      RETURNING *`,
+      values,
     );
 
     return result.rows[0];
@@ -61,21 +73,20 @@ export async function updateActivity(
 }
 
 export async function reorderActivities(
+  userId: string,
   activitiesList: { id: string; order: number }[],
 ): Promise<Activity[]> {
   try {
-    const updatedAt = new Date().toISOString();
-    const dataSet = activitiesList.reduce((str, { id, order }, i) => {
-      const value = `('${id}'::uuid, ${order})`;
-      return str + (i > 0 ? ', ' + value : value);
-    }, '');
+    const ids = activitiesList.map(({ id }) => id);
+    const orders = activitiesList.map(({ order }) => order);
 
-    const result = await sql.query(`
-      UPDATE activity SET "order" = data.new_order, updated_at = '${updatedAt}'
-      FROM (VALUES ${dataSet}) AS data(id, new_order)
-      WHERE activity.id = data.id
-      RETURNING *;
-    `);
+    const result = await sql.query(
+      `UPDATE activity SET "order" = data.new_order, updated_at = now()
+      FROM unnest($1::uuid[], $2::int[]) AS data(id, new_order)
+      WHERE activity.id = data.id AND activity.user_id = $3
+      RETURNING *`,
+      [ids, orders, userId],
+    );
 
     return result.rows;
   } catch (error) {
@@ -84,9 +95,12 @@ export async function reorderActivities(
   }
 }
 
-export async function deleteActivity(id: string): Promise<void> {
+export async function deleteActivity(
+  userId: string,
+  id: string,
+): Promise<void> {
   try {
-    await sql`DELETE FROM activity WHERE id=${id}`;
+    await sql`DELETE FROM activity WHERE id=${id} AND user_id=${userId}`;
   } catch (error) {
     console.error('DB: failed to delete activity:', error);
     throw new Error('Failed to delete activity.');

@@ -5,7 +5,6 @@ import { DialogWrapper } from '@/ui/common/dialog';
 import { Button } from '@/ui/common/button';
 import { deleteUserData } from '@/lib/actions/auth/delete-user-data';
 import { signOut } from '@/lib/actions/auth/sign-out';
-import { useSession } from 'next-auth/react';
 import { useToast } from '@/ui/hooks/use-toast';
 
 export const RemoveAccountDialog = ({
@@ -16,7 +15,6 @@ export const RemoveAccountDialog = ({
   onOpenChange: () => void;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { data: session } = useSession();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -26,7 +24,7 @@ export const RemoveAccountDialog = ({
   const handleConfirm = async () => {
     setIsLoading(true);
 
-    const result = await deleteUserData(session?.user?.id!);
+    const result = await deleteUserData();
 
     const hasError = 'message' in result;
 
