@@ -119,8 +119,9 @@ async function applyMove(
 }
 
 // Applies the moves in order, all or none: they run in one transaction under
-// the user lock, so a failed move doesn't leave a half-applied order.
-// Returns the moved activities (activities of other users are skipped).
+// the user lock, so a failed move doesn't leave a half-applied order. A move
+// of an activity that doesn't exist (e.g. deleted in another tab) or belongs
+// to another user fails the whole batch.
 export async function moveActivities(
   userId: string,
   moves: Move[],
@@ -130,7 +131,8 @@ export async function moveActivities(
       const moved: Activity[] = [];
       for (const move of moves) {
         const activity = await applyMove(client, userId, move);
-        if (activity) moved.push(activity);
+        if (!activity) throw new Error('Activity not found.');
+        moved.push(activity);
       }
       return moved;
     });

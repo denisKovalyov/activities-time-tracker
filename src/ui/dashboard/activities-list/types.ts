@@ -7,6 +7,8 @@ export type ActivitiesListItemProps = {
   onSwipe: (id: string) => void;
   onCancelSwipe: () => void;
   reorderMode: boolean;
+  // While the previous drop is being saved
+  dragDisabled: boolean;
   onEdit: (id: string) => void;
   onRemove: (id: string) => void;
   onReorder: () => void;

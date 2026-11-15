@@ -19,8 +19,11 @@ async function resetDB(client) {
 
 async function main() {
   const client = await dbReset.connect();
-  await resetDB(client);
-  await client.end();
+  try {
+    await resetDB(client);
+  } finally {
+    await client.end();
+  }
 }
 
 // Exported for the integration tests, which reset their own test database
@@ -32,5 +35,7 @@ if (require.main === module) {
       'An error occurred while attempting to reset the database schema:',
       err,
     );
+    // So that `&&` in npm scripts stops after a failure
+    process.exitCode = 1;
   });
 }

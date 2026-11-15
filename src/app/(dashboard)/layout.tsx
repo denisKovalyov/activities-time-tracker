@@ -6,7 +6,7 @@ import { InputSearch } from '@/ui/layout/input-search';
 import { UserMenu } from '@/ui/layout/user-menu';
 import { PageName } from '@/ui/layout/page-name';
 import { Logo } from '@/ui/common/logo';
-import { SetCookies } from '@/ui/layout/set-cookies';
+import { KeepDataFresh } from '@/ui/layout/keep-data-fresh';
 import { ActivitiesProvider } from '@/ui/providers/activities-provider';
 import { TimerProvider } from '@/ui/timer/timer-provider';
 import { listActivities } from '@/lib/db/activities';
@@ -30,7 +30,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex h-dvh w-full flex-col">
-      <SetCookies />
+      <KeepDataFresh day={today} timeZone={timeZone} />
 
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r border-secondary sm:flex">
         <MainNavigation />

@@ -117,6 +117,22 @@ describe('moveActivities', () => {
     expect(await names()).toEqual(['B', 'C']);
   });
 
+  it('fails the whole batch when a moved activity does not exist', async () => {
+    await create('A');
+    const b = await create('B');
+    const c = await create('C');
+    await deleteActivity(userId, b.id);
+
+    await expect(
+      moveActivities(userId, [
+        { id: c.id, previousId: null },
+        { id: b.id, previousId: null },
+      ]),
+    ).rejects.toThrow();
+
+    expect(await names()).toEqual(['A', 'C']);
+  });
+
   it('fails when the previous activity does not exist', async () => {
     const a = await create('A');
     const b = await create('B');
@@ -158,7 +174,7 @@ describe('other users', () => {
     expect(
       await updateActivity(userId, other.id, { name: 'changed' }),
     ).toBeUndefined();
-    expect(await move(other.id, null)).toEqual([]);
+    await expect(move(other.id, null)).rejects.toThrow();
     await deleteActivity(userId, other.id);
 
     expect(await listActivities(userId)).toEqual([]);

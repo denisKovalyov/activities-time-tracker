@@ -13,7 +13,7 @@ export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
   const reorderMode = Boolean(searchParams.get('reorder'));
   const search = searchParams.get('search')?.toLowerCase();
 
-  const { activitiesList, handleReorder, handleDrop } =
+  const { activitiesList, isSaving, handleReorder, handleDrop } =
     useActivitiesList(activities);
 
   const handleSwipe = (id: string) => setSwiped(id);
@@ -44,6 +44,7 @@ export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
             }
             swiped={swiped === activity.id}
             reorderMode={reorderMode}
+            dragDisabled={isSaving}
             onSwipe={handleSwipe}
             onCancelSwipe={handleSwipeCancel}
             onEdit={handleEdit}

@@ -33,6 +33,7 @@ export const ActivityListItem = ({
   onEdit,
   onRemove,
   reorderMode,
+  dragDisabled,
 }: ActivitiesListItemProps) => {
   const [shift, setShift] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
@@ -95,7 +96,9 @@ export const ActivityListItem = ({
   const handleRemove = () => onRemove(id);
   const handleRecord = () => toggle(id);
 
-  const startDrag = (e: PointerEvent<HTMLButtonElement>) => controls.start(e);
+  const startDrag = (e: PointerEvent<HTMLButtonElement>) => {
+    if (!dragDisabled) controls.start(e);
+  };
   const handleDragStart = () => setIsDragging(true);
   const handleDragEnd = () => setIsDragging(false);
 
