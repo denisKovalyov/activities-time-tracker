@@ -8,14 +8,11 @@ import { EmptyState } from '@/ui/common/empty-state';
 import { useActivities } from '@/ui/providers/activities-provider';
 
 export const DashboardWrapper = () => {
-  const { activities, totalTimeSpent } = useActivities();
+  const activities = useActivities();
 
   return (
     <div className="flex h-full w-full flex-col">
-      <ActivitiesHeader
-        activities={activities}
-        totalTimeSpent={totalTimeSpent}
-      />
+      <ActivitiesHeader activities={activities} />
 
       {activities.length === 0 ? (
         <EmptyState

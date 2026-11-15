@@ -6,9 +6,12 @@ import { ConfirmReorderingButton } from '@/ui/dashboard/activities-header/confir
 import { StopRecordButton } from '@/ui/dashboard/activities-header/stop-record-button';
 import { useRouter } from '@/ui/hooks/use-router';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
-import { useRecord } from '@/ui/providers/record-provider';
-import { useSharedStopwatch } from '@/ui/hooks/use-shared-stopwatch';
-import { ActivityExtended } from '@/lib/definitions';
+import {
+  useRunSeconds,
+  useTimer,
+  useTotalSeconds,
+} from '@/ui/timer/timer-provider';
+import type { Activity } from '@/lib/db/types';
 import { cn } from '@/lib/utils';
 
 const TitleComponent = ({
@@ -37,11 +40,20 @@ const TitleComponent = ({
 );
 
 const StopwatchComponent = ({ className }: { className: string }) => {
-  const { value } = useSharedStopwatch();
-  const timeValues = useCalculateTimeValues(value);
+  const timeValues = useCalculateTimeValues(useRunSeconds());
 
   return (
     <span className={className} suppressHydrationWarning>
+      {`${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`}
+    </span>
+  );
+};
+
+const TotalTimeComponent = () => {
+  const timeValues = useCalculateTimeValues(useTotalSeconds());
+
+  return (
+    <span suppressHydrationWarning>
       {`${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`}
     </span>
   );
@@ -51,15 +63,13 @@ const headerBlockClasses =
   'flex justify-center items-center w-full py-4 px-4 bg-primary text-white font-bold truncate';
 
 export const ActivitiesHeader = ({
-  totalTimeSpent,
   activities,
 }: {
-  totalTimeSpent: number;
-  activities: ActivityExtended[];
+  activities: Activity[];
 }) => {
   const [animationClass, setAnimationClass] = useState('opacity-0');
   const { searchParams } = useRouter();
-  const { activeId, setActiveId } = useRecord();
+  const { activeId, stop } = useTimer();
 
   const activitiesNumber = activities.length;
 
@@ -89,23 +99,19 @@ export const ActivitiesHeader = ({
     </span>
   );
 
-  const timeValues = useCalculateTimeValues(totalTimeSpent);
-
   const Stopwatch = activity ? (
     <StopwatchComponent key={activity.id} className={animationClass} />
   ) : (
     <span className="animate-vertical-shake">
       {activitiesNumber ? (
-        <span suppressHydrationWarning>
-          {`${timeValues[0]}:${timeValues[1]}:${timeValues[2]}`}
-        </span>
+        <TotalTimeComponent />
       ) : (
         <span className="truncate">To Start Using App</span>
       )}
     </span>
   );
 
-  const handleStopRecord = () => setActiveId(null);
+  const handleStopRecord = () => stop();
 
   const reorderMode = Boolean(searchParams.get('reorder'));
 

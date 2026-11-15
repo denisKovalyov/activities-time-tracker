@@ -1,94 +1,54 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
+import { useEffect, useEffectEvent, useState } from 'react';
 
-import { reorderActivities } from '@/lib/actions/activity';
-import {
-  getReorderedActivities,
-  isListHasChanged,
-} from '@/ui/dashboard/activities-list/utils';
+import { reorderActivities } from '@/lib/actions/activities';
+import type { Activity } from '@/lib/db/types';
+import { getMoves } from '@/ui/dashboard/activities-list/reorder';
 import { useToast } from '@/ui/hooks/use-toast';
-import { useRouter } from '@/ui/hooks/use-router';
-import { ActivityExtended } from '@/lib/definitions';
 
-const DEBOUNCE_DELAY = 2000;
-
-type UseActivitiesList = {
-  activitiesList: ActivityExtended[];
-  handleReorder: () => void;
-  handleReorderDebounced: (activitiesList: ActivityExtended[]) => void;
-};
-
+// The list shown in the UI. In reorder mode it's changed locally while
+// dragging and saved to the server when the user leaves reorder mode (or
+// the page).
 export const useActivitiesList = (
-  activities: ActivityExtended[],
-): UseActivitiesList => {
-  const [activitiesList, setActivitiesList] =
-    useState<(ActivityExtended & { hidden?: boolean })[]>(activities);
-  const [previousList, setPreviousList] = useState<ActivityExtended[]>([]);
-
-  useEffect(() => {
-    if (isListHasChanged(previousList, activities)) {
-      setActivitiesList(activities);
-      setPreviousList(activities);
-    }
-  }, [activities, previousList, setActivitiesList, setPreviousList]);
-
+  activities: Activity[],
+  reorderMode: boolean,
+) => {
+  const [activitiesList, setActivitiesList] = useState(activities);
+  const [serverActivities, setServerActivities] = useState(activities);
   const { toast } = useToast();
 
-  const { searchParams } = useRouter();
-  const search = searchParams.get('search')?.toLowerCase();
+  // New data from the server replaces the local list
+  if (activities !== serverActivities) {
+    setServerActivities(activities);
+    setActivitiesList(activities);
+  }
+
+  const saveOrder = useEffectEvent(async () => {
+    const moves = getMoves(
+      activities.map(({ id }) => id),
+      activitiesList.map(({ id }) => id),
+    );
+    if (!moves.length) return;
+
+    const result = await reorderActivities(moves);
+    toast({
+      title: result.ok
+        ? 'Activities order was successfully updated!'
+        : result.message,
+      variant: result.ok ? 'success' : 'destructive',
+    });
+    if (!result.ok) setActivitiesList(activities);
+  });
 
   useEffect(() => {
-    setActivitiesList((activitiesList) =>
-      activitiesList.map((activity) => {
-        return {
-          ...activity,
-          hidden: search
-            ? !activity.name.toLowerCase().includes(search)
-            : false,
-        };
-      }),
-    );
-  }, [search, setActivitiesList]);
+    if (!reorderMode) return;
 
-  const reorderActivitiesList = async (
-    updatedActivities: ActivityExtended[],
-  ) => {
-    const diff = getReorderedActivities(activities, updatedActivities);
+    window.addEventListener('beforeunload', saveOrder);
+    return () => {
+      window.removeEventListener('beforeunload', saveOrder);
+      // Leaving reorder mode or the page
+      void saveOrder();
+    };
+  }, [reorderMode]);
 
-    if (!diff.length) return;
-
-    const result = await reorderActivities(diff);
-
-    toast({
-      title:
-        'message' in result
-          ? result.message
-          : 'Activities order was successfully updated!',
-      variant: 'message' in result ? 'destructive' : 'success',
-    });
-  };
-
-  const debouncedReorder = useDebouncedCallback(
-    reorderActivitiesList,
-    DEBOUNCE_DELAY,
-  );
-
-  const handleReorderDebounced = useCallback(
-    (activitiesReordered: ActivityExtended[]) => {
-      setActivitiesList(activitiesReordered);
-      void debouncedReorder(activitiesReordered);
-    },
-    [debouncedReorder],
-  );
-
-  const handleReorder = useCallback(
-    () => debouncedReorder.flush(),
-    [debouncedReorder],
-  );
-
-  return {
-    activitiesList,
-    handleReorderDebounced,
-    handleReorder,
-  };
+  return { activitiesList, setActivitiesList };
 };

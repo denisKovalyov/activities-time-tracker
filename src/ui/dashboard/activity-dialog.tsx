@@ -3,10 +3,6 @@
 import { DialogWrapper } from '@/ui/common/dialog';
 import { ActivityForm } from '@/ui/dashboard/activity-form/activity-form';
 import { useRouter } from '@/ui/hooks/use-router';
-import {
-  goToActivitiesPage,
-  refetchActivities,
-} from '@/lib/actions/activity/next-api';
 import { useActivities } from '@/ui/providers/activities-provider';
 
 const ADD_ACTIVITY_SUBHEADER =
@@ -14,7 +10,7 @@ const ADD_ACTIVITY_SUBHEADER =
 const EDIT_ACTIVITY_SUBHEADER = 'Edit Existing Activity';
 
 export const ActivityDialog = () => {
-  const { activities } = useActivities();
+  const activities = useActivities();
   const { router, pathname, searchParams } = useRouter();
 
   const addActivity = searchParams.get('addActivity');
@@ -27,10 +23,8 @@ export const ActivityDialog = () => {
     ? ADD_ACTIVITY_SUBHEADER
     : EDIT_ACTIVITY_SUBHEADER;
 
-  const handleSubmit = async () => {
-    await refetchActivities();
-    void goToActivitiesPage();
-  };
+  // The action has already refreshed the data, only the dialog is closed
+  const handleSubmit = redirect;
 
   return (
     <DialogWrapper

@@ -3,7 +3,6 @@ import { useState } from 'react';
 
 import { Button } from '@/ui/common/button';
 import { useRouter } from '@/ui/hooks/use-router';
-import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { cn } from '@/lib/utils';
 
 export const ConfirmReorderingButton = () => {
@@ -12,10 +11,8 @@ export const ConfirmReorderingButton = () => {
   const [animationCompleted, setAnimationCompleted] = useState(false);
 
   const handleAnimationEnd = () => setAnimationCompleted(true);
-  const handleClick = async () => {
-    await refetchActivities();
-    router.push(pathname);
-  };
+  // Leaving reorder mode saves the new order (see useActivitiesList)
+  const handleClick = () => router.push(pathname);
 
   return (
     <Button

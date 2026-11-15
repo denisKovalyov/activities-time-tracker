@@ -17,12 +17,14 @@ import {
 } from '@/ui/dashboard/activities-list/activity-card/action-buttons';
 import { ActivityCard } from '@/ui/dashboard/activities-list/activity-card/activity-card';
 import { DragButton } from '@/ui/dashboard/activities-list/activity-card/drag-button';
-import { useStopwatch } from '@/ui/hooks/use-stopwatch';
+import { ActivityTime } from '@/ui/dashboard/activities-list/activity-card/activity-time';
+import { useTimer } from '@/ui/timer/timer-provider';
 import { ActivitiesListItemProps } from '@/ui/dashboard/activities-list/types';
 import { cn, noop } from '@/lib/utils';
 
 export const ActivityListItem = ({
   activity,
+  hidden,
   swiped,
   onSwipe,
   onCancelSwipe,
@@ -38,7 +40,8 @@ export const ActivityListItem = ({
 
   const { id } = activity;
 
-  const { isActive, hours, minutes, seconds, onStartStop } = useStopwatch(id);
+  const { activeId, toggle } = useTimer();
+  const isActive = activeId === id;
 
   useEffect(() => {
     if (swiped) setShift(-BUTTONS_WIDTH);
@@ -83,12 +86,13 @@ export const ActivityListItem = ({
     'touchstart',
   );
 
-  // In case item is hidden skip rendering but call useStopwatch hook anyway
-  if (activity.hidden) return null;
+  // Hidden by search. Rendered as nothing, not removed from the list, so
+  // reordering keeps working with the full list.
+  if (hidden) return null;
 
   const handleEdit = () => onEdit(id);
   const handleRemove = () => onRemove(id);
-  const handleRecord = () => onStartStop();
+  const handleRecord = () => toggle(id);
 
   const startDrag = (e: PointerEvent<HTMLButtonElement>) => controls.start(e);
   const handleDragStart = () => setIsDragging(true);
@@ -137,9 +141,7 @@ export const ActivityListItem = ({
         {reorderMode ? (
           <DragButton onDragStart={startDrag} />
         ) : (
-          <span className="text-accent-foreground" suppressHydrationWarning>
-            {`${hours}:${minutes}:${seconds}`}
-          </span>
+          <ActivityTime activityId={id} />
         )}
       </ActivityCard>
 
