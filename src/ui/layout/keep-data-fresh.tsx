@@ -50,7 +50,10 @@ export const KeepDataFresh = ({
       router.refresh();
     };
 
-    const check = ({ refreshAnyway = false } = {}) => {
+    // `refreshAnyway` refreshes even if the day and time zone didn't change.
+    // Such refreshes are throttled, except when the connection comes back:
+    // a refresh tried a moment earlier may have failed while offline.
+    const check = ({ refreshAnyway = false, throttle = true } = {}) => {
       syncTimeZoneCookie();
       const currentTimeZone = getBrowserTimeZone();
       const today = toDay(new Date(), currentTimeZone);
@@ -61,7 +64,7 @@ export const KeepDataFresh = ({
         refresh();
       } else if (
         refreshAnyway &&
-        Date.now() - lastRefresh > MIN_REFRESH_INTERVAL
+        (!throttle || Date.now() - lastRefresh > MIN_REFRESH_INTERVAL)
       ) {
         refresh();
       }
@@ -76,7 +79,8 @@ export const KeepDataFresh = ({
       if (document.visibilityState === 'visible')
         check({ refreshAnyway: true });
     };
-    const handleFocusOrOnline = () => check({ refreshAnyway: true });
+    const handleFocus = () => check({ refreshAnyway: true });
+    const handleOnline = () => check({ refreshAnyway: true, throttle: false });
 
     check();
     const intervalId = setInterval(() => {
@@ -85,15 +89,15 @@ export const KeepDataFresh = ({
       }
     }, POLLING_INTERVAL);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocusOrOnline);
-    window.addEventListener('online', handleFocusOrOnline);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('online', handleOnline);
 
     return () => {
       clearTimeout(timeoutId);
       clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocusOrOnline);
-      window.removeEventListener('online', handleFocusOrOnline);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('online', handleOnline);
     };
   }, [router, rendered]);
 
