@@ -9,6 +9,7 @@ import {
   useOptimistic,
   useTransition,
 } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { startTimer, stopTimer } from '@/lib/actions/timer';
 import type { ActionResult } from '@/lib/actions/utils/result';
@@ -20,7 +21,6 @@ import {
   type TimerAction,
   type TimerState,
   getActivitySeconds,
-  getLiveSeconds,
   getTotalSeconds,
   timerReducer,
 } from '@/ui/timer/timer-state';
@@ -63,6 +63,7 @@ export const TimerProvider = ({
   );
   const [, startTransition] = useTransition();
   const { toast } = useToast();
+  const router = useRouter();
 
   const run = useCallback(
     (action: TimerAction, request: () => Promise<ActionResult>) => {
@@ -71,8 +72,10 @@ export const TimerProvider = ({
         // The optimistic state is dropped when the transition ends, so on an
         // error the UI goes back to what the server has; only a toast is
         // needed. A request can also reject (e.g. network error or 502), which
-        // must not reach the error boundary.
+        // must not reach the error boundary. Then it's unknown whether the
+        // change was saved, so the data is loaded again.
         const result = await request().catch(() => null);
+        if (!result) router.refresh();
         if (!result?.ok) {
           toast({
             title: result?.message ?? DEFAULT_ERROR_MESSAGE,
@@ -81,7 +84,7 @@ export const TimerProvider = ({
         }
       });
     },
-    [updateOptimistically, toast],
+    [updateOptimistically, toast, router],
   );
 
   const start = useCallback(
@@ -148,12 +151,4 @@ export const useRunSeconds = () => {
   return state.startedAt === null
     ? 0
     : Math.max(0, Math.floor((now - state.startedAt) / 1000));
-};
-
-// Seconds of the current run that data loaded at `countedAt` doesn't include
-// yet. For pages with their own data, e.g. statistics.
-export const useLiveSeconds = (countedAt: number) => {
-  const { state } = useTimerContext();
-  const now = useNow(state.activeId !== null);
-  return getLiveSeconds(state, now, countedAt);
 };

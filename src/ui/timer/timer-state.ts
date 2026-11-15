@@ -16,7 +16,7 @@ export type TimerAction =
 // Seconds of the current run that data counted up to `countedAt` doesn't
 // include yet. Pages that load their own data pass their own `countedAt`.
 export const getLiveSeconds = (
-  { activeId, startedAt }: TimerState,
+  { activeId, startedAt }: Pick<TimerState, 'activeId' | 'startedAt'>,
   now: number,
   countedAt: number,
 ) =>

@@ -5,7 +5,7 @@ import {
   sumValues,
 } from '@/ui/statistics/chart-data';
 import { listActivities } from '@/lib/db/activities';
-import { getTotalsByActivity, getTotalsByDay } from '@/lib/db/time-entries';
+import { readTimeSnapshot } from '@/lib/db/time-entries';
 import {
   type Day,
   addDays,
@@ -24,13 +24,20 @@ export default async function Statistics() {
   const today = toDay(now, timeZone);
   const since = (from: Day) => ({ from, to: today, timeZone, now });
 
-  const [activities, days, todayTotals, weekTotals, monthTotals] =
+  const [activities, { timer, days, todayTotals, weekTotals, monthTotals }] =
     await Promise.all([
       listActivities(userId),
-      getTotalsByDay(userId, since(addDays(today, -6))),
-      getTotalsByActivity(userId, since(today)),
-      getTotalsByActivity(userId, since(getWeekStart(today))),
-      getTotalsByActivity(userId, since(getMonthStart(today))),
+      // The running timer is read with the totals, so the charts add live
+      // time on top of exactly these totals
+      readTimeSnapshot(userId, async (snapshot) => ({
+        timer: await snapshot.runningTimer(),
+        days: await snapshot.totalsByDay(since(addDays(today, -6))),
+        todayTotals: await snapshot.totalsByActivity(since(today)),
+        weekTotals: await snapshot.totalsByActivity(since(getWeekStart(today))),
+        monthTotals: await snapshot.totalsByActivity(
+          since(getMonthStart(today)),
+        ),
+      })),
     ]);
 
   const charts = [
@@ -48,6 +55,7 @@ export default async function Statistics() {
           period={period}
           data={data}
           total={sumValues(data)}
+          timer={timer}
           countedAt={now.getTime()}
           today={today}
         />

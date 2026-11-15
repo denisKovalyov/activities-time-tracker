@@ -1,3 +1,7 @@
+// Creates the tables on an empty database. Existing tables are left as they
+// are (CREATE TABLE IF NOT EXISTS), so a database with an older schema has to
+// be recreated with `npm run db:restart` instead.
+
 const { db: dbReset } = require('@vercel/postgres');
 
 async function setupUser(client) {
@@ -97,8 +101,11 @@ async function setupDB(client) {
 
 async function main() {
   const client = await dbReset.connect();
-  await setupDB(client);
-  await client.end();
+  try {
+    await setupDB(client);
+  } finally {
+    await client.end();
+  }
 }
 
 // Exported for the integration tests, which set up their own test database
@@ -110,5 +117,7 @@ if (require.main === module) {
       'An error occurred while attempting to setup the database:',
       err,
     );
+    // So that `&&` in npm scripts stops after a failure
+    process.exitCode = 1;
   });
 }

@@ -172,61 +172,80 @@ export async function getTotalsByActivity(
   }
 }
 
-// The running timer and the totals read from one snapshot of the database.
-// Read separately, a timer switched in another tab between the two queries
-// could be counted twice: once in the totals and once as live time.
-export async function getTimerWithTotals(
-  userId: string,
-  range: DayRange,
-): Promise<{ timer: RunningTimer | null; totals: TimeTotals }> {
-  try {
-    return await withSnapshot(async (client) => ({
-      timer: await queryRunningTimer(client, userId),
-      totals: await queryTotalsByActivity(client, userId, range),
-    }));
-  } catch (error) {
-    console.error('DB: Failed to fetch timer with totals:', error);
-    throw new Error('Failed to fetch timer with totals.');
-  }
-}
-
 // Seconds spent on all activities for every day of the range, including
 // days without any time (0 seconds).
+const queryTotalsByDay = async (
+  db: Queryable,
+  userId: string,
+  range: DayRange,
+): Promise<DayTotal[]> => {
+  const result = await db.query<DayTotal>(
+    `WITH days AS (
+      SELECT
+        day::date AS day,
+        (day AT TIME ZONE $4) AS range_start,
+        ((day + interval '1 day') AT TIME ZONE $4) AS range_end
+      FROM generate_series(
+        $2::date::timestamp, $3::date::timestamp, interval '1 day'
+      ) AS day
+    )
+    SELECT
+      to_char(days.day, 'YYYY-MM-DD') AS day,
+      -- FILTER skips the empty row LEFT JOIN gives for a day without
+      -- entries: GREATEST/LEAST ignore NULLs and would count the whole day.
+      COALESCE(
+        FLOOR(SUM(${OVERLAP_SECONDS_SQL}) FILTER (WHERE e.id IS NOT NULL)),
+        0
+      )::int AS seconds
+    FROM days
+    LEFT JOIN time_entry e
+      ON e.user_id=$1
+      AND e.started_at < range_end
+      AND COALESCE(e.ended_at, $5) > range_start
+    GROUP BY days.day
+    ORDER BY days.day`,
+    rangeParams(userId, range),
+  );
+  return result.rows;
+};
+
 export async function getTotalsByDay(
   userId: string,
   range: DayRange,
 ): Promise<DayTotal[]> {
   try {
-    const result = await sql.query<DayTotal>(
-      `WITH days AS (
-        SELECT
-          day::date AS day,
-          (day AT TIME ZONE $4) AS range_start,
-          ((day + interval '1 day') AT TIME ZONE $4) AS range_end
-        FROM generate_series(
-          $2::date::timestamp, $3::date::timestamp, interval '1 day'
-        ) AS day
-      )
-      SELECT
-        to_char(days.day, 'YYYY-MM-DD') AS day,
-        -- FILTER skips the empty row LEFT JOIN gives for a day without
-        -- entries: GREATEST/LEAST ignore NULLs and would count the whole day.
-        COALESCE(
-          FLOOR(SUM(${OVERLAP_SECONDS_SQL}) FILTER (WHERE e.id IS NOT NULL)),
-          0
-        )::int AS seconds
-      FROM days
-      LEFT JOIN time_entry e
-        ON e.user_id=$1
-        AND e.started_at < range_end
-        AND COALESCE(e.ended_at, $5) > range_start
-      GROUP BY days.day
-      ORDER BY days.day`,
-      rangeParams(userId, range),
-    );
-    return result.rows;
+    return await queryTotalsByDay(sql, userId, range);
   } catch (error) {
     console.error('DB: Failed to fetch totals by day:', error);
     throw new Error('Failed to fetch totals by day.');
+  }
+}
+
+export type TimeSnapshot = {
+  runningTimer: () => Promise<RunningTimer | null>;
+  totalsByActivity: (range: DayRange) => Promise<TimeTotals>;
+  totalsByDay: (range: DayRange) => Promise<DayTotal[]>;
+};
+
+// Runs several reads of the user's time against one snapshot of the
+// database. Read separately, a timer switched in another tab between two
+// queries could be counted twice: once in the totals and once as live time
+// on top of them.
+export async function readTimeSnapshot<T>(
+  userId: string,
+  read: (snapshot: TimeSnapshot) => Promise<T>,
+): Promise<T> {
+  try {
+    return await withSnapshot((client) =>
+      read({
+        runningTimer: () => queryRunningTimer(client, userId),
+        totalsByActivity: (range) =>
+          queryTotalsByActivity(client, userId, range),
+        totalsByDay: (range) => queryTotalsByDay(client, userId, range),
+      }),
+    );
+  } catch (error) {
+    console.error('DB: Failed to read time snapshot:', error);
+    throw new Error('Failed to read time snapshot.');
   }
 }

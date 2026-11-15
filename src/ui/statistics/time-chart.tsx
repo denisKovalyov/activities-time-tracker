@@ -33,7 +33,8 @@ import {
   useCalculateTimeValues,
 } from '@/ui/hooks/use-calculate-time-values';
 import { useActivities } from '@/ui/providers/activities-provider';
-import { useLiveSeconds, useTimer } from '@/ui/timer/timer-provider';
+import { useLiveSeconds } from '@/ui/timer/use-live-seconds';
+import type { RunningTimer } from '@/lib/db/types';
 import type { DataItem } from '@/ui/statistics/chart-data';
 
 const MAX_BAR_ITEMS = 8;
@@ -73,7 +74,9 @@ type TimeChartProps = {
   data: DataItem[];
   period: Period;
   total: number;
-  // When the data was loaded, to add only the live time it doesn't include
+  // The running timer read together with the data, and when it was read,
+  // to add only the live time the data doesn't include
+  timer: RunningTimer | null;
   countedAt: number;
   // The user's day the data was loaded for, the same on server and client
   today: Day;
@@ -111,6 +114,7 @@ export function TimeChart({
   data,
   total = 0,
   period,
+  timer,
   countedAt,
   today,
 }: TimeChartProps) {
@@ -119,8 +123,8 @@ export function TimeChart({
     ref: ref as RefObject<HTMLDivElement>,
   });
   const activities = useActivities();
-  const { activeId } = useTimer();
-  const liveSeconds = useLiveSeconds(countedAt);
+  const activeId = timer?.activityId;
+  const liveSeconds = useLiveSeconds(timer, countedAt);
 
   const isDaysChart = period === 'last7days';
   const activeActivity = isDaysChart

@@ -15,10 +15,13 @@ import { useToast } from '@/ui/hooks/use-toast';
 //   finish, so data that arrives meanwhile (e.g. after leaving reorder mode)
 //   can't bring the old order back. If the save fails, the order from the
 //   server is shown again.
+// A new drag can't start until the save finishes: its moves are computed
+// against the order from the server, which must already include the
+// previous drop.
 export const useActivitiesList = (activities: Activity[]) => {
   const [savingList, setSavingList] = useOptimistic(activities);
   const [draggedList, setDraggedList] = useState<Activity[] | null>(null);
-  const [, startTransition] = useTransition();
+  const [isSaving, startTransition] = useTransition();
   const { toast } = useToast();
 
   const activitiesList = draggedList ?? savingList;
@@ -29,9 +32,6 @@ export const useActivitiesList = (activities: Activity[]) => {
   const handleDrop = () => {
     if (!draggedList) return;
 
-    // Computed against the last order from the server. If another drop
-    // comes before the server answers, its moves repeat the previous ones,
-    // which gives the same result.
     const moves = getMoves(
       activities.map(({ id }) => id),
       draggedList.map(({ id }) => id),
@@ -53,5 +53,5 @@ export const useActivitiesList = (activities: Activity[]) => {
     setDraggedList(null);
   };
 
-  return { activitiesList, handleReorder, handleDrop };
+  return { activitiesList, isSaving, handleReorder, handleDrop };
 };
