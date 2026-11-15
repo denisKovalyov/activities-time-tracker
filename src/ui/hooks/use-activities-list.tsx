@@ -1,19 +1,20 @@
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { reorderActivities } from '@/lib/actions/activities';
 import type { Activity } from '@/lib/db/types';
-import { getMoves } from '@/ui/dashboard/activities-list/reorder';
+import {
+  getMoves,
+  mergeVisibleOrder,
+} from '@/ui/dashboard/activities-list/reorder';
 import { useToast } from '@/ui/hooks/use-toast';
 
-// The list shown in the UI. In reorder mode it's changed locally while
-// dragging and saved to the server when the user leaves reorder mode (or
-// the page).
-export const useActivitiesList = (
-  activities: Activity[],
-  reorderMode: boolean,
-) => {
+// The list shown in the UI. While dragging it's changed only locally; when
+// an activity is dropped, the new order is saved right away.
+export const useActivitiesList = (activities: Activity[]) => {
   const [activitiesList, setActivitiesList] = useState(activities);
   const [serverActivities, setServerActivities] = useState(activities);
+  // The order made by the current drag, saved when the activity is dropped
+  const draggedList = useRef<Activity[] | null>(null);
   const { toast } = useToast();
 
   // New data from the server replaces the local list
@@ -22,33 +23,35 @@ export const useActivitiesList = (
     setActivitiesList(activities);
   }
 
-  const saveOrder = useEffectEvent(async () => {
+  const handleReorder = (visibleReordered: Activity[]) => {
+    const list = mergeVisibleOrder(activitiesList, visibleReordered);
+    draggedList.current = list;
+    setActivitiesList(list);
+  };
+
+  // Moves are computed against the last order from the server. If another
+  // drop comes before the server answers, its moves repeat the previous
+  // ones, which gives the same result.
+  const handleDrop = async () => {
+    const list = draggedList.current;
+    draggedList.current = null;
+    if (!list) return;
+
     const moves = getMoves(
       activities.map(({ id }) => id),
-      activitiesList.map(({ id }) => id),
+      list.map(({ id }) => id),
     );
     if (!moves.length) return;
 
-    const result = await reorderActivities(moves);
-    toast({
-      title: result.ok
-        ? 'Activities order was successfully updated!'
-        : result.message,
-      variant: result.ok ? 'success' : 'destructive',
-    });
-    if (!result.ok) setActivitiesList(activities);
-  });
+    const result = await reorderActivities(moves).catch(() => null);
+    if (!result?.ok) {
+      toast({
+        title: result?.message ?? "Activities order wasn't saved.",
+        variant: 'destructive',
+      });
+      setActivitiesList(activities);
+    }
+  };
 
-  useEffect(() => {
-    if (!reorderMode) return;
-
-    window.addEventListener('beforeunload', saveOrder);
-    return () => {
-      window.removeEventListener('beforeunload', saveOrder);
-      // Leaving reorder mode or the page
-      void saveOrder();
-    };
-  }, [reorderMode]);
-
-  return { activitiesList, setActivitiesList };
+  return { activitiesList, handleReorder, handleDrop };
 };

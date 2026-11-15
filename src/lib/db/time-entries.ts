@@ -1,7 +1,7 @@
 import 'server-only';
 import { sql, type VercelPoolClient } from '@vercel/postgres';
 
-import { withUserLock } from '@/lib/db/transaction';
+import { withSnapshot, withUserLock } from '@/lib/db/transaction';
 import type {
   DayRange,
   DayTotal,
@@ -39,14 +39,23 @@ const STOP_RUNNING_SQL = `
   WHERE user_id=$1 AND ended_at IS NULL
   RETURNING activity_id, started_at`;
 
+// The pool (sql) or a client in a transaction
+type Queryable = Pick<VercelPoolClient, 'query'>;
+
+const queryRunningTimer = async (db: Queryable, userId: string) => {
+  const result = await db.query<RunningTimerRow>(
+    `SELECT activity_id, started_at FROM time_entry
+    WHERE user_id=$1 AND ended_at IS NULL`,
+    [userId],
+  );
+  return toRunningTimer(result.rows[0]);
+};
+
 export async function getRunningTimer(
   userId: string,
 ): Promise<RunningTimer | null> {
   try {
-    const result = await sql<RunningTimerRow>`
-      SELECT activity_id, started_at FROM time_entry
-      WHERE user_id=${userId} AND ended_at IS NULL`;
-    return toRunningTimer(result.rows[0]);
+    return await queryRunningTimer(sql, userId);
   } catch (error) {
     console.error('DB: Failed to fetch running timer:', error);
     throw new Error('Failed to fetch running timer.');
@@ -126,13 +135,13 @@ const rangeParams = (userId: string, range: DayRange) => [
 
 // Seconds spent on each activity during the days of the range.
 // Activities without any time in the range are not included.
-export async function getTotalsByActivity(
+const queryTotalsByActivity = async (
+  db: Queryable,
   userId: string,
   range: DayRange,
-): Promise<TimeTotals> {
-  try {
-    const result = await sql.query<{ activity_id: string; seconds: number }>(
-      `WITH bounds AS (
+): Promise<TimeTotals> => {
+  const result = await db.query<{ activity_id: string; seconds: number }>(
+    `WITH bounds AS (
         SELECT
           ($2::date::timestamp AT TIME ZONE $4) AS range_start,
           (($3::date + 1)::timestamp AT TIME ZONE $4) AS range_end
@@ -143,15 +152,41 @@ export async function getTotalsByActivity(
         AND e.started_at < range_end
         AND COALESCE(e.ended_at, $5) > range_start
       GROUP BY e.activity_id`,
-      rangeParams(userId, range),
-    );
+    rangeParams(userId, range),
+  );
 
-    return Object.fromEntries(
-      result.rows.map(({ activity_id, seconds }) => [activity_id, seconds]),
-    );
+  return Object.fromEntries(
+    result.rows.map(({ activity_id, seconds }) => [activity_id, seconds]),
+  );
+};
+
+export async function getTotalsByActivity(
+  userId: string,
+  range: DayRange,
+): Promise<TimeTotals> {
+  try {
+    return await queryTotalsByActivity(sql, userId, range);
   } catch (error) {
     console.error('DB: Failed to fetch totals by activity:', error);
     throw new Error('Failed to fetch totals by activity.');
+  }
+}
+
+// The running timer and the totals read from one snapshot of the database.
+// Read separately, a timer switched in another tab between the two queries
+// could be counted twice: once in the totals and once as live time.
+export async function getTimerWithTotals(
+  userId: string,
+  range: DayRange,
+): Promise<{ timer: RunningTimer | null; totals: TimeTotals }> {
+  try {
+    return await withSnapshot(async (client) => ({
+      timer: await queryRunningTimer(client, userId),
+      totals: await queryTotalsByActivity(client, userId, range),
+    }));
+  } catch (error) {
+    console.error('DB: Failed to fetch timer with totals:', error);
+    throw new Error('Failed to fetch timer with totals.');
   }
 }
 

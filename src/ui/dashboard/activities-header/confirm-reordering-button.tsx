@@ -11,7 +11,7 @@ export const ConfirmReorderingButton = () => {
   const [animationCompleted, setAnimationCompleted] = useState(false);
 
   const handleAnimationEnd = () => setAnimationCompleted(true);
-  // Leaving reorder mode saves the new order (see useActivitiesList)
+  // The order is already saved on every drop (see useActivitiesList)
   const handleClick = () => router.push(pathname);
 
   return (

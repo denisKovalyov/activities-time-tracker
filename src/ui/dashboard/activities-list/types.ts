@@ -10,6 +10,7 @@ export type ActivitiesListItemProps = {
   onEdit: (id: string) => void;
   onRemove: (id: string) => void;
   onReorder: () => void;
+  onDrop: () => void;
 };
 
 export type ActivitiesListProps = {

@@ -12,6 +12,9 @@ export type Activity = {
 
 export type ActivityFields = Pick<Activity, 'name' | 'color' | 'icon'>;
 
+// Puts the activity right after `previousId` (null means the top)
+export type Move = { id: string; previousId: string | null };
+
 export type RunningTimer = {
   activityId: string;
   startedAt: Date;

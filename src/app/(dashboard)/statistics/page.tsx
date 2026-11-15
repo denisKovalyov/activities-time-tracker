@@ -49,6 +49,7 @@ export default async function Statistics() {
           data={data}
           total={sumValues(data)}
           countedAt={now.getTime()}
+          today={today}
         />
       ))}
     </div>

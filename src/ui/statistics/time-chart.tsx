@@ -22,12 +22,11 @@ import {
   CustomLabelRightInside,
 } from '@/ui/common/chart';
 import {
+  type Day,
   formatReadableDay,
   getMonthStart,
   getWeekStart,
-  toDay,
 } from '@/lib/utils/day';
-import { getBrowserTimeZone } from '@/lib/utils/time-zone-cookie';
 import { EmptyState } from '@/ui/common/empty-state';
 import {
   calculateTimeValues,
@@ -76,6 +75,8 @@ type TimeChartProps = {
   total: number;
   // When the data was loaded, to add only the live time it doesn't include
   countedAt: number;
+  // The user's day the data was loaded for, the same on server and client
+  today: Day;
 };
 
 // Puts the running activity first and joins the smallest bars into "Others"
@@ -111,6 +112,7 @@ export function TimeChart({
   total = 0,
   period,
   countedAt,
+  today,
 }: TimeChartProps) {
   const ref = useRef<HTMLDivElement>(null);
   const { width = 0 } = useResizeObserver({
@@ -167,7 +169,6 @@ export function TimeChart({
     : 'No data';
 
   const dateStyle = isDesktop ? 'long' : 'medium';
-  const today = toDay(new Date(), getBrowserTimeZone());
   let dateStr = formatReadableDay(today, dateStyle);
   if (period === 'week' || period === 'month') {
     const periodStart = (period === 'week' ? getWeekStart : getMonthStart)(

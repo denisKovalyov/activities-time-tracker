@@ -1,4 +1,4 @@
-export type Move = { id: string; previousId: string | null };
+import type { Move } from '@/lib/db/types';
 
 // Indexes of the longest run of items that kept their relative order.
 // O(n²), which is fine for a list of activities.
@@ -36,4 +36,16 @@ export const getMoves = (original: string[], reordered: string[]): Move[] => {
   return reordered
     .map((id, i) => ({ id, previousId: reordered[i - 1] ?? null }))
     .filter((_, i) => !staying.has(i));
+};
+
+// Framer's Reorder.Group reports only the items that are rendered, so while
+// a search hides some activities, the visible ones fill the places of the
+// visible ones in the new order and hidden ones stay where they were.
+export const mergeVisibleOrder = <T extends { id: string }>(
+  list: T[],
+  visibleReordered: T[],
+): T[] => {
+  const visibleIds = new Set(visibleReordered.map(({ id }) => id));
+  const queue = [...visibleReordered];
+  return list.map((item) => (visibleIds.has(item.id) ? queue.shift()! : item));
 };

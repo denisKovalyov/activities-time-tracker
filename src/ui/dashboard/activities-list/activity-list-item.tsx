@@ -29,6 +29,7 @@ export const ActivityListItem = ({
   onSwipe,
   onCancelSwipe,
   onReorder,
+  onDrop,
   onEdit,
   onRemove,
   reorderMode,
@@ -105,6 +106,7 @@ export const ActivityListItem = ({
         dragListener={false}
         dragControls={controls}
         onDragStart={handleDragStart}
+        onDragEnd={onDrop}
         onDragTransitionEnd={handleDragEnd}
         className={cn({
           'relative z-10 shadow-[0_0_16px_0_rgba(14,35,70,0.35)]': isDragging,

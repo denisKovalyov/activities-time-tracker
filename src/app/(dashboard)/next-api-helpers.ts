@@ -7,8 +7,7 @@ import { isValidTimeZone } from '@/lib/utils/day';
 // server falls back to UTC.
 export const getUserTimeZone = async () => {
   const cookiesStore = await cookies();
-  const value = cookiesStore.get(USER_TIME_ZONE_COOKIE_NAME)?.value;
-  const timeZone = value ? decodeURIComponent(value) : '';
+  const timeZone = cookiesStore.get(USER_TIME_ZONE_COOKIE_NAME)?.value ?? '';
 
   return isValidTimeZone(timeZone) ? timeZone : 'UTC';
 };

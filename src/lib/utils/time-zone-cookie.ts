@@ -6,16 +6,12 @@ import { getCookies } from '@/lib/utils/common';
 export const getBrowserTimeZone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-// Returns true if the cookie was missing or outdated.
+// Returns true if the cookie was missing or outdated. IANA time zone names
+// (e.g. "Europe/Kyiv") are valid cookie values, so the value is not encoded.
 export const syncTimeZoneCookie = () => {
   const timeZone = getBrowserTimeZone();
-  if (
-    decodeURIComponent(getCookies()[USER_TIME_ZONE_COOKIE_NAME] ?? '') ===
-    timeZone
-  ) {
-    return false;
-  }
+  if (getCookies()[USER_TIME_ZONE_COOKIE_NAME] === timeZone) return false;
 
-  document.cookie = `${USER_TIME_ZONE_COOKIE_NAME}=${encodeURIComponent(timeZone)}; path=/; max-age=31536000; secure; SameSite=Lax`;
+  document.cookie = `${USER_TIME_ZONE_COOKIE_NAME}=${timeZone}; path=/; max-age=31536000; secure; SameSite=Lax`;
   return true;
 };

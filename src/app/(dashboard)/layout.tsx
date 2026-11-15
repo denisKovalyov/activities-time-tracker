@@ -10,7 +10,7 @@ import { SetCookies } from '@/ui/layout/set-cookies';
 import { ActivitiesProvider } from '@/ui/providers/activities-provider';
 import { TimerProvider } from '@/ui/timer/timer-provider';
 import { listActivities } from '@/lib/db/activities';
-import { getRunningTimer, getTotalsByActivity } from '@/lib/db/time-entries';
+import { getTimerWithTotals } from '@/lib/db/time-entries';
 import { toDay } from '@/lib/utils/day';
 import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
 import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
@@ -23,10 +23,9 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const now = new Date();
   const today = toDay(now, timeZone);
 
-  const [activities, totals, timer] = await Promise.all([
+  const [activities, { timer, totals }] = await Promise.all([
     listActivities(userId),
-    getTotalsByActivity(userId, { from: today, to: today, timeZone, now }),
-    getRunningTimer(userId),
+    getTimerWithTotals(userId, { from: today, to: today, timeZone, now }),
   ]);
 
   return (

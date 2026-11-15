@@ -3,7 +3,10 @@
 import { useEffect } from 'react';
 
 import { useRouter } from '@/ui/hooks/use-router';
-import { syncTimeZoneCookie } from '@/lib/utils/time-zone-cookie';
+import {
+  getBrowserTimeZone,
+  syncTimeZoneCookie,
+} from '@/lib/utils/time-zone-cookie';
 
 const msUntilMidnight = () => {
   const midnight = new Date();
@@ -19,14 +22,19 @@ export const SetCookies = () => {
   useEffect(() => {
     // The layout isn't re-mounted by router.refresh(), so the day is tracked
     // here and the midnight timeout is scheduled again after every check.
+    // The cookie is shared by all tabs, so the time zone this tab's data
+    // was loaded with is tracked here too.
     let day = new Date().toDateString();
+    let timeZone = getBrowserTimeZone();
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
     const refreshIfOutdated = () => {
       const today = new Date().toDateString();
+      const currentTimeZone = getBrowserTimeZone();
       const cookieChanged = syncTimeZoneCookie();
-      if (cookieChanged || today !== day) {
+      if (cookieChanged || today !== day || currentTimeZone !== timeZone) {
         day = today;
+        timeZone = currentTimeZone;
         router.refresh();
       }
 

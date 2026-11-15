@@ -13,10 +13,8 @@ export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
   const reorderMode = Boolean(searchParams.get('reorder'));
   const search = searchParams.get('search')?.toLowerCase();
 
-  const { activitiesList, setActivitiesList } = useActivitiesList(
-    activities,
-    reorderMode,
-  );
+  const { activitiesList, handleReorder, handleDrop } =
+    useActivitiesList(activities);
 
   const handleSwipe = (id: string) => setSwiped(id);
   const handleSwipeCancel = () => setSwiped(() => null);
@@ -33,7 +31,7 @@ export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
   return (
     <div className="mx-auto mt-4 h-full w-full max-w-3xl overflow-x-hidden">
       <Reorder.Group
-        onReorder={setActivitiesList}
+        onReorder={handleReorder}
         values={activitiesList}
         layoutScroll
       >
@@ -51,6 +49,7 @@ export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
             onEdit={handleEdit}
             onRemove={handleRemove}
             onReorder={handleReorderMode}
+            onDrop={handleDrop}
           />
         ))}
       </Reorder.Group>

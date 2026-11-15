@@ -1,9 +1,9 @@
 import 'server-only';
-import { sql } from '@vercel/postgres';
+import { sql, type VercelPoolClient } from '@vercel/postgres';
 import { generateKeyBetween } from 'fractional-indexing';
 
 import { withUserLock } from '@/lib/db/transaction';
-import type { Activity, ActivityFields } from '@/lib/db/types';
+import type { Activity, ActivityFields, Move } from '@/lib/db/types';
 
 export async function listActivities(userId: string): Promise<Activity[]> {
   try {
@@ -80,48 +80,63 @@ export async function updateActivity(
 
 // Puts an activity right after `previousId` (null moves it to the top).
 // Only this one row is updated. The next neighbour is read from the database
-// under the user lock rather than taken from the client, so a stale list or
-// two simultaneous moves can't produce equal positions.
-export async function moveActivity(
+// rather than taken from the client, so a stale list can't produce equal
+// positions.
+async function applyMove(
+  client: VercelPoolClient,
   userId: string,
-  id: string,
-  previousId: string | null,
+  { id, previousId }: Move,
 ): Promise<Activity | undefined> {
+  let previousPosition: string | null = null;
+  if (previousId) {
+    const previous = await client.query<Pick<Activity, 'position'>>(
+      'SELECT position FROM activity WHERE id=$1 AND user_id=$2',
+      [previousId, userId],
+    );
+    if (!previous.rows[0]) throw new Error('Previous activity not found.');
+    previousPosition = previous.rows[0].position;
+  }
+
+  const next = await client.query<Pick<Activity, 'position'>>(
+    `SELECT position FROM activity
+    WHERE user_id=$1 AND id<>$2 AND ($3::text IS NULL OR position > $3)
+    ORDER BY position
+    LIMIT 1`,
+    [userId, id, previousPosition],
+  );
+  const position = generateKeyBetween(
+    previousPosition,
+    next.rows[0]?.position ?? null,
+  );
+
+  const result = await client.query<Activity>(
+    `UPDATE activity SET position=$1, updated_at=now()
+    WHERE id=$2 AND user_id=$3
+    RETURNING *`,
+    [position, id, userId],
+  );
+  return result.rows[0];
+}
+
+// Applies the moves in order, all or none: they run in one transaction under
+// the user lock, so a failed move doesn't leave a half-applied order.
+// Returns the moved activities (activities of other users are skipped).
+export async function moveActivities(
+  userId: string,
+  moves: Move[],
+): Promise<Activity[]> {
   try {
     return await withUserLock(userId, async (client) => {
-      let previousPosition: string | null = null;
-      if (previousId) {
-        const previous = await client.query<Pick<Activity, 'position'>>(
-          'SELECT position FROM activity WHERE id=$1 AND user_id=$2',
-          [previousId, userId],
-        );
-        if (!previous.rows[0]) throw new Error('Previous activity not found.');
-        previousPosition = previous.rows[0].position;
+      const moved: Activity[] = [];
+      for (const move of moves) {
+        const activity = await applyMove(client, userId, move);
+        if (activity) moved.push(activity);
       }
-
-      const next = await client.query<Pick<Activity, 'position'>>(
-        `SELECT position FROM activity
-        WHERE user_id=$1 AND id<>$2 AND ($3::text IS NULL OR position > $3)
-        ORDER BY position
-        LIMIT 1`,
-        [userId, id, previousPosition],
-      );
-      const position = generateKeyBetween(
-        previousPosition,
-        next.rows[0]?.position ?? null,
-      );
-
-      const result = await client.query<Activity>(
-        `UPDATE activity SET position=$1, updated_at=now()
-        WHERE id=$2 AND user_id=$3
-        RETURNING *`,
-        [position, id, userId],
-      );
-      return result.rows[0];
+      return moved;
     });
   } catch (error) {
-    console.error('DB: Failed to move activity:', error);
-    throw new Error('Failed to move activity.');
+    console.error('DB: Failed to move activities:', error);
+    throw new Error('Failed to move activities.');
   }
 }
 

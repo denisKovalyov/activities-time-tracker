@@ -12,6 +12,7 @@ import {
 
 import { startTimer, stopTimer } from '@/lib/actions/timer';
 import type { ActionResult } from '@/lib/actions/result';
+import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 import type { RunningTimer, TimeTotals } from '@/lib/db/types';
 import { useToast } from '@/ui/hooks/use-toast';
 import { useNow } from '@/ui/timer/use-now';
@@ -67,11 +68,17 @@ export const TimerProvider = ({
     (action: TimerAction, request: () => Promise<ActionResult>) => {
       startTransition(async () => {
         updateOptimistically(action);
-        const result = await request();
-        // The optimistic state is dropped anyway, so the UI goes back to
-        // what the server has.
-        if (!result.ok)
-          toast({ title: result.message, variant: 'destructive' });
+        // The optimistic state is dropped when the transition ends, so on an
+        // error the UI goes back to what the server has; only a toast is
+        // needed. A request can also reject (e.g. network error or 502), which
+        // must not reach the error boundary.
+        const result = await request().catch(() => null);
+        if (!result?.ok) {
+          toast({
+            title: result?.message ?? DEFAULT_ERROR_MESSAGE,
+            variant: 'destructive',
+          });
+        }
       });
     },
     [updateOptimistically, toast],
