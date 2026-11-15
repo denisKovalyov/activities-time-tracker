@@ -6,9 +6,13 @@ import {
   startTimer as dbStartTimer,
   stopTimer as dbStopTimer,
 } from '@/lib/db/time-entries';
-import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
-import { revalidateUserData } from '@/lib/actions/revalidate';
-import { type ActionResult, failure, success } from '@/lib/actions/result';
+import { getUserId } from '@/lib/actions/utils/get-user-id';
+import { revalidateUserData } from '@/lib/actions/utils/revalidate';
+import {
+  type ActionResult,
+  failure,
+  success,
+} from '@/lib/actions/utils/result';
 
 export async function startTimer(activityId: string): Promise<ActionResult> {
   const validatedId = z.string().uuid().safeParse(activityId);

@@ -13,7 +13,7 @@ import {
   getWeekStart,
   toDay,
 } from '@/lib/utils/day';
-import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
+import { getUserId } from '@/lib/actions/utils/get-user-id';
 import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
 
 export default async function Statistics() {

@@ -2,7 +2,7 @@
 
 import { deleteUser as dbDeleteUser } from '@/lib/db/users';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
-import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
+import { getUserId } from '@/lib/actions/utils/get-user-id';
 
 export async function deleteUserData() {
   try {

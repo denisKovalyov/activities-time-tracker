@@ -12,7 +12,7 @@ import { TimerProvider } from '@/ui/timer/timer-provider';
 import { listActivities } from '@/lib/db/activities';
 import { getTimerWithTotals } from '@/lib/db/time-entries';
 import { toDay } from '@/lib/utils/day';
-import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
+import { getUserId } from '@/lib/actions/utils/get-user-id';
 import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
 
 export default async function Layout({ children }: { children: ReactNode }) {

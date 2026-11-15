@@ -10,9 +10,13 @@ import {
 } from '@/lib/db/activities';
 import type { Activity, ActivityFields, Move } from '@/lib/db/types';
 import { ActivitySchema, EditActivitySchema } from '@/lib/validation';
-import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
-import { revalidateUserData } from '@/lib/actions/revalidate';
-import { type ActionResult, failure, success } from '@/lib/actions/result';
+import { getUserId } from '@/lib/actions/utils/get-user-id';
+import { revalidateUserData } from '@/lib/actions/utils/revalidate';
+import {
+  type ActionResult,
+  failure,
+  success,
+} from '@/lib/actions/utils/result';
 
 const IdSchema = z.string().uuid();
 

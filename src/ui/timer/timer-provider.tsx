@@ -11,7 +11,7 @@ import {
 } from 'react';
 
 import { startTimer, stopTimer } from '@/lib/actions/timer';
-import type { ActionResult } from '@/lib/actions/result';
+import type { ActionResult } from '@/lib/actions/utils/result';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 import type { RunningTimer, TimeTotals } from '@/lib/db/types';
 import { useToast } from '@/ui/hooks/use-toast';
