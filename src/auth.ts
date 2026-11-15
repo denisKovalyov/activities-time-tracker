@@ -12,7 +12,6 @@ export const {
   auth,
   signIn,
   signOut,
-  unstable_update: update,
 } = NextAuth({
   ...authConfig,
   providers: [

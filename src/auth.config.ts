@@ -33,16 +33,14 @@ export const authConfig = {
       session.user = token.user as AdapterUser;
       return session;
     },
-    async jwt({ token, user, trigger, session, account }) {
+    async jwt({ token, user, account }) {
+      // The user is set only on sign-in. Session updates are not handled on
+      // purpose: their payload comes from the client, so it can't be trusted.
       if (user) {
         token.user = {
           ...user,
           id: account?.providerAccountId || user.id,
         };
-      }
-      if (trigger === 'update' && session) {
-        token = { ...token, user: session };
-        return token;
       }
       return token;
     },
