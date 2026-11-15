@@ -11,6 +11,8 @@ import {
 
 // Focus and visibilitychange often fire together
 const MIN_REFRESH_INTERVAL = 1000;
+// Changes on other devices while this tab stays focused show up this late
+const POLLING_INTERVAL = 60 * 1000;
 
 const msUntilMidnight = () => {
   const midnight = new Date();
@@ -20,8 +22,9 @@ const msUntilMidnight = () => {
 
 // Keeps the data on the page in line with the database and the user's day.
 // It re-renders the page with fresh data from the server (router.refresh):
-// - when the tab gets focus or the connection comes back, so changes made in
-//   other tabs or on other devices show up;
+// - when the tab gets focus or the connection comes back, and every minute
+//   while the tab is visible, so changes made in other tabs or on other
+//   devices show up;
 // - when the user's day or time zone is not the one the server rendered the
 //   data for, e.g. at midnight. The time zone is sent in a cookie.
 export const KeepDataFresh = ({
@@ -76,12 +79,18 @@ export const KeepDataFresh = ({
     const handleFocusOrOnline = () => check({ refreshAnyway: true });
 
     check();
+    const intervalId = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        check({ refreshAnyway: true });
+      }
+    }, POLLING_INTERVAL);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleFocusOrOnline);
     window.addEventListener('online', handleFocusOrOnline);
 
     return () => {
       clearTimeout(timeoutId);
+      clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocusOrOnline);
       window.removeEventListener('online', handleFocusOrOnline);

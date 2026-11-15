@@ -21,7 +21,6 @@ import {
   type TimerAction,
   type TimerState,
   getActivitySeconds,
-  getLiveSeconds,
   getTotalSeconds,
   timerReducer,
 } from '@/ui/timer/timer-state';
@@ -152,12 +151,4 @@ export const useRunSeconds = () => {
   return state.startedAt === null
     ? 0
     : Math.max(0, Math.floor((now - state.startedAt) / 1000));
-};
-
-// Seconds of the current run that data loaded at `countedAt` doesn't include
-// yet. For pages with their own data, e.g. statistics.
-export const useLiveSeconds = (countedAt: number) => {
-  const { state } = useTimerContext();
-  const now = useNow(state.activeId !== null);
-  return getLiveSeconds(state, now, countedAt);
 };

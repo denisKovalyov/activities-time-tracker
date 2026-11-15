@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { createActivity } from '@/lib/db/activities';
 import {
   getRunningTimer,
-  getTimerWithTotals,
+  readTimeSnapshot,
   getTotalsByActivity,
   getTotalsByDay,
   startTimer,
@@ -204,14 +204,22 @@ describe('getTotalsByDay', () => {
   });
 });
 
-describe('getTimerWithTotals', () => {
-  it('returns the running timer and the totals together', async () => {
+describe('readTimeSnapshot', () => {
+  it('reads the running timer and totals together', async () => {
     const a = await create('A');
     await startTimer(userId, a.id, at('2026-11-15T10:00:00Z'));
 
-    const { timer, totals } = await getTimerWithTotals(
+    const { timer, totals, days } = await readTimeSnapshot(
       userId,
-      range({ now: at('2026-11-15T10:30:00Z') }),
+      async (snapshot) => ({
+        timer: await snapshot.runningTimer(),
+        totals: await snapshot.totalsByActivity(
+          range({ now: at('2026-11-15T10:30:00Z') }),
+        ),
+        days: await snapshot.totalsByDay(
+          range({ now: at('2026-11-15T10:30:00Z') }),
+        ),
+      }),
     );
 
     expect(timer).toEqual({
@@ -219,5 +227,6 @@ describe('getTimerWithTotals', () => {
       startedAt: at('2026-11-15T10:00:00Z'),
     });
     expect(totals).toEqual({ [a.id]: 1800 });
+    expect(days).toEqual([{ day: '2026-11-15', seconds: 1800 }]);
   });
 });
