@@ -8,12 +8,15 @@ import {
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 import { ActivityRecord } from '@/lib/definitions';
 import { CreateUpdateRecordParams } from '@/lib/actions/data/types';
+import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
+
+type RecordParams = Omit<CreateUpdateRecordParams, 'userId'>;
 
 export async function getRecord(
-  userId: string,
   date: Date,
 ): Promise<ActivityRecord | { message: string } | undefined> {
   try {
+    const userId = await getUserId();
     return await dbGetRecord(userId, date);
   } catch (error: unknown) {
     return {
@@ -26,12 +29,12 @@ export async function getRecord(
 }
 
 export async function createNewRecord({
-  userId,
   date,
   currentActivity,
   activityRecord,
-}: CreateUpdateRecordParams) {
+}: RecordParams) {
   try {
+    const userId = await getUserId();
     const id = await dbCreateRecord({
       userId,
       date,
@@ -47,12 +50,12 @@ export async function createNewRecord({
 }
 
 export async function updateRecord({
-  userId,
   date,
   currentActivity,
   activityRecord,
-}: CreateUpdateRecordParams) {
+}: RecordParams) {
   try {
+    const userId = await getUserId();
     await dbUpdateRecord({ userId, date, currentActivity, activityRecord });
     return { success: true };
   } catch (error: unknown) {

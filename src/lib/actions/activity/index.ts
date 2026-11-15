@@ -1,75 +1,31 @@
 'use server';
 
-import { ActivitySchema, EditActivitySchema } from '@/lib/validation';
+import { z } from 'zod';
+
+import {
+  ActivitySchema,
+  EditActivitySchema,
+  ReorderActivitiesSchema,
+} from '@/lib/validation';
 import {
   createActivity as dbCreateActivity,
-  getActivities as dbGetActivities,
   updateActivity as dbUpdateActivity,
   reorderActivities as dbReorderActivities,
   deleteActivity as dbDeleteActivity,
 } from '@/lib/actions/data/activity';
-import {
-  getRecord as dbGetRecord,
-  getRecords as dbGetRecords,
-  deleteActivityRecords as dbDeleteActivityRecords,
-} from '@/lib/actions/data/record';
+import { deleteActivityRecords as dbDeleteActivityRecords } from '@/lib/actions/data/record';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
-import { Activity, ActivityExtended, ActivityRecord } from '@/lib/definitions';
+import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
+import { Activity } from '@/lib/definitions';
 
-export async function getActivities(
-  userId: string,
-  date: Date,
-): Promise<ActivityExtended[] | { message: string }> {
-  try {
-    const [record, activities]: [ActivityRecord | undefined, Activity[] | []] =
-      await Promise.all([dbGetRecord(userId, date), dbGetActivities(userId)]);
-
-    return activities.map((activity) => ({
-      ...activity,
-      time_spent: record?.activities?.[activity.id] || 0,
-    }));
-  } catch (error: unknown) {
-    return { message: 'Something went wrong.' };
-  }
-}
-
-export async function getActivitiesRange(
-  userId: string,
-  startDate: Date,
-  endDate: Date,
-): Promise<ActivityExtended[] | { message: string }> {
-  try {
-    const [records, activities]: [ActivityRecord[] | [], Activity[] | []] =
-      await Promise.all([
-        dbGetRecords(userId, startDate, endDate),
-        dbGetActivities(userId),
-      ]);
-
-    const recordsTotal: Record<string, number> = {};
-    records.forEach(({ activities }) => {
-      Object.entries(activities).forEach(
-        ([id, value]) => (recordsTotal[id] = (recordsTotal[id] || 0) + value),
-      );
-    });
-
-    return activities.map((activity) => ({
-      ...activity,
-      time_spent: recordsTotal[activity.id] || 0,
-    }));
-  } catch (error: unknown) {
-    return {
-      message:
-        error instanceof Error
-          ? (error?.message as string)
-          : DEFAULT_ERROR_MESSAGE,
-    };
-  }
-}
+const CreateActivitySchema = ActivitySchema.extend({
+  order: z.number().int().nonnegative(),
+});
 
 export async function createActivity(
-  activity: Pick<Activity, 'user_id' | 'name' | 'color' | 'icon' | 'order'>,
+  activity: Pick<Activity, 'name' | 'color' | 'icon' | 'order'>,
 ) {
-  const validatedFields = ActivitySchema.safeParse(activity);
+  const validatedFields = CreateActivitySchema.safeParse(activity);
 
   // If form validation fails, return field errors early.
   if (!validatedFields.success) {
@@ -77,7 +33,11 @@ export async function createActivity(
   }
 
   try {
-    return await dbCreateActivity(activity);
+    const userId = await getUserId();
+    return await dbCreateActivity({
+      ...validatedFields.data,
+      user_id: userId,
+    });
   } catch (error: unknown) {
     return {
       message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE,
@@ -97,7 +57,8 @@ export async function updateActivity(
   }
 
   try {
-    return await dbUpdateActivity(id, activity);
+    const userId = await getUserId();
+    return await dbUpdateActivity(userId, id, validatedFields.data);
   } catch (error: unknown) {
     return {
       message: error instanceof Error ? error?.message : DEFAULT_ERROR_MESSAGE,
@@ -108,8 +69,15 @@ export async function updateActivity(
 export async function reorderActivities(
   activitiesList: { id: string; order: number }[],
 ) {
+  const validatedFields = ReorderActivitiesSchema.safeParse(activitiesList);
+
+  if (!validatedFields.success) {
+    return { message: DEFAULT_ERROR_MESSAGE };
+  }
+
   try {
-    await dbReorderActivities(activitiesList);
+    const userId = await getUserId();
+    await dbReorderActivities(userId, validatedFields.data);
     return { success: true };
   } catch (error: unknown) {
     return {
@@ -118,10 +86,11 @@ export async function reorderActivities(
   }
 }
 
-export async function deleteActivity(userId: string, activityId: string) {
+export async function deleteActivity(activityId: string) {
   try {
+    const userId = await getUserId();
     await Promise.all([
-      dbDeleteActivity(activityId),
+      dbDeleteActivity(userId, activityId),
       dbDeleteActivityRecords(userId, activityId),
     ]);
     return { success: true };

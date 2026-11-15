@@ -1,8 +1,10 @@
-import { auth } from '@/auth';
-
 import { TimeChart } from '@/ui/statistics/time-chart';
 import { BackgroundStopwatch } from '@/ui/statistics/background-stopwatch';
-import { getActivities, getActivitiesRange } from '@/lib/actions/activity';
+import {
+  getActivities,
+  getActivitiesRange,
+} from '@/lib/actions/activity/queries';
+import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
 import { retrieveDateFromCookies } from '@/app/(dashboard)/next-api-helpers';
 import {
   getTotalTimeSpent,
@@ -13,8 +15,7 @@ import {
 } from '@/lib/utils';
 
 export default async function Statistics() {
-  const session = await auth();
-  const userId = session?.user?.id!;
+  const userId = await getUserId();
   const today = await retrieveDateFromCookies();
 
   const yesterday = new Date(new Date(today).setDate(today.getDate() - 1));
@@ -38,15 +39,15 @@ export default async function Statistics() {
     weekData,
     monthData,
   ] = await Promise.all([
-    getActivities(userId!, today),
-    getActivities(userId!, yesterday),
-    getActivities(userId!, oneDayAgo),
-    getActivities(userId!, twoDaysAgo),
-    getActivities(userId!, threeDaysAgo),
-    getActivities(userId!, fourDaysAgo),
-    getActivities(userId!, fiveDaysAgo),
-    getActivitiesRange(userId!, today, weekStart),
-    getActivitiesRange(userId!, today, monthStart),
+    getActivities(userId, today),
+    getActivities(userId, yesterday),
+    getActivities(userId, oneDayAgo),
+    getActivities(userId, twoDaysAgo),
+    getActivities(userId, threeDaysAgo),
+    getActivities(userId, fourDaysAgo),
+    getActivities(userId, fiveDaysAgo),
+    getActivitiesRange(userId, today, weekStart),
+    getActivitiesRange(userId, today, monthStart),
   ]);
 
   if ('message' in todayData || 'message' in weekData || 'message' in monthData)

@@ -8,7 +8,6 @@ import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activ
 import { deleteActivity } from '@/lib/actions/activity';
 import { refetchActivities } from '@/lib/actions/activity/next-api';
 import { useRouter } from '@/ui/hooks/use-router';
-import { useSession } from 'next-auth/react';
 import { useToast } from '@/ui/hooks/use-toast';
 import { useActivities } from '@/ui/providers/activities-provider';
 
@@ -16,7 +15,6 @@ export const RemoveActivityDialog = () => {
   const { activities } = useActivities();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { data: session } = useSession();
   const { toast } = useToast();
   const { router, pathname, searchParams } = useRouter();
 
@@ -37,7 +35,7 @@ export const RemoveActivityDialog = () => {
   const handleConfirm = async () => {
     setIsLoading(true);
 
-    const result = await deleteActivity(session?.user?.id!, activityId!);
+    const result = await deleteActivity(activityId!);
 
     toast({
       title: result?.message || 'Activity was successfully removed!',

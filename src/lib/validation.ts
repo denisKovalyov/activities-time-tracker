@@ -101,3 +101,10 @@ export const ActivitySchema = z.object({
 });
 
 export const EditActivitySchema = ActivitySchema.partial();
+
+export const ReorderActivitiesSchema = z.array(
+  z.object({
+    id: z.string().uuid(),
+    order: z.number().int().nonnegative(),
+  }),
+);

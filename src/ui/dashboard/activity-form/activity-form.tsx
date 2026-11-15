@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useSession } from 'next-auth/react';
 
 import { ActivityExtended } from '@/lib/definitions';
 import { ActivitySchema } from '@/lib/validation';
@@ -34,7 +33,6 @@ export function ActivityForm({
   activities: ActivityExtended[];
   activityId?: string | null;
 }) {
-  const { data: session } = useSession();
   const { toast } = useToast();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -89,7 +87,6 @@ export function ActivityForm({
       return;
     }
 
-    const userId = session?.user?.id!;
     setIsLoading(true);
 
     const result =
@@ -97,7 +94,6 @@ export function ActivityForm({
         ? await updateActivity(activityId, changedValues)
         : await createActivity({
             ...values,
-            user_id: userId,
             order:
               activities.reduce(
                 (acc, { order }) => (acc > order ? acc : order),

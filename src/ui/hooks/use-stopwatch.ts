@@ -25,11 +25,7 @@ const getOffset = (timeSpent: number) => {
 const isNextDay = (dateStr: string): boolean =>
   new Date().getDate() !== new Date(dateStr).getDate();
 
-const handleMidnightBorder = async (
-  userId: string,
-  activityId: string,
-  seconds: number,
-) => {
+const handleMidnightBorder = async (activityId: string, seconds: number) => {
   const today = new Date();
   const yesterday = new Date();
   today.setSeconds(0);
@@ -37,13 +33,11 @@ const handleMidnightBorder = async (
 
   await Promise.all([
     updateRecord({
-      userId,
       date: yesterday,
       currentActivity: null,
       activityRecord: [activityId, seconds],
     }),
     createNewRecord({
-      userId,
       date: today,
       currentActivity: [activityId, today],
     }),
@@ -52,27 +46,24 @@ const handleMidnightBorder = async (
   void refetchActivities();
 };
 
-const getRecord = async (userId: string, date: Date) => {
-  const record = await getRecordAction(userId, date);
+const getRecord = async (date: Date) => {
+  const record = await getRecordAction(date);
   const hasRecord = record && 'id' in record;
   return hasRecord ? record : null;
 };
 
 const startRecord = async ({
-  userId,
   currentActivity,
 }: {
-  userId: string;
   currentActivity: [string, Date];
 }) => {
-  const record = await getRecord(userId, currentActivity[1]);
+  const record = await getRecord(currentActivity[1]);
   const storedActivity =
     record && 'current_activity' in record ? record.current_activity : null;
 
   if (storedActivity?.[0] === currentActivity[0]) return;
 
   await (record ? updateRecord : createNewRecord)({
-    userId,
     date: currentActivity[1],
     currentActivity,
   });
@@ -81,20 +72,17 @@ const startRecord = async ({
 };
 
 const stopRecord = async ({
-  userId,
   date,
   currentActivity,
   activityRecord,
 }: {
-  userId: string;
   date: Date;
   activityRecord: [string, number];
   currentActivity: [string, Date] | null;
 }) => {
-  const record = await getRecord(userId, date);
+  const record = await getRecord(date);
 
   await (record ? updateRecord : createNewRecord)({
-    userId,
     date: date,
     currentActivity,
     activityRecord,
@@ -140,7 +128,6 @@ export const useStopwatch = (activityId: string) => {
     if (isActive && userId && !isRunning) {
       start();
       void debouncedStart({
-        userId,
         currentActivity: [activityId, new Date()],
       });
     }
@@ -150,7 +137,6 @@ export const useStopwatch = (activityId: string) => {
       updateActivitiesTimeMap(activityId, totalSeconds);
       const date = new Date();
       void stopRecord({
-        userId,
         date,
         currentActivity: activeId ? [activeId, date] : null,
         activityRecord: [activityId, totalSeconds],
@@ -171,13 +157,12 @@ export const useStopwatch = (activityId: string) => {
   // Handle midnight
   useEffect(() => {
     if (isActive && activityStartDate && isNextDay(activityStartDate)) {
-      void handleMidnightBorder(userId, activityId, totalSeconds - 1);
+      void handleMidnightBorder(activityId, totalSeconds - 1);
       resetActivitiesTimeMap();
       reset();
     }
   }, [
     isActive,
-    userId,
     activityId,
     totalSeconds,
     activityStartDate,

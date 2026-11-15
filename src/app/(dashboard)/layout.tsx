@@ -1,5 +1,4 @@
 import { ReactNode, Suspense } from 'react';
-import { auth } from '@/auth';
 
 import { MainNavigation } from '@/ui/layout/main-navigation';
 import { MobileNavigation } from '@/ui/layout/mobile-navigation';
@@ -11,18 +10,18 @@ import { SetCookies } from '@/ui/layout/set-cookies';
 import { ActivitiesProvider } from '@/ui/providers/activities-provider';
 import { RecordProvider } from '@/ui/providers/record-provider';
 import { getSecondsPassed } from '@/lib/utils';
-import { getActivities } from '@/lib/actions/activity';
-import { getRecord } from '@/lib/actions/record';
+import { getActivities } from '@/lib/actions/activity/queries';
+import { getRecord } from '@/lib/actions/record/queries';
+import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
 import { retrieveDateFromCookies } from '@/app/(dashboard)/next-api-helpers';
 
 export default async function Layout({ children }: { children: ReactNode }) {
-  const session = await auth();
-  const userId = session?.user?.id!;
+  const userId = await getUserId();
   const date = await retrieveDateFromCookies();
 
   const [activities, record] = await Promise.all([
-    getActivities(userId!, date),
-    getRecord(userId!, date),
+    getActivities(userId, date),
+    getRecord(userId, date),
   ]);
 
   if ('message' in activities) return null;
