@@ -23,9 +23,14 @@ async function main() {
   await client.end();
 }
 
-main().catch((err) => {
-  console.error(
-    'An error occurred while attempting to reset the database schema:',
-    err,
-  );
-});
+// Exported for the integration tests, which reset their own test database
+module.exports = { resetDB };
+
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(
+      'An error occurred while attempting to reset the database schema:',
+      err,
+    );
+  });
+}

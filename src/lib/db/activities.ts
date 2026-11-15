@@ -2,15 +2,15 @@ import 'server-only';
 import { sql } from '@vercel/postgres';
 import { generateKeyBetween } from 'fractional-indexing';
 
+import { withUserLock } from '@/lib/db/transaction';
 import type { Activity, ActivityFields } from '@/lib/db/types';
 
 export async function listActivities(userId: string): Promise<Activity[]> {
   try {
-    // id makes the order stable if two activities ever get the same position
     const result = await sql<Activity>`
       SELECT * FROM activity
       WHERE user_id=${userId}
-      ORDER BY position, id`;
+      ORDER BY position`;
     return result.rows;
   } catch (error) {
     console.error('DB: Failed to fetch activities:', error);
@@ -18,24 +18,31 @@ export async function listActivities(userId: string): Promise<Activity[]> {
   }
 }
 
-// A new activity goes to the end of the list.
+// A new activity goes to the end of the list. Positions are chosen under the
+// user lock, so two simultaneous creates can't get the same position.
 export async function createActivity(
   userId: string,
   { name, color, icon }: ActivityFields,
 ): Promise<Activity> {
   try {
-    const last = await sql<Pick<Activity, 'position'>>`
-      SELECT position FROM activity
-      WHERE user_id=${userId}
-      ORDER BY position DESC
-      LIMIT 1`;
-    const position = generateKeyBetween(last.rows[0]?.position ?? null, null);
+    return await withUserLock(userId, async (client) => {
+      const last = await client.query<Pick<Activity, 'position'>>(
+        `SELECT position FROM activity
+        WHERE user_id=$1
+        ORDER BY position DESC
+        LIMIT 1`,
+        [userId],
+      );
+      const position = generateKeyBetween(last.rows[0]?.position ?? null, null);
 
-    const result = await sql<Activity>`
-      INSERT INTO activity(user_id, name, color, icon, position)
-      VALUES (${userId}, ${name}, ${color}, ${icon}, ${position})
-      RETURNING *`;
-    return result.rows[0];
+      const result = await client.query<Activity>(
+        `INSERT INTO activity(user_id, name, color, icon, position)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *`,
+        [userId, name, color, icon, position],
+      );
+      return result.rows[0];
+    });
   } catch (error) {
     console.error('DB: Failed to create activity:', error);
     throw new Error('Failed to create activity.');
@@ -71,36 +78,47 @@ export async function updateActivity(
   }
 }
 
-// Moves an activity between two neighbours. Only this one row is updated.
-// `beforeId`/`afterId` are the activities that should end up right before
-// and after it (null at the edges of the list).
+// Puts an activity right after `previousId` (null moves it to the top).
+// Only this one row is updated. The next neighbour is read from the database
+// under the user lock rather than taken from the client, so a stale list or
+// two simultaneous moves can't produce equal positions.
 export async function moveActivity(
   userId: string,
   id: string,
-  { beforeId, afterId }: { beforeId: string | null; afterId: string | null },
+  previousId: string | null,
 ): Promise<Activity | undefined> {
   try {
-    const neighbourIds = [beforeId, afterId].filter(
-      (neighbourId) => neighbourId !== null,
-    );
-    const neighbours = await sql.query<Pick<Activity, 'id' | 'position'>>(
-      `SELECT id, position FROM activity
-      WHERE user_id=$1 AND id = ANY($2::uuid[])`,
-      [userId, neighbourIds],
-    );
-    const positionOf = (neighbourId: string | null) =>
-      neighbours.rows.find((row) => row.id === neighbourId)?.position ?? null;
+    return await withUserLock(userId, async (client) => {
+      let previousPosition: string | null = null;
+      if (previousId) {
+        const previous = await client.query<Pick<Activity, 'position'>>(
+          'SELECT position FROM activity WHERE id=$1 AND user_id=$2',
+          [previousId, userId],
+        );
+        if (!previous.rows[0]) throw new Error('Previous activity not found.');
+        previousPosition = previous.rows[0].position;
+      }
 
-    const position = generateKeyBetween(
-      positionOf(beforeId),
-      positionOf(afterId),
-    );
+      const next = await client.query<Pick<Activity, 'position'>>(
+        `SELECT position FROM activity
+        WHERE user_id=$1 AND id<>$2 AND ($3::text IS NULL OR position > $3)
+        ORDER BY position
+        LIMIT 1`,
+        [userId, id, previousPosition],
+      );
+      const position = generateKeyBetween(
+        previousPosition,
+        next.rows[0]?.position ?? null,
+      );
 
-    const result = await sql<Activity>`
-      UPDATE activity SET position=${position}, updated_at=now()
-      WHERE id=${id} AND user_id=${userId}
-      RETURNING *`;
-    return result.rows[0];
+      const result = await client.query<Activity>(
+        `UPDATE activity SET position=$1, updated_at=now()
+        WHERE id=$2 AND user_id=$3
+        RETURNING *`,
+        [position, id, userId],
+      );
+      return result.rows[0];
+    });
   } catch (error) {
     console.error('DB: Failed to move activity:', error);
     throw new Error('Failed to move activity.');

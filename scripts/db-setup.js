@@ -40,13 +40,10 @@ async function setupActivity(client) {
         created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
         updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
         CONSTRAINT unique_activity_constraint UNIQUE(user_id, name, color, icon),
+        CONSTRAINT unique_activity_position UNIQUE(user_id, position),
         -- Target for the time_entry foreign key below
         CONSTRAINT unique_activity_user UNIQUE(id, user_id)
       );
-    `;
-    await client.sql`
-      CREATE INDEX IF NOT EXISTS activity_user_position_idx
-      ON activity(user_id, position)
     `;
 
     console.log(`Created "activity" table`);
@@ -91,18 +88,27 @@ async function setupTimeEntry(client) {
   }
 }
 
-async function main() {
-  const client = await dbReset.connect();
+async function setupDB(client) {
   await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
   await setupUser(client);
   await setupActivity(client);
   await setupTimeEntry(client);
+}
+
+async function main() {
+  const client = await dbReset.connect();
+  await setupDB(client);
   await client.end();
 }
 
-main().catch((err) => {
-  console.error(
-    'An error occurred while attempting to setup the database:',
-    err,
-  );
-});
+// Exported for the integration tests, which set up their own test database
+module.exports = { setupDB };
+
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(
+      'An error occurred while attempting to setup the database:',
+      err,
+    );
+  });
+}

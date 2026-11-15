@@ -1,6 +1,7 @@
 import 'server-only';
-import { db, sql, type VercelPoolClient } from '@vercel/postgres';
+import { sql, type VercelPoolClient } from '@vercel/postgres';
 
+import { withUserLock } from '@/lib/db/transaction';
 import type {
   DayRange,
   DayTotal,
@@ -13,34 +14,28 @@ type RunningTimerRow = { activity_id: string; started_at: Date };
 const toRunningTimer = (row?: RunningTimerRow): RunningTimer | null =>
   row ? { activityId: row.activity_id, startedAt: row.started_at } : null;
 
-// Runs timer changes of one user in a transaction, one at a time. Locking the
-// user row makes two simultaneous clicks (e.g. from two tabs) wait for each
-// other instead of racing.
-async function withUserLock<T>(
+// The moment of a timer switch. It's taken after the user lock and is never
+// earlier than the end (or start) of the user's latest entry, so entries
+// can't overlap even if requests are handled out of order. Only tests pass
+// `now`; the app uses the database clock.
+async function getSwitchTime(
+  client: VercelPoolClient,
   userId: string,
-  fn: (client: VercelPoolClient) => Promise<T>,
-): Promise<T> {
-  const client = await db.connect();
-  try {
-    await client.query('BEGIN');
-    await client.query('SELECT id FROM "user" WHERE id=$1 FOR UPDATE', [
-      userId,
-    ]);
-    const result = await fn(client);
-    await client.query('COMMIT');
-    return result;
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
+  now?: Date,
+): Promise<Date> {
+  const result = await client.query<{ at: Date }>(
+    `SELECT GREATEST(
+      COALESCE($2::timestamptz, clock_timestamp()),
+      (SELECT COALESCE(ended_at, started_at) FROM time_entry
+        WHERE user_id=$1 ORDER BY started_at DESC LIMIT 1)
+    ) AS at`,
+    [userId, now ?? null],
+  );
+  return result.rows[0].at;
 }
 
-// GREATEST protects the CHECK constraint if `now` is slightly behind the
-// start time (e.g. the timer was started a moment ago by another server).
 const STOP_RUNNING_SQL = `
-  UPDATE time_entry SET ended_at = GREATEST($2, started_at)
+  UPDATE time_entry SET ended_at=$2
   WHERE user_id=$1 AND ended_at IS NULL
   RETURNING activity_id, started_at`;
 
@@ -63,7 +58,7 @@ export async function getRunningTimer(
 export async function startTimer(
   userId: string,
   activityId: string,
-  now: Date = new Date(),
+  now?: Date,
 ): Promise<RunningTimer> {
   try {
     return await withUserLock(userId, async (client) => {
@@ -76,13 +71,14 @@ export async function startTimer(
         return toRunningTimer(running.rows[0])!;
       }
 
-      await client.query(STOP_RUNNING_SQL, [userId, now]);
+      const switchTime = await getSwitchTime(client, userId, now);
+      await client.query(STOP_RUNNING_SQL, [userId, switchTime]);
       // The foreign key rejects an activity of another user
       const started = await client.query<RunningTimerRow>(
         `INSERT INTO time_entry(user_id, activity_id, started_at)
         VALUES ($1, $2, $3)
         RETURNING activity_id, started_at`,
-        [userId, activityId, now],
+        [userId, activityId, switchTime],
       );
       return toRunningTimer(started.rows[0])!;
     });
@@ -95,13 +91,14 @@ export async function startTimer(
 // Returns the timer that was stopped, or null if nothing was running.
 export async function stopTimer(
   userId: string,
-  now: Date = new Date(),
+  now?: Date,
 ): Promise<RunningTimer | null> {
   try {
     return await withUserLock(userId, async (client) => {
+      const switchTime = await getSwitchTime(client, userId, now);
       const stopped = await client.query<RunningTimerRow>(STOP_RUNNING_SQL, [
         userId,
-        now,
+        switchTime,
       ]);
       return toRunningTimer(stopped.rows[0]);
     });
