@@ -135,7 +135,9 @@ export const useTotalSeconds = () => {
 // Length of the current run in seconds.
 export const useRunSeconds = () => {
   const { state } = useTimerContext();
-  const now = useNow(state.activeId !== null);
+  // On the server and during hydration there is no clock yet (0), so the
+  // run is shown as long as it was when the data was loaded.
+  const now = useNow(state.activeId !== null) || state.countedAt;
   return state.startedAt === null
     ? 0
     : Math.max(0, Math.floor((now - state.startedAt) / 1000));

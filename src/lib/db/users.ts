@@ -1,7 +1,14 @@
 import 'server-only';
-import type { Credentials, User } from '@/lib/definitions';
 import { sql } from '@vercel/postgres';
-import { getUpdatedFields } from '@/lib/actions/data/utils';
+
+import type { Credentials, User } from '@/lib/definitions';
+
+// "a=$1, b=$2" for an UPDATE. Field names are interpolated into SQL, so they
+// must come from the code, never from user input.
+const getUpdatedFields = (data: { [key: string]: unknown }) =>
+  Object.keys(data)
+    .map((field, i) => `${field}=$${i + 1}`)
+    .join(', ');
 
 export async function getUser(email: string): Promise<User | undefined> {
   try {
