@@ -1,19 +1,14 @@
 'use server';
 
-import { deleteUser as dbDeleteUser } from '@/lib/actions/data/user';
-import { deleteRecords as dbDeleteRecords } from '@/lib/actions/data/record';
-import { deleteActivities as dbDeleteActivities } from '@/lib/actions/data/activity';
+import { deleteUser as dbDeleteUser } from '@/lib/db/users';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
-import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
+import { getUserId } from '@/lib/actions/utils/get-user-id';
 
 export async function deleteUserData() {
   try {
     const userId = await getUserId();
-    await Promise.all([
-      dbDeleteActivities(userId),
-      dbDeleteRecords(userId),
-      dbDeleteUser(userId),
-    ]);
+    // Activities and time entries are removed by ON DELETE CASCADE
+    await dbDeleteUser(userId);
     return { success: true };
   } catch (error: unknown) {
     return {

@@ -5,7 +5,7 @@ import { PlayPauseButton } from '@/ui/dashboard/activities-list/activity-card/pl
 import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activity-icon';
 import { ActivityDropdownMenu } from '@/ui/dashboard/activities-list/activity-card/activity-dropdown-menu';
 import { cn } from '@/lib/utils';
-import { ActivityExtended } from '@/lib/definitions';
+import type { Activity } from '@/lib/db/types';
 
 export const ActivityCard = ({
   isActive,
@@ -19,7 +19,7 @@ export const ActivityCard = ({
 }: {
   isActive: boolean;
   children: ReactNode;
-  activity: ActivityExtended;
+  activity: Activity;
   onEdit: () => void;
   onRemove: () => void;
   onReorder?: () => void;

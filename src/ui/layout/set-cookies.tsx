@@ -2,32 +2,56 @@
 
 import { useEffect } from 'react';
 
-import { USER_DATE_COOKIE_NAME } from '@/lib/constants';
-import { formatDate, getCookies } from '@/lib/utils';
+import { useRouter } from '@/ui/hooks/use-router';
+import {
+  getBrowserTimeZone,
+  syncTimeZoneCookie,
+} from '@/lib/utils/time-zone-cookie';
 
-const handleDateCookies = () => {
-  const cookies = getCookies();
-  const date = formatDate(new Date());
-
-  if (
-    !cookies[USER_DATE_COOKIE_NAME] ||
-    date !== cookies[USER_DATE_COOKIE_NAME]
-  ) {
-    document.cookie = `${USER_DATE_COOKIE_NAME}=${date}; path=/; secure; SameSite=Lax`;
-    window.location.reload();
-  }
+const msUntilMidnight = () => {
+  const midnight = new Date();
+  midnight.setHours(24, 0, 0, 0);
+  return midnight.getTime() - Date.now();
 };
 
+// Keeps the server's "today" in line with the user's: sends the time zone in
+// a cookie and re-renders the page with fresh totals when a new day starts.
 export const SetCookies = () => {
-  useEffect(() => {
-    handleDateCookies();
+  const { router } = useRouter();
 
-    document.addEventListener('visibilitychange', handleDateCookies);
+  useEffect(() => {
+    // The layout isn't re-mounted by router.refresh(), so the day is tracked
+    // here and the midnight timeout is scheduled again after every check.
+    // The cookie is shared by all tabs, so the time zone this tab's data
+    // was loaded with is tracked here too.
+    let day = new Date().toDateString();
+    let timeZone = getBrowserTimeZone();
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const refreshIfOutdated = () => {
+      const today = new Date().toDateString();
+      const currentTimeZone = getBrowserTimeZone();
+      const cookieChanged = syncTimeZoneCookie();
+      if (cookieChanged || today !== day || currentTimeZone !== timeZone) {
+        day = today;
+        timeZone = currentTimeZone;
+        router.refresh();
+      }
+
+      // A hidden tab may delay the timeout, so the day is also checked when
+      // the tab is shown again.
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(refreshIfOutdated, msUntilMidnight());
+    };
+
+    refreshIfOutdated();
+    document.addEventListener('visibilitychange', refreshIfOutdated);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleDateCookies);
+      clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', refreshIfOutdated);
     };
-  }, []);
+  }, [router]);
 
   return null;
 };

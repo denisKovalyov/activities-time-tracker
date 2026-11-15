@@ -4,7 +4,7 @@ import {
   createActivity,
   deleteActivity,
   listActivities,
-  moveActivity,
+  moveActivities,
   updateActivity,
 } from '@/lib/db/activities';
 import { startTimer } from '@/lib/db/time-entries';
@@ -15,6 +15,9 @@ let otherUserId: string;
 
 const create = (name: string, user = userId) =>
   createActivity(user, { name, color: 'ffffff', icon: 'circle' });
+
+const move = (id: string, previousId: string | null) =>
+  moveActivities(userId, [{ id, previousId }]);
 
 const names = async () =>
   (await listActivities(userId)).map(({ name }) => name);
@@ -42,13 +45,13 @@ describe('createActivity', () => {
   });
 });
 
-describe('moveActivity', () => {
+describe('moveActivities', () => {
   it('moves the last activity to the top by updating only its row', async () => {
     const a = await create('A');
     const b = await create('B');
     const c = await create('C');
 
-    await moveActivity(userId, c.id, null);
+    await move(c.id, null);
 
     expect(await names()).toEqual(['C', 'A', 'B']);
     const [rowA, rowB] = await query<{ position: string }>(
@@ -64,10 +67,10 @@ describe('moveActivity', () => {
     const b = await create('B');
     const c = await create('C');
 
-    await moveActivity(userId, a.id, b.id);
+    await move(a.id, b.id);
     expect(await names()).toEqual(['B', 'A', 'C']);
 
-    await moveActivity(userId, b.id, c.id);
+    await move(b.id, c.id);
     expect(await names()).toEqual(['A', 'C', 'B']);
   });
 
@@ -77,10 +80,7 @@ describe('moveActivity', () => {
     const c = await create('C');
     const d = await create('D');
 
-    await Promise.all([
-      moveActivity(userId, c.id, a.id),
-      moveActivity(userId, d.id, a.id),
-    ]);
+    await Promise.all([move(c.id, a.id), move(d.id, a.id)]);
 
     const list = await listActivities(userId);
     expect(new Set(list.map((x) => x.position)).size).toBe(4);
@@ -92,7 +92,7 @@ describe('moveActivity', () => {
     const b = await create('B');
 
     for (let i = 0; i < 50; i++) {
-      await moveActivity(userId, i % 2 ? a.id : b.id, null);
+      await move(i % 2 ? a.id : b.id, null);
     }
 
     const lengths = (await listActivities(userId)).map(
@@ -101,12 +101,28 @@ describe('moveActivity', () => {
     expect(Math.max(...lengths)).toBeLessThan(6);
   });
 
+  it('applies all moves or none', async () => {
+    const a = await create('A');
+    const b = await create('B');
+    const c = await create('C');
+    await deleteActivity(userId, a.id);
+
+    await expect(
+      moveActivities(userId, [
+        { id: c.id, previousId: null },
+        { id: b.id, previousId: a.id },
+      ]),
+    ).rejects.toThrow();
+
+    expect(await names()).toEqual(['B', 'C']);
+  });
+
   it('fails when the previous activity does not exist', async () => {
     const a = await create('A');
     const b = await create('B');
     await deleteActivity(userId, a.id);
 
-    await expect(moveActivity(userId, b.id, a.id)).rejects.toThrow();
+    await expect(move(b.id, a.id)).rejects.toThrow();
   });
 });
 
@@ -142,7 +158,7 @@ describe('other users', () => {
     expect(
       await updateActivity(userId, other.id, { name: 'changed' }),
     ).toBeUndefined();
-    expect(await moveActivity(userId, other.id, null)).toBeUndefined();
+    expect(await move(other.id, null)).toEqual([]);
     await deleteActivity(userId, other.id);
 
     expect(await listActivities(userId)).toEqual([]);

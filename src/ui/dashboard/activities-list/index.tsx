@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from '@/ui/hooks/use-router';
 import { Reorder } from 'framer-motion';
 
@@ -7,19 +7,14 @@ import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
 import { useActivitiesList } from '@/ui/hooks/use-activities-list';
 
 export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
-  const [recordingId, setRecordingId] = useState<string | null>(null);
   const [swiped, setSwiped] = useState<string | null>(null);
 
   const { router, pathname, searchParams, stringifyQueryParams } = useRouter();
-  const { activitiesList, handleReorder, handleReorderDebounced } =
-    useActivitiesList(activities);
+  const reorderMode = Boolean(searchParams.get('reorder'));
+  const search = searchParams.get('search')?.toLowerCase();
 
-  useEffect(() => {
-    window.addEventListener('beforeunload', handleReorder);
-    return () => {
-      window.removeEventListener('beforeunload', handleReorder);
-    };
-  }, [handleReorder]);
+  const { activitiesList, handleReorder, handleDrop } =
+    useActivitiesList(activities);
 
   const handleSwipe = (id: string) => setSwiped(id);
   const handleSwipeCancel = () => setSwiped(() => null);
@@ -33,16 +28,10 @@ export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
   const handleRemove = (id: string) =>
     router.push(`${pathname}?${stringifyQueryParams({ removeActivity: id })}`);
 
-  const handleRecord = (activityId: string) => {
-    setRecordingId((id) => (id === activityId ? null : activityId));
-  };
-
-  const reorderMode = Boolean(searchParams.get('reorder'));
-
   return (
     <div className="mx-auto mt-4 h-full w-full max-w-3xl overflow-x-hidden">
       <Reorder.Group
-        onReorder={handleReorderDebounced}
+        onReorder={handleReorder}
         values={activitiesList}
         layoutScroll
       >
@@ -50,15 +39,17 @@ export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
           <ActivityListItem
             key={activity.id}
             activity={activity}
-            recordingId={recordingId}
+            hidden={
+              search ? !activity.name.toLowerCase().includes(search) : false
+            }
             swiped={swiped === activity.id}
             reorderMode={reorderMode}
             onSwipe={handleSwipe}
             onCancelSwipe={handleSwipeCancel}
             onEdit={handleEdit}
             onRemove={handleRemove}
-            onRecord={handleRecord}
             onReorder={handleReorderMode}
+            onDrop={handleDrop}
           />
         ))}
       </Reorder.Group>

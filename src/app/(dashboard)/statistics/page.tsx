@@ -1,108 +1,57 @@
 import { TimeChart } from '@/ui/statistics/time-chart';
-import { BackgroundStopwatch } from '@/ui/statistics/background-stopwatch';
 import {
-  getActivities,
-  getActivitiesRange,
-} from '@/lib/actions/activity/queries';
-import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
-import { retrieveDateFromCookies } from '@/app/(dashboard)/next-api-helpers';
+  getActivitiesChartData,
+  getDaysChartData,
+  sumValues,
+} from '@/ui/statistics/chart-data';
+import { listActivities } from '@/lib/db/activities';
+import { getTotalsByActivity, getTotalsByDay } from '@/lib/db/time-entries';
 import {
-  getTotalTimeSpent,
-  getWeekStartDate,
-  getMonthStartDate,
-  prepareChartData,
-  formatReadableDate,
-} from '@/lib/utils';
+  type Day,
+  addDays,
+  getMonthStart,
+  getWeekStart,
+  toDay,
+} from '@/lib/utils/day';
+import { getUserId } from '@/lib/actions/utils/get-user-id';
+import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
 
 export default async function Statistics() {
   const userId = await getUserId();
-  const today = await retrieveDateFromCookies();
+  const timeZone = await getUserTimeZone();
+  // Totals are counted up to this moment; charts add live time on top
+  const now = new Date();
+  const today = toDay(now, timeZone);
+  const since = (from: Day) => ({ from, to: today, timeZone, now });
 
-  const yesterday = new Date(new Date(today).setDate(today.getDate() - 1));
-  const oneDayAgo = new Date(new Date(today).setDate(today.getDate() - 2));
-  const twoDaysAgo = new Date(new Date(today).setDate(today.getDate() - 3));
-  const threeDaysAgo = new Date(new Date(today).setDate(today.getDate() - 4));
-  const fourDaysAgo = new Date(new Date(today).setDate(today.getDate() - 5));
-  const fiveDaysAgo = new Date(new Date(today).setDate(today.getDate() - 6));
+  const [activities, days, todayTotals, weekTotals, monthTotals] =
+    await Promise.all([
+      listActivities(userId),
+      getTotalsByDay(userId, since(addDays(today, -6))),
+      getTotalsByActivity(userId, since(today)),
+      getTotalsByActivity(userId, since(getWeekStart(today))),
+      getTotalsByActivity(userId, since(getMonthStart(today))),
+    ]);
 
-  const weekStart = getWeekStartDate(today);
-  const monthStart = getMonthStartDate(today);
-
-  const [
-    todayData,
-    yesterdayData,
-    oneDayAgoData,
-    twoDaysAgoData,
-    threeDaysAgoData,
-    fourDaysAgoData,
-    fiveDaysAgoData,
-    weekData,
-    monthData,
-  ] = await Promise.all([
-    getActivities(userId, today),
-    getActivities(userId, yesterday),
-    getActivities(userId, oneDayAgo),
-    getActivities(userId, twoDaysAgo),
-    getActivities(userId, threeDaysAgo),
-    getActivities(userId, fourDaysAgo),
-    getActivities(userId, fiveDaysAgo),
-    getActivitiesRange(userId, today, weekStart),
-    getActivitiesRange(userId, today, monthStart),
-  ]);
-
-  if ('message' in todayData || 'message' in weekData || 'message' in monthData)
-    return null;
-
-  const todayChartData = prepareChartData(todayData);
-  const weekChartData = prepareChartData(weekData);
-  const monthChartData = prepareChartData(monthData);
-
-  const todayTotal = getTotalTimeSpent(todayData);
-  const weekTotal = getTotalTimeSpent(weekData);
-  const monthTotal = getTotalTimeSpent(monthData);
-
-  const last7days = [
-    { name: 'Today', value: todayTotal },
-    {
-      name: 'Yesterday',
-      value: 'message' in yesterdayData ? 0 : getTotalTimeSpent(yesterdayData),
-    },
-    {
-      name: formatReadableDate(oneDayAgo),
-      value: 'message' in oneDayAgoData ? 0 : getTotalTimeSpent(oneDayAgoData),
-    },
-    {
-      name: formatReadableDate(twoDaysAgo),
-      value:
-        'message' in twoDaysAgoData ? 0 : getTotalTimeSpent(twoDaysAgoData),
-    },
-    {
-      name: formatReadableDate(threeDaysAgo),
-      value:
-        'message' in threeDaysAgoData ? 0 : getTotalTimeSpent(threeDaysAgoData),
-    },
-    {
-      name: formatReadableDate(fourDaysAgo),
-      value:
-        'message' in fourDaysAgoData ? 0 : getTotalTimeSpent(fourDaysAgoData),
-    },
-    {
-      name: formatReadableDate(fiveDaysAgo),
-      value:
-        'message' in fiveDaysAgoData ? 0 : getTotalTimeSpent(fiveDaysAgoData),
-    },
-  ];
-
-  const last7daysTotal = last7days.reduce((acc, { value }) => acc + value, 0);
+  const charts = [
+    { period: 'last7days', data: getDaysChartData(days) },
+    { period: 'day', data: getActivitiesChartData(activities, todayTotals) },
+    { period: 'week', data: getActivitiesChartData(activities, weekTotals) },
+    { period: 'month', data: getActivitiesChartData(activities, monthTotals) },
+  ] as const;
 
   return (
     <div className="flex flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center lg:gap-8 xl:h-full [&>div]:w-full [&>div]:sm:w-[calc(50%-0.5rem)] [&>div]:lg:w-[calc(50%-1rem)]">
-      <TimeChart period="last7days" total={last7daysTotal} data={last7days} />
-      <TimeChart period="day" total={todayTotal} data={todayChartData} />
-      <TimeChart period="week" total={weekTotal} data={weekChartData} />
-      <TimeChart period="month" total={monthTotal} data={monthChartData} />
-
-      <BackgroundStopwatch />
+      {charts.map(({ period, data }) => (
+        <TimeChart
+          key={period}
+          period={period}
+          data={data}
+          total={sumValues(data)}
+          countedAt={now.getTime()}
+          today={today}
+        />
+      ))}
     </div>
   );
 }

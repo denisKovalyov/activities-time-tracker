@@ -5,7 +5,7 @@ import GoogleProvider from 'next-auth/providers/google';
 
 import type { Credentials, User } from '@/lib/definitions';
 import { authConfig } from './auth.config';
-import { getUser, createUser } from '@/lib/actions/data/user';
+import { getUser, createUser } from '@/lib/db/users';
 
 export const {
   handlers: { GET, POST },

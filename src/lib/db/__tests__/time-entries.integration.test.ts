@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { createActivity } from '@/lib/db/activities';
 import {
   getRunningTimer,
+  getTimerWithTotals,
   getTotalsByActivity,
   getTotalsByDay,
   startTimer,
@@ -200,5 +201,23 @@ describe('getTotalsByDay', () => {
     const [day] = await getTotalsByDay(userId, range({}));
 
     expect(day.seconds).toBe(0);
+  });
+});
+
+describe('getTimerWithTotals', () => {
+  it('returns the running timer and the totals together', async () => {
+    const a = await create('A');
+    await startTimer(userId, a.id, at('2026-11-15T10:00:00Z'));
+
+    const { timer, totals } = await getTimerWithTotals(
+      userId,
+      range({ now: at('2026-11-15T10:30:00Z') }),
+    );
+
+    expect(timer).toEqual({
+      activityId: a.id,
+      startedAt: at('2026-11-15T10:00:00Z'),
+    });
+    expect(totals).toEqual({ [a.id]: 1800 });
   });
 });

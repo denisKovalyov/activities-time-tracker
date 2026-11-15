@@ -8,33 +8,25 @@ import { PageName } from '@/ui/layout/page-name';
 import { Logo } from '@/ui/common/logo';
 import { SetCookies } from '@/ui/layout/set-cookies';
 import { ActivitiesProvider } from '@/ui/providers/activities-provider';
-import { RecordProvider } from '@/ui/providers/record-provider';
-import { getSecondsPassed } from '@/lib/utils';
-import { getActivities } from '@/lib/actions/activity/queries';
-import { getRecord } from '@/lib/actions/record/queries';
-import { getUserId } from '@/lib/actions/auth/utils/get-user-id';
-import { retrieveDateFromCookies } from '@/app/(dashboard)/next-api-helpers';
+import { TimerProvider } from '@/ui/timer/timer-provider';
+import { listActivities } from '@/lib/db/activities';
+import { getTimerWithTotals } from '@/lib/db/time-entries';
+import { toDay } from '@/lib/utils/day';
+import { getUserId } from '@/lib/actions/utils/get-user-id';
+import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
 
 export default async function Layout({ children }: { children: ReactNode }) {
   const userId = await getUserId();
-  const date = await retrieveDateFromCookies();
+  const timeZone = await getUserTimeZone();
+  // Today's totals are counted up to this moment; the client adds live time
+  // of the running timer on top.
+  const now = new Date();
+  const today = toDay(now, timeZone);
 
-  const [activities, record] = await Promise.all([
-    getActivities(userId, date),
-    getRecord(userId, date),
+  const [activities, { timer, totals }] = await Promise.all([
+    listActivities(userId),
+    getTimerWithTotals(userId, { from: today, to: today, timeZone, now }),
   ]);
-
-  if ('message' in activities) return null;
-
-  const activeActivity =
-    record && 'current_activity' in record ? record.current_activity : null;
-
-  let totalTimeSpent = getSecondsPassed(activeActivity?.[1]);
-  const activitiesTimeMap = activities.reduce((acc, curr) => {
-    const value = curr.time_spent;
-    totalTimeSpent += value;
-    return { ...acc, [curr.id]: value };
-  }, {});
 
   return (
     <div className="flex h-dvh w-full flex-col">
@@ -60,18 +52,15 @@ export default async function Layout({ children }: { children: ReactNode }) {
         </header>
 
         <main className="h-[calc(100%-112px)] overflow-auto p-4 sm:h-full sm:pb-0">
-          <RecordProvider
-            activeActivity={activeActivity}
-            activitiesMap={activitiesTimeMap}
-            totalTimeSpent={totalTimeSpent}
+          <TimerProvider
+            timer={timer}
+            totals={totals}
+            countedAt={now.getTime()}
           >
-            <ActivitiesProvider
-              activities={activities}
-              totalTimeSpent={totalTimeSpent}
-            >
+            <ActivitiesProvider activities={activities}>
               {children}
             </ActivitiesProvider>
-          </RecordProvider>
+          </TimerProvider>
         </main>
 
         <footer className="relative z-10 mt-auto h-14 border-t border-accent bg-primary px-4 sm:hidden">

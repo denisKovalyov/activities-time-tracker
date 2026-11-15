@@ -24,3 +24,22 @@ export async function withUserLock<T>(
     client.release();
   }
 }
+
+// Runs read-only queries that all see the database as it was at the start of
+// the transaction, even if other requests change it meanwhile.
+export async function withSnapshot<T>(
+  fn: (client: VercelPoolClient) => Promise<T>,
+): Promise<T> {
+  const client = await db.connect();
+  try {
+    await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+    const result = await fn(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}

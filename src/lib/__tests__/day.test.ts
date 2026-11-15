@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import {
   addDays,
+  formatReadableDay,
   getMonthStart,
   getWeekStart,
   isDay,
@@ -66,6 +67,13 @@ describe('day', () => {
       expect(isDay('2026-02-30')).toBe(false);
       expect(isDay('2026-1-5')).toBe(false);
       expect(isDay('15.11.2026')).toBe(false);
+    });
+  });
+
+  describe('formatReadableDay', () => {
+    it('formats the day itself, whatever the local time zone is', () => {
+      expect(formatReadableDay('2026-11-15')).toBe('Nov 15, 2026');
+      expect(formatReadableDay('2026-11-15', 'long')).toBe('November 15, 2026');
     });
   });
 

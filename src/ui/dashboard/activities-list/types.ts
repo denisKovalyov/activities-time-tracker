@@ -1,18 +1,18 @@
-import { ActivityExtended } from '@/lib/definitions';
+import type { Activity } from '@/lib/db/types';
 
 export type ActivitiesListItemProps = {
-  activity: ActivityExtended & { hidden?: boolean };
+  activity: Activity;
+  hidden: boolean;
   swiped: boolean;
   onSwipe: (id: string) => void;
   onCancelSwipe: () => void;
   reorderMode: boolean;
-  recordingId: string | null;
-  onRecord: (id: string) => void;
   onEdit: (id: string) => void;
   onRemove: (id: string) => void;
   onReorder: () => void;
+  onDrop: () => void;
 };
 
 export type ActivitiesListProps = {
-  activities: ActivityExtended[];
+  activities: Activity[];
 };
