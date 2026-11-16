@@ -2,11 +2,8 @@ const { db: dbReset } = require('@vercel/postgres');
 
 async function resetDB(client) {
   try {
-    // Dependent tables go first. "record" is the table from the old schema.
     await client.sql`DROP TABLE IF EXISTS time_entry`;
     console.log(`Drop "time_entry" table`);
-    await client.sql`DROP TABLE IF EXISTS record`;
-    console.log(`Drop "record" table`);
     await client.sql`DROP TABLE IF EXISTS activity`;
     console.log(`Drop "activity" table`);
     await client.sql`DROP TABLE IF EXISTS "user"`;
