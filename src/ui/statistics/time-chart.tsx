@@ -1,6 +1,6 @@
 'use client';
 
-import { RefObject, useMemo, useRef } from 'react';
+import { RefObject, useMemo, useRef, useState } from 'react';
 import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts';
 import { useResizeObserver } from 'usehooks-ts';
 import { PresentationChart } from '@phosphor-icons/react';
@@ -125,6 +125,9 @@ export function TimeChart({
   const activities = useActivities();
   const activeId = timer?.activityId;
   const liveSeconds = useLiveSeconds(timer, countedAt);
+  // Recharts replays the animation and hides the labels on every data
+  // change, so the bars animate only on the first render, not every second
+  const [isAnimationDone, setIsAnimationDone] = useState(false);
 
   const isDaysChart = period === 'last7days';
   const activeActivity = isDaysChart
@@ -229,6 +232,8 @@ export function TimeChart({
                 fill="var(--color-value)"
                 radius={4}
                 minPointSize={2}
+                isAnimationActive={!isAnimationDone}
+                onAnimationEnd={() => setIsAnimationDone(true)}
               >
                 <LabelList
                   dataKey="name"
