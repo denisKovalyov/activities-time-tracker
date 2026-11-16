@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import type { Activity, ActivityFields } from '@/lib/db/types';
 import { ActivitySchema } from '@/lib/validation';
@@ -50,9 +50,12 @@ export function ActivityForm({
     },
   });
 
-  const { watch, setValue, trigger, setError } = form;
+  const { control, setValue, trigger, setError } = form;
 
-  const [name, color, icon] = watch(['name', 'color', 'icon']);
+  const [name, color, icon] = useWatch({
+    control,
+    name: ['name', 'color', 'icon'],
+  });
 
   const changedValues = useMemo(
     () =>

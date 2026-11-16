@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useTransition } from 'react';
 import { User } from '@phosphor-icons/react';
 
 import { DialogWrapper } from '@/ui/common/dialog';
@@ -14,36 +14,32 @@ export const RemoveAccountDialog = ({
   show: boolean;
   onOpenChange: () => void;
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  // Pending until the user is signed out
+  const [isLoading, startTransition] = useTransition();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (show) setIsLoading(false);
-  }, [show]);
+  const handleConfirm = () =>
+    startTransition(async () => {
+      const result = await deleteUserData();
 
-  const handleConfirm = async () => {
-    setIsLoading(true);
+      const hasError = 'message' in result;
 
-    const result = await deleteUserData();
+      toast({
+        title: hasError ? result.message : 'Account was successfully removed!',
+        variant: hasError ? 'destructive' : 'success',
+      });
 
-    const hasError = 'message' in result;
+      if (!hasError) {
+        const result = await signOut();
 
-    toast({
-      title: hasError ? result.message : 'Account was successfully removed!',
-      variant: hasError ? 'destructive' : 'success',
-    });
-
-    if (!hasError) {
-      const result = await signOut();
-
-      if (result?.message) {
-        toast({
-          title: result.message,
-          variant: 'destructive',
-        });
+        if (result?.message) {
+          toast({
+            title: result.message,
+            variant: 'destructive',
+          });
+        }
       }
-    }
-  };
+    });
 
   return (
     <DialogWrapper

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import { AddActivityButton } from '@/ui/dashboard/activities-header/add-activity-button';
 import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activity-icon';
@@ -59,6 +59,8 @@ const TotalTimeComponent = () => {
   );
 };
 
+const FLY_IN = 'animate-fly-in opacity-0';
+
 const headerBlockClasses =
   'flex justify-center items-center w-full py-4 px-4 bg-primary text-white font-bold truncate';
 
@@ -67,16 +69,18 @@ export const ActivitiesHeader = ({
 }: {
   activities: Activity[];
 }) => {
-  const [animationClass, setAnimationClass] = useState('opacity-0');
   const { searchParams } = useRouter();
   const { activeId, stop } = useTimer();
+  const [animationClass, setAnimationClass] = useState(FLY_IN);
+  const [prevActiveId, setPrevActiveId] = useState(activeId);
+
+  // A started activity flies in
+  if (activeId !== prevActiveId) {
+    setPrevActiveId(activeId);
+    if (activeId) setAnimationClass(FLY_IN);
+  }
 
   const activitiesNumber = activities.length;
-
-  useEffect(() => {
-    if (!activeId) return;
-    setAnimationClass('animate-fly-in opacity-0');
-  }, [activeId, setAnimationClass]);
 
   const activity = activities.find(({ id }) => id === activeId);
 

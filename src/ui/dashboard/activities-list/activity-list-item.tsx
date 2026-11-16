@@ -2,7 +2,6 @@ import React, {
   PointerEvent,
   RefObject,
   ReactNode,
-  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -38,6 +37,7 @@ export const ActivityListItem = ({
   const [shift, setShift] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [prevReorderMode, setPrevReorderMode] = useState(reorderMode);
   const ref = useRef<HTMLDivElement>(null);
 
   const { id } = activity;
@@ -45,16 +45,18 @@ export const ActivityListItem = ({
   const { activeId, toggle } = useTimer();
   const isActive = activeId === id;
 
-  useEffect(() => {
-    if (swiped) setShift(-BUTTONS_WIDTH);
-  }, [swiped]);
-
-  useEffect(() => {
-    if (reorderMode && shift !== 0) setShift(0);
-  }, [shift, reorderMode]);
+  // Action buttons are closed in the reorder mode
+  if (reorderMode !== prevReorderMode) {
+    setPrevReorderMode(reorderMode);
+    if (reorderMode) setShift(0);
+  }
 
   const handlers = useSwipeable({
-    onSwipedLeft: () => onSwipe(id),
+    // Called after onSwiped, so a swipe to the left always opens the buttons
+    onSwipedLeft: () => {
+      if (!reorderMode) setShift(-BUTTONS_WIDTH);
+      onSwipe(id);
+    },
     onSwiping: (e) => {
       if (reorderMode) return;
       if (!isSwiping) setIsSwiping(true);

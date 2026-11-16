@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useState } from 'react';
 import { MagnifyingGlass, X } from '@phosphor-icons/react';
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -14,6 +14,7 @@ export const InputSearch = () => {
   const search = searchParams.get('search');
 
   const [value, setValue] = useState(search || '');
+  const [prevSearch, setPrevSearch] = useState(search);
 
   const handleSearch = () => {
     if (value) router.push(`/dashboard?search=${value}`);
@@ -27,10 +28,12 @@ export const InputSearch = () => {
 
   const debouncedCallback = useDebouncedCallback(handleSearch, DEBOUNCE_DELAY);
 
-  useEffect(() => {
-    if (debouncedCallback.isPending()) return;
-    setValue(search || '');
-  }, [search, debouncedCallback]);
+  // Shows the search from the URL, e.g. after navigation, unless the user is
+  // still typing
+  if (search !== prevSearch) {
+    setPrevSearch(search);
+    if (!debouncedCallback.isPending()) setValue(search || '');
+  }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
