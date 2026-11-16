@@ -1,6 +1,5 @@
-// Creates the tables on an empty database. Existing tables are left as they
-// are (CREATE TABLE IF NOT EXISTS), so a database with an older schema has to
-// be recreated with `npm run db:restart` instead.
+// Existing tables are left as they are; to change the schema, recreate
+// the database with `npm run db:restart`.
 
 const { db: dbReset } = require('@vercel/postgres');
 
@@ -28,10 +27,8 @@ async function setupUser(client) {
 
 async function setupActivity(client) {
   try {
-    // position is a fractional index (see the fractional-indexing package):
-    // sorting by it gives the order in the UI, and moving an activity
-    // updates only that one row. COLLATE "C" makes the sort byte-wise,
-    // which is what fractional indexing keys rely on.
+    // position is a fractional index, sorted byte-wise (COLLATE "C"):
+    // https://www.npmjs.com/package/fractional-indexing
     await client.sql`
       CREATE TABLE IF NOT EXISTS activity (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -59,9 +56,7 @@ async function setupActivity(client) {
 
 async function setupTimeEntry(client) {
   try {
-    // One row per timer run. A running timer has ended_at = NULL.
-    // Time spent per day/week/month is calculated from these intervals
-    // when reading, so midnight needs no special handling when writing.
+    // One row per timer run; a running timer has ended_at = NULL
     await client.sql`
       CREATE TABLE IF NOT EXISTS time_entry (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
