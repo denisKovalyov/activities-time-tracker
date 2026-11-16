@@ -66,6 +66,6 @@ export async function authenticate(values: Credentials) {
   if (isEmailVerified) {
     redirect(PROTECTED_PAGES[0]);
   } else {
-    redirect(`/email/verify/send?email=${values.email}`);
+    redirect(`/email/verify/send?email=${encodeURIComponent(values.email)}`);
   }
 }

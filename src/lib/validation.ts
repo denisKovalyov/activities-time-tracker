@@ -87,6 +87,9 @@ export const SendResetPasswordLinkSchema = SignUpSchema.omit({
   password: true,
 });
 export const SaveNewPasswordSchema = SignUpSchema.omit({ email: true });
+export const ResetPasswordSchema = SignUpSchema.extend({
+  token: z.string().min(1),
+});
 
 export const ActivitySchema = z.object({
   name: z.string().min(1, {

@@ -6,7 +6,8 @@ import { User } from '@/lib/definitions';
 import { EmailRateLimit } from '@/lib/errors';
 import { ResetPasswordTemplate } from '@/ui/email-templates/reset-password';
 import { setDelay } from '@/lib/utils';
-import { getUser, updateUser } from '@/lib/db/users';
+import { getUser, resetPassword, updateUser } from '@/lib/db/users';
+import { ResetPasswordSchema } from '@/lib/validation';
 import { sendEmail } from '@/lib/actions/email/send-email';
 import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
 import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';
@@ -16,6 +17,8 @@ import { headers } from 'next/headers';
 
 const SENDING_RESET_LINK_MS = 1000;
 const NOT_FOUND_LINK = '/reset-password/request?not-found-link=true';
+const INVALID_LINK_MESSAGE =
+  'The link is invalid or was already used. Please request a new one.';
 
 const sendResetPasswordEmail = async (email: string, token: string) => {
   const headersList = await headers();
@@ -78,12 +81,27 @@ export async function checkResetPasswordLink(
   }
 }
 
-export async function saveNewPassword(email: string, password: string) {
+// A public endpoint: the token from the link is checked here, not only when
+// the page is opened
+export async function saveNewPassword(
+  email: string,
+  token: string,
+  password: string,
+) {
+  const validatedFields = ResetPasswordSchema.safeParse({
+    email,
+    token,
+    password,
+  });
+  if (!validatedFields.success) return { message: 'Invalid data.' };
+
   try {
-    await updateUser(email, {
-      password: await hashPassword(password),
-      email_verification_token: null,
-    });
+    const isReset = await resetPassword(
+      validatedFields.data.email,
+      validatedFields.data.token,
+      await hashPassword(validatedFields.data.password),
+    );
+    if (!isReset) return { message: INVALID_LINK_MESSAGE };
   } catch (e) {
     return { message: `${DEFAULT_ERROR_MESSAGE} Password was not saved.` };
   }
