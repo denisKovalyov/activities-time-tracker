@@ -42,7 +42,8 @@ async function setupActivity(client) {
         updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
         CONSTRAINT unique_activity_constraint UNIQUE(user_id, name, color, icon),
         CONSTRAINT unique_activity_position UNIQUE(user_id, position),
-        -- Target for the time_entry foreign key below
+        -- id alone is unique already; this lets time_entry reference
+        -- (id, user_id), so an entry can't point to another user's activity
         CONSTRAINT unique_activity_user UNIQUE(id, user_id)
       );
     `;
