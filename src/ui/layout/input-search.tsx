@@ -26,11 +26,17 @@ export const InputSearch = () => {
 
   const updateSearch = (value: string) => {
     setValue(value);
-    const url = value
-      ? `${DASHBOARD_PATH}?${new URLSearchParams({ search: value })}`
-      : pathname;
+    const isDashboard = pathname === DASHBOARD_PATH;
+    const opensDashboard = Boolean(value) && !isDashboard;
 
-    if (pathname === DASHBOARD_PATH) window.history.replaceState(null, '', url);
+    // Other parameters of the current page stay, e.g. the reorder mode
+    const params = new URLSearchParams(opensDashboard ? '' : searchParams);
+    if (value) params.set('search', value);
+    else params.delete('search');
+    const query = params.size ? `?${params}` : '';
+    const url = `${opensDashboard ? DASHBOARD_PATH : pathname}${query}`;
+
+    if (isDashboard) window.history.replaceState(null, '', url);
     // Also when cleared: it cancels the navigation started by the search
     else router.push(url);
   };
