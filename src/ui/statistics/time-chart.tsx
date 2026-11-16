@@ -1,6 +1,6 @@
 'use client';
 
-import { RefObject, useMemo, useRef } from 'react';
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts';
 import { useResizeObserver } from 'usehooks-ts';
 import { PresentationChart } from '@phosphor-icons/react';
@@ -41,6 +41,7 @@ const MAX_BAR_ITEMS = 8;
 const LABEL_OFFSET = 20;
 const LABEL_FONT_SIZE = 14;
 const CHART_MOBILE_WIDTH = 320;
+const ANIMATION_DURATION = 400;
 
 const formatTimeValue = (value?: ValueType) => {
   const timeSpent = calculateTimeValues(Number(value));
@@ -125,6 +126,15 @@ export function TimeChart({
   const activities = useActivities();
   const activeId = timer?.activityId;
   const liveSeconds = useLiveSeconds(timer, countedAt);
+  // Animate only the first render, before live time starts changing the data
+  const [isAnimationDone, setIsAnimationDone] = useState(false);
+  useEffect(() => {
+    const timeoutId = setTimeout(
+      () => setIsAnimationDone(true),
+      ANIMATION_DURATION,
+    );
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const isDaysChart = period === 'last7days';
   const activeActivity = isDaysChart
@@ -153,14 +163,18 @@ export function TimeChart({
   const chartData = useMemo(
     () =>
       bars.map((bar) =>
-        bar.id === liveBarId ? { ...bar, value: bar.value + liveSeconds } : bar,
+        bar.id === liveBarId && isAnimationDone
+          ? { ...bar, value: bar.value + liveSeconds }
+          : bar,
       ),
-    [bars, liveBarId, liveSeconds],
+    [bars, liveBarId, liveSeconds, isAnimationDone],
   );
 
   const isDesktop = width > CHART_MOBILE_WIDTH;
   const labelFontSize = isDesktop ? LABEL_FONT_SIZE : 12;
-  const hasValues = chartData.some(({ value }) => value > 0);
+  const hasValues =
+    chartData.some(({ value }) => value > 0) ||
+    (!!liveBarId && liveSeconds > 0);
   const maxLabelLength = chartData.reduce(
     (acc, { name }) => (name.length > acc ? name.length : acc),
     0,
@@ -212,7 +226,13 @@ export function TimeChart({
                 axisLine={false}
                 hide
               />
-              <XAxis dataKey="value" type="number" allowDataOverflow hide />
+              <XAxis
+                dataKey="value"
+                type="number"
+                domain={[0, 'dataMax']}
+                allowDataOverflow
+                hide
+              />
               <ChartTooltip
                 cursor={false}
                 content={
@@ -229,6 +249,8 @@ export function TimeChart({
                 fill="var(--color-value)"
                 radius={4}
                 minPointSize={2}
+                isAnimationActive={!isAnimationDone}
+                animationDuration={ANIMATION_DURATION}
               >
                 <LabelList
                   dataKey="name"
