@@ -19,8 +19,13 @@ export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
   const handleSwipe = (id: string) => setSwiped(id);
   const handleSwipeCancel = () => setSwiped(() => null);
 
-  const handleReorderMode = () =>
-    router.push(`${pathname}?${stringifyQueryParams({ reorder: 'true' })}`);
+  // Activities are reordered in the full list, so the search is cleared
+  const handleReorderMode = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete('search');
+    params.set('reorder', 'true');
+    router.push(`${pathname}?${params}`);
+  };
 
   const handleEdit = (id: string) =>
     router.push(`${pathname}?${stringifyQueryParams({ editActivity: id })}`);
