@@ -31,7 +31,8 @@ export const InputSearch = () => {
       : pathname;
 
     if (pathname === DASHBOARD_PATH) window.history.replaceState(null, '', url);
-    else if (value) router.push(url);
+    // Also when cleared: it cancels the navigation started by the search
+    else router.push(url);
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
