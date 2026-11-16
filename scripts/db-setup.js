@@ -1,6 +1,3 @@
-// Existing tables are left as they are; to change the schema, recreate
-// the database with `npm run db:restart`.
-
 const { db: dbReset } = require('@vercel/postgres');
 
 async function setupUser(client) {
@@ -27,7 +24,7 @@ async function setupUser(client) {
 
 async function setupActivity(client) {
   try {
-    // position is a fractional index, sorted byte-wise (COLLATE "C"):
+    // Position is a fractional index, sorted byte-wise (COLLATE "C"):
     // https://www.npmjs.com/package/fractional-indexing
     await client.sql`
       CREATE TABLE IF NOT EXISTS activity (
