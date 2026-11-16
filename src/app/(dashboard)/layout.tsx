@@ -18,8 +18,7 @@ import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
 export default async function Layout({ children }: { children: ReactNode }) {
   const userId = await getUserId();
   const timeZone = await getUserTimeZone();
-  // Today's totals are counted up to this moment; the client adds live time
-  // of the running timer on top.
+  // The client adds live time of the running timer on top of the totals
   const now = new Date();
   const today = toDay(now, timeZone);
 

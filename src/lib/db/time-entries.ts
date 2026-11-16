@@ -1,5 +1,5 @@
 import 'server-only';
-import { sql, type VercelPoolClient } from '@vercel/postgres';
+import type { VercelPoolClient } from '@vercel/postgres';
 
 import { withSnapshot, withUserLock } from '@/lib/db/transaction';
 import type {
@@ -14,10 +14,8 @@ type RunningTimerRow = { activity_id: string; started_at: Date };
 const toRunningTimer = (row?: RunningTimerRow): RunningTimer | null =>
   row ? { activityId: row.activity_id, startedAt: row.started_at } : null;
 
-// The moment of a timer switch. It's taken after the user lock and is never
-// earlier than the end (or start) of the user's latest entry, so entries
-// can't overlap even if requests are handled out of order. Only tests pass
-// `now`; the app uses the database clock.
+// Never earlier than the user's latest entry, so entries can't overlap when
+// requests are handled out of order. Only tests pass `now`.
 async function getSwitchTime(
   client: VercelPoolClient,
   userId: string,
@@ -39,11 +37,8 @@ const STOP_RUNNING_SQL = `
   WHERE user_id=$1 AND ended_at IS NULL
   RETURNING activity_id, started_at`;
 
-// The pool (sql) or a client in a transaction
-type Queryable = Pick<VercelPoolClient, 'query'>;
-
-const queryRunningTimer = async (db: Queryable, userId: string) => {
-  const result = await db.query<RunningTimerRow>(
+const queryRunningTimer = async (client: VercelPoolClient, userId: string) => {
+  const result = await client.query<RunningTimerRow>(
     `SELECT activity_id, started_at FROM time_entry
     WHERE user_id=$1 AND ended_at IS NULL`,
     [userId],
@@ -51,19 +46,7 @@ const queryRunningTimer = async (db: Queryable, userId: string) => {
   return toRunningTimer(result.rows[0]);
 };
 
-export async function getRunningTimer(
-  userId: string,
-): Promise<RunningTimer | null> {
-  try {
-    return await queryRunningTimer(sql, userId);
-  } catch (error) {
-    console.error('DB: Failed to fetch running timer:', error);
-    throw new Error('Failed to fetch running timer.');
-  }
-}
-
-// Stops the running timer (if any) and starts a new one for the activity.
-// Starting the activity that is already running changes nothing.
+// Starting the activity that is already running changes nothing
 export async function startTimer(
   userId: string,
   activityId: string,
@@ -71,14 +54,8 @@ export async function startTimer(
 ): Promise<RunningTimer> {
   try {
     return await withUserLock(userId, async (client) => {
-      const running = await client.query<RunningTimerRow>(
-        `SELECT activity_id, started_at FROM time_entry
-        WHERE user_id=$1 AND ended_at IS NULL`,
-        [userId],
-      );
-      if (running.rows[0]?.activity_id === activityId) {
-        return toRunningTimer(running.rows[0])!;
-      }
+      const running = await queryRunningTimer(client, userId);
+      if (running?.activityId === activityId) return running;
 
       const switchTime = await getSwitchTime(client, userId, now);
       await client.query(STOP_RUNNING_SQL, [userId, switchTime]);
@@ -97,7 +74,7 @@ export async function startTimer(
   }
 }
 
-// Returns the timer that was stopped, or null if nothing was running.
+// Returns the stopped timer, or null if nothing was running
 export async function stopTimer(
   userId: string,
   now?: Date,
@@ -117,14 +94,13 @@ export async function stopTimer(
   }
 }
 
-// Seconds of a time entry `e` that fall into [range_start, range_end).
-// A running entry (ended_at IS NULL) is counted up to `now` ($5).
+// Seconds of entry `e` within [range_start, range_end); a running entry is
+// counted up to `now` ($5)
 const OVERLAP_SECONDS_SQL = `GREATEST(0, EXTRACT(EPOCH FROM
   LEAST(COALESCE(e.ended_at, $5), range_end) - GREATEST(e.started_at, range_start)
 ))`;
 
-// Parameters shared by the totals queries:
-// $1 user id, $2 first day, $3 last day, $4 time zone, $5 now.
+// $1 user id, $2 first day, $3 last day, $4 time zone, $5 now
 const rangeParams = (userId: string, range: DayRange) => [
   userId,
   range.from,
@@ -133,14 +109,13 @@ const rangeParams = (userId: string, range: DayRange) => [
   range.now,
 ];
 
-// Seconds spent on each activity during the days of the range.
-// Activities without any time in the range are not included.
+// Activities without time in the range are left out
 const queryTotalsByActivity = async (
-  db: Queryable,
+  client: VercelPoolClient,
   userId: string,
   range: DayRange,
 ): Promise<TimeTotals> => {
-  const result = await db.query<{ activity_id: string; seconds: number }>(
+  const result = await client.query<{ activity_id: string; seconds: number }>(
     `WITH bounds AS (
         SELECT
           ($2::date::timestamp AT TIME ZONE $4) AS range_start,
@@ -160,26 +135,13 @@ const queryTotalsByActivity = async (
   );
 };
 
-export async function getTotalsByActivity(
-  userId: string,
-  range: DayRange,
-): Promise<TimeTotals> {
-  try {
-    return await queryTotalsByActivity(sql, userId, range);
-  } catch (error) {
-    console.error('DB: Failed to fetch totals by activity:', error);
-    throw new Error('Failed to fetch totals by activity.');
-  }
-}
-
-// Seconds spent on all activities for every day of the range, including
-// days without any time (0 seconds).
+// Every day of the range, including days without time
 const queryTotalsByDay = async (
-  db: Queryable,
+  client: VercelPoolClient,
   userId: string,
   range: DayRange,
 ): Promise<DayTotal[]> => {
-  const result = await db.query<DayTotal>(
+  const result = await client.query<DayTotal>(
     `WITH days AS (
       SELECT
         day::date AS day,
@@ -191,8 +153,8 @@ const queryTotalsByDay = async (
     )
     SELECT
       to_char(days.day, 'YYYY-MM-DD') AS day,
-      -- FILTER skips the empty row LEFT JOIN gives for a day without
-      -- entries: GREATEST/LEAST ignore NULLs and would count the whole day.
+      -- Without FILTER, the empty row of LEFT JOIN would count the whole
+      -- day: GREATEST/LEAST ignore NULLs
       COALESCE(
         FLOOR(SUM(${OVERLAP_SECONDS_SQL}) FILTER (WHERE e.id IS NOT NULL)),
         0
@@ -209,28 +171,14 @@ const queryTotalsByDay = async (
   return result.rows;
 };
 
-export async function getTotalsByDay(
-  userId: string,
-  range: DayRange,
-): Promise<DayTotal[]> {
-  try {
-    return await queryTotalsByDay(sql, userId, range);
-  } catch (error) {
-    console.error('DB: Failed to fetch totals by day:', error);
-    throw new Error('Failed to fetch totals by day.');
-  }
-}
-
 export type TimeSnapshot = {
   runningTimer: () => Promise<RunningTimer | null>;
   totalsByActivity: (range: DayRange) => Promise<TimeTotals>;
   totalsByDay: (range: DayRange) => Promise<DayTotal[]>;
 };
 
-// Runs several reads of the user's time against one snapshot of the
-// database. Read separately, a timer switched in another tab between two
-// queries could be counted twice: once in the totals and once as live time
-// on top of them.
+// Reads the running timer and totals from one snapshot of the database, so
+// the live time added on top of the totals can't count a switch twice
 export async function readTimeSnapshot<T>(
   userId: string,
   read: (snapshot: TimeSnapshot) => Promise<T>,

@@ -75,16 +75,14 @@ type TimeChartProps = {
   data: DataItem[];
   period: Period;
   total: number;
-  // The running timer read together with the data, and when it was read,
-  // to add only the live time the data doesn't include
+  // Live time of `timer` after `countedAt` is added to the data
   timer: RunningTimer | null;
   countedAt: number;
-  // The user's day the data was loaded for, the same on server and client
   today: Day;
 };
 
-// Puts the running activity first and joins the smallest bars into "Others"
-// if there are too many.
+// The running activity goes first; if there are too many bars, the smallest
+// are joined into "Others"
 const getBars = (data: DataItem[], activeBar: DataItem | null) => {
   const rest = data.filter(({ id }) => id !== activeBar?.id);
   const limit = MAX_BAR_ITEMS - (activeBar ? 1 : 0);

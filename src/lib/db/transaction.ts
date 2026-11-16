@@ -1,9 +1,8 @@
 import 'server-only';
 import { db, type VercelPoolClient } from '@vercel/postgres';
 
-// Runs changes of one user in a transaction, one at a time. Locking the user
-// row makes simultaneous requests of the same user (e.g. two clicks from two
-// tabs) wait for each other instead of racing.
+// A transaction holding a lock on the user row, so simultaneous changes of
+// one user (e.g. clicks in two tabs) wait for each other instead of racing.
 export async function withUserLock<T>(
   userId: string,
   fn: (client: VercelPoolClient) => Promise<T>,
@@ -25,8 +24,7 @@ export async function withUserLock<T>(
   }
 }
 
-// Runs read-only queries that all see the database as it was at the start of
-// the transaction, even if other requests change it meanwhile.
+// Read-only queries that all see the database as it was when they started
 export async function withSnapshot<T>(
   fn: (client: VercelPoolClient) => Promise<T>,
 ): Promise<T> {

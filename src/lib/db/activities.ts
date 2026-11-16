@@ -18,8 +18,8 @@ export async function listActivities(userId: string): Promise<Activity[]> {
   }
 }
 
-// A new activity goes to the end of the list. Positions are chosen under the
-// user lock, so two simultaneous creates can't get the same position.
+// Adds to the end of the list. The user lock stops two simultaneous creates
+// from getting the same position.
 export async function createActivity(
   userId: string,
   { name, color, icon }: ActivityFields,
@@ -49,7 +49,7 @@ export async function createActivity(
   }
 }
 
-// Column names are interpolated into SQL, so they come only from this list.
+// Column names are interpolated into SQL, so they come only from this list
 const UPDATABLE_FIELDS = ['name', 'color', 'icon'] as const;
 
 export async function updateActivity(
@@ -78,10 +78,8 @@ export async function updateActivity(
   }
 }
 
-// Puts an activity right after `previousId` (null moves it to the top).
-// Only this one row is updated. The next neighbour is read from the database
-// rather than taken from the client, so a stale list can't produce equal
-// positions.
+// The next neighbour is read from the database, not taken from the client,
+// so a stale list can't produce equal positions.
 async function applyMove(
   client: VercelPoolClient,
   userId: string,
@@ -118,10 +116,8 @@ async function applyMove(
   return result.rows[0];
 }
 
-// Applies the moves in order, all or none: they run in one transaction under
-// the user lock, so a failed move doesn't leave a half-applied order. A move
-// of an activity that doesn't exist (e.g. deleted in another tab) or belongs
-// to another user fails the whole batch.
+// All or none: a move of a missing activity (e.g. deleted in another tab) or
+// of another user's activity fails the whole batch.
 export async function moveActivities(
   userId: string,
   moves: Move[],
@@ -142,7 +138,7 @@ export async function moveActivities(
   }
 }
 
-// Time entries of the activity are removed by ON DELETE CASCADE.
+// Its time entries are removed by ON DELETE CASCADE
 export async function deleteActivity(userId: string, id: string) {
   try {
     await sql`DELETE FROM activity WHERE id=${id} AND user_id=${userId}`;

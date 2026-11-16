@@ -1,7 +1,7 @@
 import type { Move } from '@/lib/db/types';
 
-// Indexes of the longest run of items that kept their relative order.
-// O(n²), which is fine for a list of activities.
+// Indexes of the items that kept their relative order. O(n²) is fine for a
+// list of activities.
 const getLongestIncreasingSubsequence = (values: number[]) => {
   const lengths = values.map(() => 1);
   const previous = values.map(() => -1);
@@ -24,9 +24,8 @@ const getLongestIncreasingSubsequence = (values: number[]) => {
   return result;
 };
 
-// The fewest moves that turn `original` order into `reordered`. Items that
-// kept their relative order stay; every other item is put right after its new
-// previous item. Moves must be applied in the returned order.
+// The fewest moves that turn `original` into `reordered`, to be applied in
+// the returned order.
 export const getMoves = (original: string[], reordered: string[]): Move[] => {
   const originalIndex = new Map(original.map((id, i) => [id, i]));
   const staying = getLongestIncreasingSubsequence(
@@ -38,9 +37,8 @@ export const getMoves = (original: string[], reordered: string[]): Move[] => {
     .filter((_, i) => !staying.has(i));
 };
 
-// Framer's Reorder.Group reports only the items that are rendered, so while
-// a search hides some activities, the visible ones fill the places of the
-// visible ones in the new order and hidden ones stay where they were.
+// Reorder.Group reports only rendered items, so while a search hides some
+// activities, the hidden ones keep their places.
 export const mergeVisibleOrder = <T extends { id: string }>(
   list: T[],
   visibleReordered: T[],

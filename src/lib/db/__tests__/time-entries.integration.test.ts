@@ -1,14 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { createActivity } from '@/lib/db/activities';
-import {
-  getRunningTimer,
-  readTimeSnapshot,
-  getTotalsByActivity,
-  getTotalsByDay,
-  startTimer,
-  stopTimer,
-} from '@/lib/db/time-entries';
+import { readTimeSnapshot, startTimer, stopTimer } from '@/lib/db/time-entries';
 import type { DayRange } from '@/lib/db/types';
 import { clearDatabase, createUser, query } from '@/test/integration/helpers';
 
@@ -19,6 +12,14 @@ const at = (iso: string) => new Date(iso);
 
 const create = (name: string, user = userId) =>
   createActivity(user, { name, color: 'ffffff', icon: 'circle' });
+
+// The app reads time only through snapshots
+const getRunningTimer = (user: string) =>
+  readTimeSnapshot(user, (snapshot) => snapshot.runningTimer());
+const getTotalsByActivity = (user: string, days: DayRange) =>
+  readTimeSnapshot(user, (snapshot) => snapshot.totalsByActivity(days));
+const getTotalsByDay = (user: string, days: DayRange) =>
+  readTimeSnapshot(user, (snapshot) => snapshot.totalsByDay(days));
 
 const range = (overrides: Partial<DayRange>): DayRange => ({
   from: '2026-11-15',

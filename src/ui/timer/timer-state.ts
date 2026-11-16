@@ -13,8 +13,7 @@ export type TimerAction =
   | { type: 'start'; activityId: string; at: number }
   | { type: 'stop'; at: number };
 
-// Seconds of the current run that data counted up to `countedAt` doesn't
-// include yet. Pages that load their own data pass their own `countedAt`.
+// Seconds of the current run after `countedAt`
 export const getLiveSeconds = (
   { activeId, startedAt }: Pick<TimerState, 'activeId' | 'startedAt'>,
   now: number,
@@ -38,9 +37,8 @@ export const getTotalSeconds = (state: TimerState, now: number) =>
   Object.values(state.totals).reduce((sum, seconds) => sum + seconds, 0) +
   getLiveSeconds(state, now, state.countedAt);
 
-// Optimistic update of the state right after a click, before the server
-// answers. The time of the current run is moved into `totals` first, so the
-// stopped activity keeps its time until fresh data comes from the server.
+// Optimistic update after a click. The current run is added to `totals`, so
+// the stopped activity keeps its time until fresh data comes.
 export const timerReducer = (
   state: TimerState,
   action: TimerAction,

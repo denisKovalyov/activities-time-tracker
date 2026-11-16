@@ -19,7 +19,6 @@ import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
 export default async function Statistics() {
   const userId = await getUserId();
   const timeZone = await getUserTimeZone();
-  // Totals are counted up to this moment; charts add live time on top
   const now = new Date();
   const today = toDay(now, timeZone);
   const since = (from: Day) => ({ from, to: today, timeZone, now });
@@ -27,8 +26,7 @@ export default async function Statistics() {
   const [activities, { timer, days, todayTotals, weekTotals, monthTotals }] =
     await Promise.all([
       listActivities(userId),
-      // The running timer is read with the totals, so the charts add live
-      // time on top of exactly these totals
+      // The charts add live time of the running timer on top of the totals
       readTimeSnapshot(userId, async (snapshot) => ({
         timer: await snapshot.runningTimer(),
         days: await snapshot.totalsByDay(since(addDays(today, -6))),
