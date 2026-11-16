@@ -33,7 +33,7 @@ const sendResetPasswordEmail = async (email: string, token: string) => {
 
 export async function sendResetPasswordLink(email: string) {
   const executionStart = Date.now();
-  const successLink = `/reset-password/sent?email=${email}`;
+  const successLink = `/reset-password/sent?email=${encodeURIComponent(email)}`;
 
   try {
     checkEmailSendingFrequency(email);

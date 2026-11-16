@@ -14,7 +14,7 @@ const TEXT_WARNING = `If you don't receive the email within the next few minutes
 export function EmailSentMessage() {
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
-  const href = `/reset-password/request?email=${email}`;
+  const href = `/reset-password/request?email=${encodeURIComponent(email ?? '')}`;
 
   return (
     <div className="w-80 rounded-md bg-white p-6 text-secondary">

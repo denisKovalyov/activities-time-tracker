@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import { EmailNotVerifiedError } from '@/lib/errors';
 import { Credentials } from '@/lib/definitions';
 import { SignInSchema } from '@/lib/validation';
-import { isUsersEmailVerified } from '@/lib/actions/auth/email-verification';
+import { isUsersEmailVerified } from '@/lib/actions/auth/utils/is-users-email-verified';
 import { signIn } from '@/auth';
 import { PROTECTED_PAGES } from '@/auth.config';
 import {
