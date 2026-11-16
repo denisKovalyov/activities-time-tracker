@@ -8,10 +8,13 @@ import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activ
 import { deleteActivity } from '@/lib/actions/activities';
 import { useRouter } from '@/ui/hooks/use-router';
 import { useToast } from '@/ui/hooks/use-toast';
-import { useActivities } from '@/ui/providers/activities-provider';
+import type { Activity } from '@/lib/db/types';
 
-export const RemoveActivityDialog = () => {
-  const activities = useActivities();
+export const RemoveActivityDialog = ({
+  activities,
+}: {
+  activities: Activity[];
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { toast } = useToast();
