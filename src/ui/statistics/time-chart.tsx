@@ -32,9 +32,8 @@ import {
   calculateTimeValues,
   useCalculateTimeValues,
 } from '@/ui/hooks/use-calculate-time-values';
-import { useActivities } from '@/ui/providers/activities-provider';
 import { useLiveSeconds } from '@/ui/timer/use-live-seconds';
-import type { RunningTimer } from '@/lib/db/types';
+import type { Activity, RunningTimer } from '@/lib/db/types';
 import type { DataItem } from '@/ui/statistics/chart-data';
 
 const MAX_BAR_ITEMS = 8;
@@ -78,6 +77,8 @@ type TimeChartProps = {
   // Live time of `timer` after `countedAt` is added to the data
   timer: RunningTimer | null;
   countedAt: number;
+  // The activity of `timer`
+  runningActivity: Activity | null;
   today: Day;
 };
 
@@ -115,14 +116,13 @@ export function TimeChart({
   period,
   timer,
   countedAt,
+  runningActivity,
   today,
 }: TimeChartProps) {
   const ref = useRef<HTMLDivElement>(null);
   const { width = 0 } = useResizeObserver({
     ref: ref as RefObject<HTMLDivElement>,
   });
-  const activities = useActivities();
-  const activeId = timer?.activityId;
   const liveSeconds = useLiveSeconds(timer, countedAt);
   // Animate only the first render, before live time starts changing the data
   const [isAnimationDone, setIsAnimationDone] = useState(false);
@@ -135,9 +135,7 @@ export function TimeChart({
   }, []);
 
   const isDaysChart = period === 'last7days';
-  const activeActivity = isDaysChart
-    ? undefined
-    : activities.find(({ id }) => id === activeId);
+  const activeActivity = isDaysChart ? null : runningActivity;
 
   const { bars, aggregated } = useMemo(
     () =>

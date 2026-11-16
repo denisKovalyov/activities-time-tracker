@@ -7,33 +7,12 @@ import { UserMenu } from '@/ui/layout/user-menu';
 import { PageName } from '@/ui/layout/page-name';
 import { Logo } from '@/ui/common/logo';
 import { KeepDataFresh } from '@/ui/layout/keep-data-fresh';
-import { ActivitiesProvider } from '@/ui/providers/activities-provider';
-import { TimerProvider } from '@/ui/timer/timer-provider';
-import { listActivities } from '@/lib/db/activities';
-import { readTimeSnapshot } from '@/lib/db/time-entries';
 import { toDay } from '@/lib/utils/day';
-import { getUserId } from '@/lib/actions/utils/get-user-id';
 import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
 
 export default async function Layout({ children }: { children: ReactNode }) {
-  const userId = await getUserId();
   const timeZone = await getUserTimeZone();
-  // The client adds live time of the running timer on top of the totals
-  const now = new Date();
-  const today = toDay(now, timeZone);
-
-  const [activities, { timer, totals }] = await Promise.all([
-    listActivities(userId),
-    readTimeSnapshot(userId, async (snapshot) => ({
-      timer: await snapshot.runningTimer(),
-      totals: await snapshot.totalsByActivity({
-        from: today,
-        to: today,
-        timeZone,
-        now,
-      }),
-    })),
-  ]);
+  const today = toDay(new Date(), timeZone);
 
   return (
     <div className="flex h-dvh w-full flex-col">
@@ -59,15 +38,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
         </header>
 
         <main className="h-[calc(100%-112px)] overflow-auto p-4 sm:h-full sm:pb-0">
-          <TimerProvider
-            timer={timer}
-            totals={totals}
-            countedAt={now.getTime()}
-          >
-            <ActivitiesProvider activities={activities}>
-              {children}
-            </ActivitiesProvider>
-          </TimerProvider>
+          {children}
         </main>
 
         <footer className="relative z-10 mt-auto h-14 border-t border-accent bg-primary px-4 sm:hidden">

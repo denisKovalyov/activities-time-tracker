@@ -3,14 +3,13 @@
 import { DialogWrapper } from '@/ui/common/dialog';
 import { ActivityForm } from '@/ui/dashboard/activity-form/activity-form';
 import { useRouter } from '@/ui/hooks/use-router';
-import { useActivities } from '@/ui/providers/activities-provider';
+import type { Activity } from '@/lib/db/types';
 
 const ADD_ACTIVITY_SUBHEADER =
   'Create an Activity to Monitor and Optimize Your Time';
 const EDIT_ACTIVITY_SUBHEADER = 'Edit Existing Activity';
 
-export const ActivityDialog = () => {
-  const activities = useActivities();
+export const ActivityDialog = ({ activities }: { activities: Activity[] }) => {
   const { router, pathname, searchParams } = useRouter();
 
   const addActivity = searchParams.get('addActivity');

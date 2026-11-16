@@ -38,6 +38,9 @@ export default async function Statistics() {
       })),
     ]);
 
+  const runningActivity =
+    activities.find(({ id }) => id === timer?.activityId) ?? null;
+
   const charts = [
     { period: 'last7days', data: getDaysChartData(days) },
     { period: 'day', data: getActivitiesChartData(activities, todayTotals) },
@@ -55,6 +58,7 @@ export default async function Statistics() {
           total={sumValues(data)}
           timer={timer}
           countedAt={now.getTime()}
+          runningActivity={runningActivity}
           today={today}
         />
       ))}
