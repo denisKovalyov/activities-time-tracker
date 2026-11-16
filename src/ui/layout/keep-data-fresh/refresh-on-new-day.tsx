@@ -12,9 +12,10 @@ const msUntilMidnight = () => {
   return midnight.getTime() - Date.now();
 };
 
-// Refreshes when the user's day or time zone is not the one the server
-// rendered the data for: at midnight, or when the server didn't know the time
-// zone yet. A timeout delayed in a hidden tab is covered by RefreshWhenVisible.
+// Refreshes when the server rendered the data for another day or time zone:
+// at midnight, or on load when the time zone cookie was missing or outdated
+// (e.g. after travelling). A timeout delayed in a hidden tab is covered by
+// RefreshWhenVisible.
 export const RefreshOnNewDay = ({
   day,
   timeZone,
