@@ -28,9 +28,8 @@ export type DayTotal = {
   seconds: number;
 };
 
-// A range of calendar days (inclusive) in the user's time zone. `now` is the
-// moment running timers are counted up to, so callers that show live time
-// can continue from exactly the same point.
+// Calendar days (inclusive) in the user's time zone. A running timer is
+// counted up to `now`.
 export type DayRange = {
   from: string;
   to: string;

@@ -1,6 +1,5 @@
-// A calendar day in the user's time zone, formatted as YYYY-MM-DD.
-// Days are plain strings on purpose: the database turns them into exact
-// day boundaries using the user's time zone, so JS never has to.
+// YYYY-MM-DD in the user's time zone. The database turns it into exact
+// day boundaries, so JS never has to.
 export type Day = string;
 
 export const isValidTimeZone = (timeZone: string) => {
@@ -32,7 +31,7 @@ const formatDay = (date: Date): Day => date.toISOString().slice(0, 10);
 
 const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-// The round trip rejects days that don't exist, e.g. 2026-02-30.
+// The round trip rejects days that don't exist, e.g. 2026-02-30
 export const isDay = (value: string): value is Day => {
   if (!DAY_PATTERN.test(value)) return false;
   const date = parseDay(value);
@@ -45,7 +44,7 @@ export const addDays = (day: Day, amount: number): Day => {
   return formatDay(date);
 };
 
-// Weeks start on Monday.
+// Weeks start on Monday
 export const getWeekStart = (day: Day): Day => {
   const daysSinceMonday = (parseDay(day).getUTCDay() + 6) % 7;
   return addDays(day, -daysSinceMonday);
@@ -53,8 +52,8 @@ export const getWeekStart = (day: Day): Day => {
 
 export const getMonthStart = (day: Day): Day => `${day.slice(0, 8)}01`;
 
-// E.g. "Nov 15, 2026". The day is formatted in UTC, where it was parsed, so
-// the time zone of the browser or server can't shift it to another day.
+// E.g. "Nov 15, 2026". Formatted in UTC, where it was parsed, so the local
+// time zone can't shift it to another day.
 export const formatReadableDay = (
   day: Day,
   dateStyle: Intl.DateTimeFormatOptions['dateStyle'] = 'medium',

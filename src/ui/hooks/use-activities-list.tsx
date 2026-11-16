@@ -8,16 +8,9 @@ import {
 } from '@/ui/dashboard/activities-list/reorder';
 import { useToast } from '@/ui/hooks/use-toast';
 
-// The list shown in the UI:
-// - while dragging, the order made by the drag (local only);
-// - after a drop, the new order is shown optimistically while it's being
-//   saved. React keeps it until the save and the re-render with fresh data
-//   finish, so data that arrives meanwhile (e.g. after leaving reorder mode)
-//   can't bring the old order back. If the save fails, the order from the
-//   server is shown again.
-// A new drag can't start until the save finishes: its moves are computed
-// against the order from the server, which must already include the
-// previous drop.
+// While dragging, the list has the dragged order; after a drop, the new order
+// is shown optimistically until it's saved. Moves are computed against the
+// order from the server, so the next drag waits until the save finishes.
 export const useActivitiesList = (activities: Activity[]) => {
   const [savingList, setSavingList] = useOptimistic(activities);
   const [draggedList, setDraggedList] = useState<Activity[] | null>(null);
@@ -36,10 +29,8 @@ export const useActivitiesList = (activities: Activity[]) => {
       activities.map(({ id }) => id),
       draggedList.map(({ id }) => id),
     );
-    const list = draggedList;
-
     startTransition(async () => {
-      setSavingList(list);
+      setSavingList(draggedList);
       if (!moves.length) return;
 
       const result = await reorderActivities(moves).catch(() => null);

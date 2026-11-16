@@ -70,8 +70,6 @@ export async function updateActivity(
   }
 }
 
-// Each move puts an activity right after `previousId` (null means the top
-// of the list). The moves are applied in order, all or none.
 export async function reorderActivities(moves: Move[]): Promise<ActionResult> {
   const validatedMoves = MovesSchema.safeParse(moves);
   if (!validatedMoves.success) return failure(INVALID_DATA);
@@ -82,8 +80,7 @@ export async function reorderActivities(moves: Move[]): Promise<ActionResult> {
     revalidateUserData();
     return success(undefined);
   } catch (error) {
-    // Nothing is saved, but the list may be stale (e.g. an activity was
-    // deleted in another tab), so the client gets fresh data anyway.
+    // The list may be stale (e.g. an activity was deleted in another tab)
     revalidateUserData();
     return failure(error);
   }

@@ -1,8 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
-// One clock shared by everything that shows live time. It ticks only while
-// someone is subscribed, and components subscribe only while their timer is
-// running, so nothing re-renders every second when no timer is running.
+// One clock for everything that shows live time. It ticks only while someone
+// is subscribed, i.e. while a timer is running.
 let now = 0;
 let intervalId: ReturnType<typeof setInterval> | undefined;
 const listeners = new Set<() => void>();
@@ -25,8 +24,8 @@ const subscribe = (listener: () => void) => {
 
 const subscribeNothing = () => () => {};
 
-// Current time in ms, updated every second while `enabled`. Returns 0 when
-// disabled and during server rendering, which shows no live time.
+// Current time in ms, updated every second while `enabled`; 0 otherwise and
+// on the server
 export const useNow = (enabled: boolean) =>
   useSyncExternalStore(
     enabled ? subscribe : subscribeNothing,

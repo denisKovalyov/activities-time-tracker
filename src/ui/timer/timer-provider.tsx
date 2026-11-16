@@ -33,10 +33,8 @@ type TimerContextValue = {
 
 const TimerContext = createContext<TimerContextValue | null>(null);
 
-// The server is the source of truth: `timer` and `totals` come from the
-// database on every render of the layout. A click updates the state
-// optimistically right away; once the server action and the re-render with
-// fresh data finish, React drops the optimistic state.
+// `timer` and `totals` come from the server. A click updates the state
+// optimistically until the action and the re-render with fresh data finish.
 export const TimerProvider = ({
   timer,
   totals,
@@ -69,18 +67,16 @@ export const TimerProvider = ({
     (action: TimerAction, request: () => Promise<ActionResult>) => {
       startTransition(async () => {
         updateOptimistically(action);
-        // The optimistic state is dropped when the transition ends, so on an
-        // error the UI goes back to what the server has; only a toast is
-        // needed. A request can also reject (e.g. network error or 502), which
-        // must not reach the error boundary. Then it's unknown whether the
-        // change was saved, so the data is loaded again.
-        const result = await request().catch(() => null);
-        if (!result) router.refresh();
-        if (!result?.ok) {
-          toast({
-            title: result?.message ?? DEFAULT_ERROR_MESSAGE,
-            variant: 'destructive',
-          });
+        const showError = (title: string) =>
+          toast({ title, variant: 'destructive' });
+
+        try {
+          const result = await request();
+          if (!result.ok) showError(result.message);
+        } catch {
+          // E.g. a network error: it's unknown whether the change was saved
+          router.refresh();
+          showError(DEFAULT_ERROR_MESSAGE);
         }
       });
     },
@@ -113,8 +109,7 @@ const useTimerContext = () => {
   return context;
 };
 
-// Timer controls. Components using only this hook don't re-render every
-// second.
+// Doesn't re-render every second, unlike the hooks with live time below
 export const useTimer = () => {
   const { state, start, stop } = useTimerContext();
   const { activeId } = state;
@@ -128,14 +123,14 @@ export const useTimer = () => {
   return { activeId, start, stop, toggle };
 };
 
-// Seconds spent on the activity today, live while it's running.
+// Seconds spent on the activity today
 export const useActivitySeconds = (activityId: string) => {
   const { state } = useTimerContext();
   const now = useNow(state.activeId === activityId);
   return getActivitySeconds(state, activityId, now);
 };
 
-// Seconds spent on all activities today, live while a timer is running.
+// Seconds spent on all activities today
 export const useTotalSeconds = () => {
   const { state } = useTimerContext();
   const now = useNow(state.activeId !== null);
@@ -145,8 +140,7 @@ export const useTotalSeconds = () => {
 // Length of the current run in seconds.
 export const useRunSeconds = () => {
   const { state } = useTimerContext();
-  // On the server and during hydration there is no clock yet (0), so the
-  // run is shown as long as it was when the data was loaded.
+  // No clock (0) on the server and during hydration
   const now = useNow(state.activeId !== null) || state.countedAt;
   return state.startedAt === null
     ? 0
