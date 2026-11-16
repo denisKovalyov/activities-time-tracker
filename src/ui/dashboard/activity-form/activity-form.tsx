@@ -10,7 +10,10 @@ import { ActivitySchema } from '@/lib/validation';
 import { Button } from '@/ui/common/button';
 import { Form, FormFieldInput } from '@/ui/common/form';
 import { IconPicker } from '@/ui/dashboard/activity-form/icon-picker';
-import { ColorPicker } from '@/ui/dashboard/activity-form/color-picker';
+import {
+  ColorPicker,
+  getRandomColor,
+} from '@/ui/dashboard/activity-form/color-picker';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
 import { createActivity, updateActivity } from '@/lib/actions/activities';
 import { useToast } from '@/ui/hooks/use-toast';
@@ -45,7 +48,7 @@ export function ActivityForm({
     resolver: zodResolver(ActivitySchema),
     defaultValues: {
       name: editable?.name || '',
-      color: editable?.color || '',
+      color: editable?.color || getRandomColor(),
       icon: editable?.icon || '',
     },
   });

@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 import { FormFieldInput } from '@/ui/common/form';
 import { InputIcon } from '@/ui/common/form/input-icon';
 import { Palette } from '@phosphor-icons/react';
@@ -24,6 +22,9 @@ const BASIC_COLORS = [
   '#33FFAD', // Mint Green
 ];
 
+// The color of a new activity, without "#" like in the form
+export const getRandomColor = () => getRandomValue(BASIC_COLORS).slice(1);
+
 export function ColorPicker({
   name,
   label,
@@ -36,11 +37,6 @@ export function ColorPicker({
   onColorChange: (color: string) => void;
 }) {
   const selectedColorPicker = value.length === 6 ? value : '';
-
-  useEffect(() => {
-    if (value) return;
-    onColorChange(getRandomValue(BASIC_COLORS));
-  }, [value, onColorChange]);
 
   return (
     <>
