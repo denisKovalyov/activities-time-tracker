@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useTransition } from 'react';
 
 import { DialogWrapper } from '@/ui/common/dialog';
 import { Button } from '@/ui/common/button';
@@ -15,7 +15,8 @@ export const RemoveActivityDialog = ({
 }: {
   activities: Activity[];
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  // Pending until the dialog is closed
+  const [isLoading, startTransition] = useTransition();
 
   const { toast } = useToast();
   const { router, pathname, searchParams } = useRouter();
@@ -24,28 +25,21 @@ export const RemoveActivityDialog = ({
   const showDialog = Boolean(activityId);
   const activity = activities.find(({ id }) => id === activityId);
 
-  useEffect(() => {
-    if (showDialog) setIsLoading(false);
-  }, [showDialog]);
-
   const redirect = () => router.push(pathname);
 
-  const handleCancel = () => {
-    redirect();
-    setIsLoading(false);
-  };
-  const handleConfirm = async () => {
-    setIsLoading(true);
+  const handleConfirm = () =>
+    startTransition(async () => {
+      const result = await deleteActivity(activityId!);
 
-    const result = await deleteActivity(activityId!);
+      toast({
+        title: result.ok
+          ? 'Activity was successfully removed!'
+          : result.message,
+        variant: result.ok ? 'success' : 'destructive',
+      });
 
-    toast({
-      title: result.ok ? 'Activity was successfully removed!' : result.message,
-      variant: result.ok ? 'success' : 'destructive',
+      redirect();
     });
-
-    redirect();
-  };
 
   if (!activity) return;
 
@@ -73,7 +67,7 @@ export const RemoveActivityDialog = ({
       }
       footer={
         <div className="flex w-full justify-end">
-          <Button variant="outline" onClick={handleCancel}>
+          <Button variant="outline" onClick={redirect}>
             Cancel
           </Button>
           <Button onClick={handleConfirm} className="ml-2" loading={isLoading}>

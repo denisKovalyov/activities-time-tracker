@@ -1,11 +1,35 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import type { Icon } from '@phosphor-icons/react';
 import { MENU_ITEMS } from '@/ui/layout/constants';
 import { cn } from '@/lib/utils';
+
+const ITEM_CLASS_NAME = 'flex items-end mx-6 p-4 rounded-full text-white';
+
+// Mounted when the item becomes active, so the animation starts over
+const ActiveMenuItem = ({ children }: { children: ReactNode }) => {
+  const [animationCompleted, setAnimationCompleted] = useState(false);
+
+  const handleAnimationEnd = () => setAnimationCompleted(true);
+
+  return (
+    <div
+      className={cn(
+        ITEM_CLASS_NAME,
+        'relative animate-bounce-finished bg-accent text-white outline outline-8 outline-primary',
+      )}
+      onAnimationEndCapture={handleAnimationEnd}
+    >
+      {animationCompleted && (
+        <span className="absolute left-[-10px] top-[-9px] -z-10 h-full w-[calc(100%+20px)] rounded-t-full bg-accent [clip-path:rect(0_70px_10px_0_round_0)]" />
+      )}
+      {children}
+    </div>
+  );
+};
 
 const MenuItem = ({
   text,
@@ -18,14 +42,6 @@ const MenuItem = ({
   active: boolean;
   icon: Icon;
 }) => {
-  const [animationCompleted, setAnimationCompleted] = useState(false);
-
-  const handleAnimationEnd = () => setAnimationCompleted(true);
-
-  useEffect(() => {
-    setAnimationCompleted(false);
-  }, [active]);
-
   const Item = (
     <>
       <IconComponent size="22" />
@@ -33,22 +49,13 @@ const MenuItem = ({
     </>
   );
 
-  const className = cn(
-    'flex items-end mx-6 p-4 rounded-full text-white',
-    active
-      ? 'bg-accent text-white relative outline outline-8 outline-primary animate-bounce-finished relative'
-      : 'hover:text-accent',
-  );
-
   return active ? (
-    <div className={className} onAnimationEndCapture={handleAnimationEnd}>
-      {animationCompleted && (
-        <span className="absolute left-[-10px] top-[-9px] -z-10 h-full w-[calc(100%+20px)] rounded-t-full bg-accent [clip-path:rect(0_70px_10px_0_round_0)]" />
-      )}
-      {Item}
-    </div>
+    <ActiveMenuItem>{Item}</ActiveMenuItem>
   ) : (
-    <Link href={`/${path}`} className={className} onClick={handleAnimationEnd}>
+    <Link
+      href={`/${path}`}
+      className={cn(ITEM_CLASS_NAME, 'hover:text-accent')}
+    >
       {Item}
     </Link>
   );

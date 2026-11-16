@@ -3,14 +3,17 @@
 import { useCallback, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import type { Activity, ActivityFields } from '@/lib/db/types';
 import { ActivitySchema } from '@/lib/validation';
 import { Button } from '@/ui/common/button';
 import { Form, FormFieldInput } from '@/ui/common/form';
 import { IconPicker } from '@/ui/dashboard/activity-form/icon-picker';
-import { ColorPicker } from '@/ui/dashboard/activity-form/color-picker';
+import {
+  ColorPicker,
+  getRandomColor,
+} from '@/ui/dashboard/activity-form/color-picker';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
 import { createActivity, updateActivity } from '@/lib/actions/activities';
 import { useToast } from '@/ui/hooks/use-toast';
@@ -45,14 +48,17 @@ export function ActivityForm({
     resolver: zodResolver(ActivitySchema),
     defaultValues: {
       name: editable?.name || '',
-      color: editable?.color || '',
+      color: editable?.color || getRandomColor(),
       icon: editable?.icon || '',
     },
   });
 
-  const { watch, setValue, trigger, setError } = form;
+  const { control, setValue, trigger, setError } = form;
 
-  const [name, color, icon] = watch(['name', 'color', 'icon']);
+  const [name, color, icon] = useWatch({
+    control,
+    name: ['name', 'color', 'icon'],
+  });
 
   const changedValues = useMemo(
     () =>
