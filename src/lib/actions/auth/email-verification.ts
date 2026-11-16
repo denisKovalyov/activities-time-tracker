@@ -1,35 +1,11 @@
 'use server';
 
-import { headers } from 'next/headers';
-
-import { sendEmail } from '@/lib/actions/email/send-email';
-import { EmailVerificationTemplate } from '@/ui/email-templates/email-verification';
+import { sendVerificationEmail } from '@/lib/actions/auth/utils/send-verification-email';
 import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
 import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';
 import { getUser, updateUser } from '@/lib/db/users';
-import { EmailNotVerifiedError, EmailRateLimit } from '@/lib/errors';
+import { EmailRateLimit } from '@/lib/errors';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
-
-export const sendVerificationEmail = async (email: string, token: string) => {
-  const headersList = await headers();
-  const origin = headersList.get('origin') || '';
-
-  return sendEmail({
-    email,
-    subject: 'Email Verification',
-    body: EmailVerificationTemplate({ email, token, origin }),
-  });
-};
-
-export const isUsersEmailVerified = async (email: string) => {
-  const user = await getUser(email);
-
-  if (!user) return true;
-  if (!user?.email_verified)
-    throw new EmailNotVerifiedError(`EMAIL_NOT_VERIFIED: ${email}`);
-
-  return true;
-};
 
 export async function resendVerificationEmail(email: string) {
   try {

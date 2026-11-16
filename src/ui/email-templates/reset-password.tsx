@@ -20,7 +20,9 @@ export const ResetPasswordTemplate = ({
       <p>{`It appears that you've requested to reset your password for your account with ${APP_NAME}
       We're here to help you secure your account quickly and easily.`}</p>
       <p>To set a new password, please click on the following link:</p>
-      <a href={`${origin}/reset-password?email=${email}&token=${token}`}>
+      <a
+        href={`${origin}/reset-password?email=${encodeURIComponent(email)}&token=${token}`}
+      >
         Reset Password
       </a>
       <p>{`If you did not request this password reset,please ignore this email.

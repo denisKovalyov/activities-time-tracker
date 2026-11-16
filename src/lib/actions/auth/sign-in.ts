@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import { EmailNotVerifiedError } from '@/lib/errors';
 import { Credentials } from '@/lib/definitions';
 import { SignInSchema } from '@/lib/validation';
-import { isUsersEmailVerified } from '@/lib/actions/auth/email-verification';
+import { isUsersEmailVerified } from '@/lib/actions/auth/utils/is-users-email-verified';
 import { signIn } from '@/auth';
 import { PROTECTED_PAGES } from '@/auth.config';
 import {
@@ -66,6 +66,6 @@ export async function authenticate(values: Credentials) {
   if (isEmailVerified) {
     redirect(PROTECTED_PAGES[0]);
   } else {
-    redirect(`/email/verify/send?email=${values.email}`);
+    redirect(`/email/verify/send?email=${encodeURIComponent(values.email)}`);
   }
 }

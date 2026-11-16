@@ -64,6 +64,26 @@ export async function updateUser(
   }
 }
 
+// Checks the token and uses it up in one query, so a link works only once.
+// Returns false if the token doesn't match.
+export async function resetPassword(
+  email: string,
+  token: string,
+  hashedPassword: string,
+): Promise<boolean> {
+  try {
+    const result = await sql`
+      UPDATE "user"
+      SET password=${hashedPassword}, email_verification_token=NULL,
+        updated_at=now()
+      WHERE email=${email} AND email_verification_token=${token}`;
+    return result.rowCount === 1;
+  } catch (error) {
+    console.error('DB: failed to reset password:', error);
+    throw new Error('Failed to reset password.');
+  }
+}
+
 export async function deleteUser(id: string): Promise<void> {
   try {
     await sql`DELETE FROM "user" WHERE id = ${id}`;

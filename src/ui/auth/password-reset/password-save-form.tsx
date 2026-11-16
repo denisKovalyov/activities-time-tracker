@@ -47,10 +47,15 @@ export function PasswordSaveForm() {
     setError(null);
     setIsLoading(true);
 
-    const result = await saveNewPassword(email as string, values.password);
+    const result = await saveNewPassword(
+      email as string,
+      token as string,
+      values.password,
+    );
 
     if (result?.message) {
       setError(result.message);
+      setIsLoading(false);
       return;
     }
 
