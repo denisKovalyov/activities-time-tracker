@@ -29,10 +29,13 @@ export const InputSearch = () => {
     const isDashboard = pathname === DASHBOARD_PATH;
     const opensDashboard = Boolean(value) && !isDashboard;
 
-    // Other parameters of the current page stay, e.g. the reorder mode
+    // Other parameters of the current page stay, e.g. the settings tab. The
+    // search exits the reorder mode: dragging among filtered activities
+    // would move the hidden ones in an unclear way.
     const params = new URLSearchParams(opensDashboard ? '' : searchParams);
     if (value) params.set('search', value);
     else params.delete('search');
+    params.delete('reorder');
     const query = params.size ? `?${params}` : '';
     const url = `${opensDashboard ? DASHBOARD_PATH : pathname}${query}`;
 
