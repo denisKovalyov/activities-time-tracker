@@ -20,6 +20,7 @@
     "start": "next start",
     "test": "vitest run",
     "test:integration": "vitest run -c vitest.integration.config.mts",
+    "test:integration:docker": "npm run db:test:start && (npm run test:integration; code=$?; npm run db:test:stop; exit $code)",
     "typecheck": "tsc --noEmit"
   },
   "overrides": {
