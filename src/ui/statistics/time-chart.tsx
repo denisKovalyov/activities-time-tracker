@@ -125,8 +125,7 @@ export function TimeChart({
   const activities = useActivities();
   const activeId = timer?.activityId;
   const liveSeconds = useLiveSeconds(timer, countedAt);
-  // Recharts replays the animation and hides the labels on every data
-  // change, so the bars animate only on the first render, not every second
+  // Animate only the first render, before live time starts changing the data
   const [isAnimationDone, setIsAnimationDone] = useState(false);
 
   const isDaysChart = period === 'last7days';
@@ -156,14 +155,18 @@ export function TimeChart({
   const chartData = useMemo(
     () =>
       bars.map((bar) =>
-        bar.id === liveBarId ? { ...bar, value: bar.value + liveSeconds } : bar,
+        bar.id === liveBarId && isAnimationDone
+          ? { ...bar, value: bar.value + liveSeconds }
+          : bar,
       ),
-    [bars, liveBarId, liveSeconds],
+    [bars, liveBarId, liveSeconds, isAnimationDone],
   );
 
   const isDesktop = width > CHART_MOBILE_WIDTH;
   const labelFontSize = isDesktop ? LABEL_FONT_SIZE : 12;
-  const hasValues = chartData.some(({ value }) => value > 0);
+  const hasValues =
+    chartData.some(({ value }) => value > 0) ||
+    (!!liveBarId && liveSeconds > 0);
   const maxLabelLength = chartData.reduce(
     (acc, { name }) => (name.length > acc ? name.length : acc),
     0,
