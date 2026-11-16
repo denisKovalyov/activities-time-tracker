@@ -1,6 +1,6 @@
 'use client';
 
-import { RefObject, useMemo, useRef, useState } from 'react';
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts';
 import { useResizeObserver } from 'usehooks-ts';
 import { PresentationChart } from '@phosphor-icons/react';
@@ -41,6 +41,7 @@ const MAX_BAR_ITEMS = 8;
 const LABEL_OFFSET = 20;
 const LABEL_FONT_SIZE = 14;
 const CHART_MOBILE_WIDTH = 320;
+const ANIMATION_DURATION = 400;
 
 const formatTimeValue = (value?: ValueType) => {
   const timeSpent = calculateTimeValues(Number(value));
@@ -127,6 +128,13 @@ export function TimeChart({
   const liveSeconds = useLiveSeconds(timer, countedAt);
   // Animate only the first render, before live time starts changing the data
   const [isAnimationDone, setIsAnimationDone] = useState(false);
+  useEffect(() => {
+    const timeoutId = setTimeout(
+      () => setIsAnimationDone(true),
+      ANIMATION_DURATION,
+    );
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const isDaysChart = period === 'last7days';
   const activeActivity = isDaysChart
@@ -218,7 +226,13 @@ export function TimeChart({
                 axisLine={false}
                 hide
               />
-              <XAxis dataKey="value" type="number" allowDataOverflow hide />
+              <XAxis
+                dataKey="value"
+                type="number"
+                domain={[0, 'dataMax']}
+                allowDataOverflow
+                hide
+              />
               <ChartTooltip
                 cursor={false}
                 content={
@@ -236,7 +250,7 @@ export function TimeChart({
                 radius={4}
                 minPointSize={2}
                 isAnimationActive={!isAnimationDone}
-                onAnimationEnd={() => setIsAnimationDone(true)}
+                animationDuration={ANIMATION_DURATION}
               >
                 <LabelList
                   dataKey="name"
