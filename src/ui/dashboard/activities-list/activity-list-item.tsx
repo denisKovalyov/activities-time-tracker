@@ -96,9 +96,7 @@ export const ActivityListItem = ({
   const handleRemove = () => onRemove(id);
   const handleRecord = () => toggle(id);
 
-  const startDrag = (e: PointerEvent<HTMLButtonElement>) => {
-    if (!dragDisabled) controls.start(e);
-  };
+  const startDrag = (e: PointerEvent<HTMLButtonElement>) => controls.start(e);
   const handleDragStart = () => setIsDragging(true);
   const handleDragEnd = () => setIsDragging(false);
 
@@ -144,7 +142,7 @@ export const ActivityListItem = ({
         onRecord={handleRecord}
       >
         {reorderMode ? (
-          <DragButton onDragStart={startDrag} />
+          <DragButton onDragStart={startDrag} disabled={dragDisabled} />
         ) : (
           <ActivityTime activityId={id} />
         )}

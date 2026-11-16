@@ -6,9 +6,10 @@ import { cn } from '@/lib/utils';
 
 export type DragButtonProps = {
   onDragStart: (e: PointerEvent<HTMLButtonElement>) => void;
+  disabled: boolean;
 };
 
-export const DragButton = ({ onDragStart }: DragButtonProps) => {
+export const DragButton = ({ onDragStart, disabled }: DragButtonProps) => {
   const [animationCompleted, setAnimationCompleted] = useState(false);
   const handleAnimationEnd = () => setAnimationCompleted(true);
 
@@ -20,6 +21,7 @@ export const DragButton = ({ onDragStart }: DragButtonProps) => {
         'animate-fly-in opacity-0': !animationCompleted,
       })}
       style={{ touchAction: 'none' }}
+      disabled={disabled}
       onPointerDown={onDragStart}
       onAnimationEnd={handleAnimationEnd}
     >
