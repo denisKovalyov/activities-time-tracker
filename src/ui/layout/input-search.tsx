@@ -1,49 +1,49 @@
 'use client';
 
-import { ChangeEvent, KeyboardEvent, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { MagnifyingGlass, X } from '@phosphor-icons/react';
-import { useDebouncedCallback } from 'use-debounce';
 
 import { Input } from '@/ui/common/form/input';
 import { useRouter } from '@/ui/hooks/use-router';
 
-const DEBOUNCE_DELAY = 300;
+const DASHBOARD_PATH = '/dashboard';
 
+// The search filters activities on the client, so on the dashboard the URL
+// is updated without a request to the server. On other pages the search
+// opens the dashboard.
 export const InputSearch = () => {
   const { router, searchParams, pathname } = useRouter();
-  const search = searchParams.get('search');
+  const search = searchParams.get('search') ?? '';
 
-  const [value, setValue] = useState(search || '');
+  const [value, setValue] = useState(search);
   const [prevSearch, setPrevSearch] = useState(search);
 
-  const handleSearch = () => {
-    if (value) router.push(`/dashboard?search=${value}`);
-    else router.push(pathname);
-  };
-
-  const handleReset = () => {
-    setValue('');
-    router.push(pathname);
-  };
-
-  const debouncedCallback = useDebouncedCallback(handleSearch, DEBOUNCE_DELAY);
-
-  // Shows the search from the URL, e.g. after navigation, unless the user is
-  // still typing
+  // Shows the search from the URL, e.g. after navigation
   if (search !== prevSearch) {
     setPrevSearch(search);
-    if (!debouncedCallback.isPending()) setValue(search || '');
+    setValue(search);
   }
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
+  const updateSearch = (value: string) => {
     setValue(value);
-    debouncedCallback();
+    const isDashboard = pathname === DASHBOARD_PATH;
+    const opensDashboard = Boolean(value) && !isDashboard;
+
+    // Other parameters of the current page stay, e.g. the reorder mode
+    const params = new URLSearchParams(opensDashboard ? '' : searchParams);
+    if (value) params.set('search', value);
+    else params.delete('search');
+    const query = params.size ? `?${params}` : '';
+    const url = `${opensDashboard ? DASHBOARD_PATH : pathname}${query}`;
+
+    if (isDashboard) window.history.replaceState(null, '', url);
+    // Also when cleared: it cancels the navigation started by the search
+    else router.push(url);
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSearch();
-  };
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
+    updateSearch(e.target.value);
+  const handleReset = () => updateSearch('');
 
   return (
     <div className="relative ml-auto flex-1 md:grow-0">
@@ -54,7 +54,6 @@ export const InputSearch = () => {
         className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
         value={value}
         onChange={handleChange}
-        onKeyDown={handleKeyDown}
       />
       {value && (
         <button
