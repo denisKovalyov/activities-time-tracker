@@ -9,7 +9,6 @@ async function setupUser(client) {
         email TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         email_verified TIMESTAMP,
-        -- Only hashes of the emailed tokens are stored
         email_verification_token_hash TEXT,
         email_verification_expires_at TIMESTAMP WITH TIME ZONE,
         password_reset_token_hash TEXT,
