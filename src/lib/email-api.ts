@@ -60,7 +60,7 @@ const providers = {
 };
 
 const providerName =
-  process.env.EMAIL_PROVIDER ??
+  process.env.EMAIL_PROVIDER ||
   (process.env.NODE_ENV === 'production' ? 'brevo' : 'console');
 
 export const emailApiProvider: EmailProvider =
