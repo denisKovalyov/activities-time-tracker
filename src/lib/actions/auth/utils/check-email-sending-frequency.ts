@@ -7,13 +7,17 @@ import { EmailRateLimit } from '@/lib/errors';
 const EMAIL_RATE_LIMIT_MESSAGE =
   'Seems like an email has already been sent. Please wait a few minutes and try again.';
 
-export const checkEmailSendingFrequency = (email: string) => {
-  if (email in emailSentCache) {
-    if (Date.now() - Number(emailSentCache[email]) < CLEAN_UP_INTERVAL) {
-      console.error(`EMAIL RATE LIMIT BREACH: ${email}`);
-      throw new EmailRateLimit(EMAIL_RATE_LIMIT_MESSAGE);
-    }
-  } else {
-    emailSentCache[email] = Date.now();
+type EmailType = 'verification' | 'password-reset';
+
+// Limits each type separately, so a verification email doesn't block a password reset
+export const checkEmailSendingFrequency = (email: string, type: EmailType) => {
+  const key = `${type}:${email}`;
+  const sentAt = emailSentCache[key];
+
+  if (sentAt && Date.now() - Number(sentAt) < CLEAN_UP_INTERVAL) {
+    console.error(`EMAIL RATE LIMIT BREACH: ${key}`);
+    throw new EmailRateLimit(EMAIL_RATE_LIMIT_MESSAGE);
   }
+
+  emailSentCache[key] = Date.now();
 };

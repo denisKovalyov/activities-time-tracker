@@ -17,7 +17,7 @@ import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function resendVerificationEmail(email: string) {
   try {
-    checkEmailSendingFrequency(email);
+    checkEmailSendingFrequency(email, 'verification');
     const { token, tokenHash, expiresAt } = generateToken(
       EMAIL_VERIFICATION_TTL_MS,
     );
@@ -50,14 +50,12 @@ export async function verifyEmail(email: string | null, token: string | null) {
 
     const user = await getUser(email);
 
-    if (user?.email_verified) {
-      return {
-        success: true,
-        message: 'Email already verified. Please, re-login.',
-      };
-    }
-
-    if (!user || !(await verifyUserEmail(email, hashToken(token)))) {
+    // An already verified email gets the same result, so opening the link twice
+    // (e.g. React Strict Mode runs the effect twice in development) isn't confusing
+    if (
+      !user?.email_verified &&
+      (!user || !(await verifyUserEmail(email, hashToken(token))))
+    ) {
       return { message: 'The link is invalid or has expired.' };
     }
 

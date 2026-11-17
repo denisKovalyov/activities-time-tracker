@@ -36,7 +36,7 @@ export async function signUp({ email, password }: Credentials) {
         },
       };
 
-    checkEmailSendingFrequency(email);
+    checkEmailSendingFrequency(email, 'verification');
 
     const hashedPassword = await hashPassword(password);
     const { token, tokenHash, expiresAt } = generateToken(

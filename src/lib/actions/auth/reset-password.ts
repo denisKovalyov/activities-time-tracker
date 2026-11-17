@@ -44,7 +44,7 @@ export async function sendResetPasswordLink(email: string) {
   const successLink = `/reset-password/sent?email=${encodeURIComponent(email)}`;
 
   try {
-    checkEmailSendingFrequency(email);
+    checkEmailSendingFrequency(email, 'password-reset');
     const user = await getUser(email);
 
     if (user) {
