@@ -15,7 +15,6 @@ export default async function Settings({
   const email = session?.user?.email;
   const user = email ? await getUser(email) : undefined;
 
-  // Only what the page shows goes to the client, never the password or token hashes
   const account = user && {
     email: user.email,
     email_verified: user.email_verified,
