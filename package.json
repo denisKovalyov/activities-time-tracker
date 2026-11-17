@@ -58,7 +58,6 @@
     "react-hook-form": "^7.51.2",
     "react-swipeable": "^7.0.2",
     "recharts": "^2.15.4",
-    "resend": "^3.2.0",
     "server-only": "^0.0.1",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
