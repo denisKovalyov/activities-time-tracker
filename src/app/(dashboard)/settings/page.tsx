@@ -1,3 +1,5 @@
+import { auth } from '@/auth';
+import { getUser } from '@/lib/db/users';
 import { SettingsTabs } from '@/ui/settings/tabs';
 
 export default async function Settings({
@@ -5,7 +7,21 @@ export default async function Settings({
 }: {
   searchParams: Promise<{ tab?: string }>;
 }) {
-  const activeTab = (await searchParams).tab;
+  const [{ tab: activeTab }, session] = await Promise.all([
+    searchParams,
+    auth(),
+  ]);
 
-  return <SettingsTabs activeTab={activeTab} />;
+  const email = session?.user?.email;
+  const user = email ? await getUser(email) : undefined;
+
+  // Only what the page shows goes to the client, never the password or token hashes
+  const account = user && {
+    email: user.email,
+    email_verified: user.email_verified,
+    created_at: user.created_at,
+    updated_at: user.updated_at,
+  };
+
+  return <SettingsTabs activeTab={activeTab} account={account} />;
 }

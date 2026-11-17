@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { CheckCircle, Trash } from '@phosphor-icons/react';
 import { useMediaQuery } from 'usehooks-ts';
 
@@ -13,18 +12,16 @@ import {
 } from '@/ui/common/card';
 import { RemoveAccountDialog } from '@/ui/settings/remove-account-dialog';
 import { formatReadableDate } from '@/lib/utils';
-import { User } from '@/lib/definitions';
+import { AccountDetails } from '@/ui/settings/types';
 
 const SUB_TITLE = 'Make changes to your account';
 const paramNameStyle = 'min-w-28 text-muted-foreground';
 
-export const Account = () => {
+export const Account = ({ account: user }: { account?: AccountDetails }) => {
   const [showRemoveAccountDialog, setShowRemoveAccountDialog] = useState(false);
 
-  const { data: session } = useSession();
   const isDesktop = useMediaQuery('(min-width: 640px)');
 
-  const user = session?.user as User;
   const handleDialogOpenClose = () =>
     setShowRemoveAccountDialog((state) => !state);
 
