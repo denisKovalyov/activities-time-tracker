@@ -48,14 +48,14 @@ export async function verifyEmail(email: string | null, token: string | null) {
       return { message: 'Missing required fields' };
     }
 
-    const user = await getUser(email);
-
     // An already verified email gets the same result, so opening the link twice
-    // (e.g. React Strict Mode runs the effect twice in development) isn't confusing
-    if (
-      !user?.email_verified &&
-      (!user || !(await verifyUserEmail(email, hashToken(token))))
-    ) {
+    // (e.g. React Strict Mode runs the effect twice in development) isn't confusing.
+    // The user is read after the update, so a concurrent call that verified it is seen
+    const isVerified =
+      (await verifyUserEmail(email, hashToken(token))) ||
+      Boolean((await getUser(email))?.email_verified);
+
+    if (!isVerified) {
       return { message: 'The link is invalid or has expired.' };
     }
 
