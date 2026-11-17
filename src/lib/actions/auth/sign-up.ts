@@ -7,7 +7,10 @@ import { SignUpSchema } from '@/lib/validation';
 import { createUser, getUser } from '@/lib/db/users';
 import { sendVerificationEmail } from '@/lib/actions/auth/utils/send-verification-email';
 import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
-import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';
+import {
+  EMAIL_VERIFICATION_TTL_MS,
+  generateToken,
+} from '@/lib/actions/auth/utils/generate-token';
 import { hashPassword } from '@/lib/actions/auth/utils/hash-password';
 import { EmailRateLimit } from '@/lib/errors';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
@@ -36,14 +39,17 @@ export async function signUp({ email, password }: Credentials) {
     checkEmailSendingFrequency(email);
 
     const hashedPassword = await hashPassword(password);
-    const emailVerificationToken = generateEmailVerificationToken();
+    const { token, tokenHash, expiresAt } = generateToken(
+      EMAIL_VERIFICATION_TTL_MS,
+    );
 
     await Promise.all([
-      sendVerificationEmail(email, emailVerificationToken),
+      sendVerificationEmail(email, token),
       createUser({
         email: email,
         password: hashedPassword,
-        emailVerificationToken,
+        emailVerificationTokenHash: tokenHash,
+        emailVerificationExpiresAt: expiresAt,
       }),
     ]);
   } catch (error: unknown) {

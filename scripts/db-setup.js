@@ -8,8 +8,11 @@ async function setupUser(client) {
         name VARCHAR(255) NOT NULL,
         email TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
-        email_verification_token TEXT,
         email_verified TIMESTAMP,
+        email_verification_token_hash TEXT,
+        email_verification_expires_at TIMESTAMP WITH TIME ZONE,
+        password_reset_token_hash TEXT,
+        password_reset_expires_at TIMESTAMP WITH TIME ZONE,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,
         updated_at TIMESTAMP WITH TIME ZONE NOT NULL
       );

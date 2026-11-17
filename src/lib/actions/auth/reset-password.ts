@@ -2,15 +2,23 @@
 
 import { redirect } from 'next/navigation';
 
-import { User } from '@/lib/definitions';
 import { EmailRateLimit } from '@/lib/errors';
 import { ResetPasswordTemplate } from '@/ui/email-templates/reset-password';
 import { setDelay } from '@/lib/utils';
-import { getUser, resetPassword, updateUser } from '@/lib/db/users';
+import {
+  getUser,
+  isPasswordResetTokenValid,
+  resetPassword,
+  updateUser,
+} from '@/lib/db/users';
 import { ResetPasswordSchema } from '@/lib/validation';
 import { sendEmail } from '@/lib/actions/email/send-email';
 import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
-import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';
+import {
+  PASSWORD_RESET_TTL_MS,
+  generateToken,
+  hashToken,
+} from '@/lib/actions/auth/utils/generate-token';
 import { hashPassword } from '@/lib/actions/auth/utils/hash-password';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 import { headers } from 'next/headers';
@@ -18,7 +26,7 @@ import { headers } from 'next/headers';
 const SENDING_RESET_LINK_MS = 1000;
 const NOT_FOUND_LINK = '/reset-password/request?not-found-link=true';
 const INVALID_LINK_MESSAGE =
-  'The link is invalid or was already used. Please request a new one.';
+  'The link is invalid, expired or was already used. Please request a new one.';
 
 const sendResetPasswordEmail = async (email: string, token: string) => {
   const headersList = await headers();
@@ -40,12 +48,15 @@ export async function sendResetPasswordLink(email: string) {
     const user = await getUser(email);
 
     if (user) {
-      const emailVerificationToken = generateEmailVerificationToken();
+      const { token, tokenHash, expiresAt } = generateToken(
+        PASSWORD_RESET_TTL_MS,
+      );
 
       await Promise.all([
-        sendResetPasswordEmail(email, emailVerificationToken),
+        sendResetPasswordEmail(email, token),
         updateUser(email, {
-          email_verification_token: emailVerificationToken,
+          password_reset_token_hash: tokenHash,
+          password_reset_expires_at: expiresAt,
         }),
       ]);
     }
@@ -68,17 +79,15 @@ export async function checkResetPasswordLink(
   token: string | null,
 ) {
   if (!email || !token) return redirect(NOT_FOUND_LINK);
-  let user: User | undefined;
+  let isValid: boolean;
 
   try {
-    user = await getUser(email);
+    isValid = await isPasswordResetTokenValid(email, hashToken(token));
   } catch (e) {
     return { message: DEFAULT_ERROR_MESSAGE };
   }
 
-  if (!user || user.email_verification_token !== token) {
-    return redirect(NOT_FOUND_LINK);
-  }
+  if (!isValid) return redirect(NOT_FOUND_LINK);
 }
 
 // A public endpoint: the token from the link is checked here, not only when
@@ -98,7 +107,7 @@ export async function saveNewPassword(
   try {
     const isReset = await resetPassword(
       validatedFields.data.email,
-      validatedFields.data.token,
+      hashToken(validatedFields.data.token),
       await hashPassword(validatedFields.data.password),
     );
     if (!isReset) return { message: INVALID_LINK_MESSAGE };
