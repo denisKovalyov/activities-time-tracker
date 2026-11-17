@@ -3,14 +3,18 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/common/tabs';
 import { useRouter } from '@/ui/hooks/use-router';
 import { Account } from '@/ui/settings/account';
-import { TabsProps } from '@/ui/settings/types';
+import { AccountDetails, TabsProps } from '@/ui/settings/types';
 
 const TABS = [
-  { key: 'account', name: 'Account', component: <Account /> },
+  {
+    key: 'account',
+    name: 'Account',
+    render: (account?: AccountDetails) => <Account account={account} />,
+  },
   {
     key: 'password',
     name: 'Password',
-    component: (
+    render: () => (
       <div className="p-4">
         Section is under construction. Please contact support for more details
         if needed.
@@ -19,7 +23,7 @@ const TABS = [
   },
 ];
 
-export function SettingsTabs({ activeTab = TABS[0].key }: TabsProps) {
+export function SettingsTabs({ activeTab = TABS[0].key, account }: TabsProps) {
   const { router } = useRouter();
 
   const handleTabChange = (tabId: string) => {
@@ -36,9 +40,9 @@ export function SettingsTabs({ activeTab = TABS[0].key }: TabsProps) {
             </TabsTrigger>
           ))}
         </TabsList>
-        {TABS.map(({ key, component }) => (
+        {TABS.map(({ key, render }) => (
           <TabsContent key={key} value={key}>
-            {component}
+            {render(account)}
           </TabsContent>
         ))}
       </Tabs>
