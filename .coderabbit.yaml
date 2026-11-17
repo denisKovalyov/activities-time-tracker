@@ -24,7 +24,8 @@ reviews:
       instructions: >-
         Server actions: verify the user session is checked before any data
         access and SQL queries are parameterized. Exception: public auth
-        actions (sign-up, sign-in, email verification, password reset) are
-        authorized by credentials or a single-use, expiring token instead.
+        actions. Sign-in, email verification and password reset are
+        authorized by credentials or a single-use, expiring token. Sign-up
+        and requesting a token need only an email but must be rate-limited.
 chat:
   auto_reply: true
