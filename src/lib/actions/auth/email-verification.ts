@@ -17,7 +17,7 @@ import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function resendVerificationEmail(email: string) {
   try {
-    checkEmailSendingFrequency(email);
+    checkEmailSendingFrequency(email, 'verification');
     const { token, tokenHash, expiresAt } = generateToken(
       EMAIL_VERIFICATION_TTL_MS,
     );
@@ -48,16 +48,11 @@ export async function verifyEmail(email: string | null, token: string | null) {
       return { message: 'Missing required fields' };
     }
 
-    const user = await getUser(email);
+    const isVerified =
+      (await verifyUserEmail(email, hashToken(token))) ||
+      Boolean((await getUser(email))?.email_verified);
 
-    if (user?.email_verified) {
-      return {
-        success: true,
-        message: 'Email already verified. Please, re-login.',
-      };
-    }
-
-    if (!user || !(await verifyUserEmail(email, hashToken(token)))) {
+    if (!isVerified) {
       return { message: 'The link is invalid or has expired.' };
     }
 
