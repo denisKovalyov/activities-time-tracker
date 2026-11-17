@@ -2,20 +2,31 @@
 
 import { sendVerificationEmail } from '@/lib/actions/auth/utils/send-verification-email';
 import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
-import { generateEmailVerificationToken } from '@/lib/actions/auth/utils/generate-email-verification-token';
-import { getUser, updateUser } from '@/lib/db/users';
+import {
+  EMAIL_VERIFICATION_TTL_MS,
+  generateToken,
+  hashToken,
+} from '@/lib/actions/auth/utils/generate-token';
+import {
+  getUser,
+  updateUser,
+  verifyEmail as verifyUserEmail,
+} from '@/lib/db/users';
 import { EmailRateLimit } from '@/lib/errors';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function resendVerificationEmail(email: string) {
   try {
     checkEmailSendingFrequency(email);
-    const emailVerificationToken = generateEmailVerificationToken();
+    const { token, tokenHash, expiresAt } = generateToken(
+      EMAIL_VERIFICATION_TTL_MS,
+    );
 
     await Promise.all([
-      sendVerificationEmail(email, emailVerificationToken),
+      sendVerificationEmail(email, token),
       updateUser(email, {
-        email_verification_token: emailVerificationToken,
+        email_verification_token_hash: tokenHash,
+        email_verification_expires_at: expiresAt,
       }),
     ]);
   } catch (error) {
@@ -46,14 +57,9 @@ export async function verifyEmail(email: string | null, token: string | null) {
       };
     }
 
-    if (!user || token !== user.email_verification_token) {
-      return { message: 'Invalid verification token' };
+    if (!user || !(await verifyUserEmail(email, hashToken(token)))) {
+      return { message: 'The link is invalid or has expired.' };
     }
-
-    await updateUser(email, {
-      email_verified: new Date(),
-      email_verification_token: null,
-    });
 
     return {
       success: true,

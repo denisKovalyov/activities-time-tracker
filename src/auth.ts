@@ -7,6 +7,16 @@ import type { Credentials, User } from '@/lib/definitions';
 import { authConfig } from './auth.config';
 import { getUser, createUser } from '@/lib/db/users';
 
+// The user goes to the JWT and the session, which the client can read, so
+// the password and token hashes must stay out
+const toSessionUser = ({
+  id,
+  name,
+  email,
+  email_verified,
+  created_at,
+}: User) => ({ id, name, email, email_verified, created_at });
+
 export const {
   handlers: { GET, POST },
   auth,
@@ -23,7 +33,7 @@ export const {
         if (!user) return null;
 
         const passwordsMatch = await bcrypt.compare(password, user.password);
-        return passwordsMatch ? user : null;
+        return passwordsMatch ? toSessionUser(user) : null;
       },
     }),
     GoogleProvider({
@@ -39,10 +49,7 @@ export const {
           });
         }
 
-        return {
-          ...user,
-          email_verified,
-        } as User;
+        return toSessionUser({ ...user, email_verified });
       },
     }),
   ],

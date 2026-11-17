@@ -23,14 +23,20 @@ export async function getUser(email: string): Promise<User | undefined> {
 export async function createUser({
   email,
   password: hashedPassword,
-  emailVerificationToken = null,
-}: Credentials & { emailVerificationToken?: string | null }): Promise<User> {
+  emailVerificationTokenHash = null,
+  emailVerificationExpiresAt = null,
+}: Credentials & {
+  emailVerificationTokenHash?: string | null;
+  emailVerificationExpiresAt?: Date | null;
+}): Promise<User> {
   try {
     const date = new Date().toISOString();
 
     const result = await sql`
-      INSERT INTO "user"(name, email, password, email_verification_token, created_at, updated_at)
-      VALUES ('', ${email}, ${hashedPassword}, ${emailVerificationToken}, ${date}, ${date})
+      INSERT INTO "user"(name, email, password, email_verification_token_hash,
+        email_verification_expires_at, created_at, updated_at)
+      VALUES ('', ${email}, ${hashedPassword}, ${emailVerificationTokenHash},
+        ${emailVerificationExpiresAt?.toISOString() ?? null}, ${date}, ${date})
       RETURNING *`;
 
     return result.rows[0] as User;
@@ -65,18 +71,54 @@ export async function updateUser(
 }
 
 // Checks the token and uses it up in one query, so a link works only once.
-// Returns false if the token doesn't match.
+// Returns false if the token doesn't match or has expired.
+export async function verifyEmail(
+  email: string,
+  tokenHash: string,
+): Promise<boolean> {
+  try {
+    const result = await sql`
+      UPDATE "user"
+      SET email_verified=now(), email_verification_token_hash=NULL,
+        email_verification_expires_at=NULL, updated_at=now()
+      WHERE email=${email} AND email_verification_token_hash=${tokenHash}
+        AND email_verification_expires_at > now()`;
+    return result.rowCount === 1;
+  } catch (error) {
+    console.error('DB: failed to verify email:', error);
+    throw new Error('Failed to verify email.');
+  }
+}
+
+export async function isPasswordResetTokenValid(
+  email: string,
+  tokenHash: string,
+): Promise<boolean> {
+  try {
+    const result = await sql`
+      SELECT 1 FROM "user"
+      WHERE email=${email} AND password_reset_token_hash=${tokenHash}
+        AND password_reset_expires_at > now()`;
+    return result.rowCount === 1;
+  } catch (error) {
+    console.error('DB: failed to check password reset token:', error);
+    throw new Error('Failed to check password reset token.');
+  }
+}
+
+// Same as verifyEmail: one query, so a link works only once
 export async function resetPassword(
   email: string,
-  token: string,
+  tokenHash: string,
   hashedPassword: string,
 ): Promise<boolean> {
   try {
     const result = await sql`
       UPDATE "user"
-      SET password=${hashedPassword}, email_verification_token=NULL,
-        updated_at=now()
-      WHERE email=${email} AND email_verification_token=${token}`;
+      SET password=${hashedPassword}, password_reset_token_hash=NULL,
+        password_reset_expires_at=NULL, updated_at=now()
+      WHERE email=${email} AND password_reset_token_hash=${tokenHash}
+        AND password_reset_expires_at > now()`;
     return result.rowCount === 1;
   } catch (error) {
     console.error('DB: failed to reset password:', error);
