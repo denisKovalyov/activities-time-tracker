@@ -35,8 +35,7 @@ export async function resendVerificationEmail(email: string) {
 
   return {
     success: true,
-    message:
-      'If this email is awaiting verification, a link has been sent. You can request a new one every few minutes.',
+    message: 'Email verification successfully sent.',
   };
 }
 
