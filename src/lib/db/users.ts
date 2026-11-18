@@ -70,6 +70,32 @@ export async function updateUser(
   }
 }
 
+// Checks the cooldown and replaces the token in one query, so parallel requests
+// can't send several emails. The previous token's send time is derived from its
+// expiry. Returns false if the user is missing, verified or within the cooldown.
+export async function replaceEmailVerificationToken(
+  email: string,
+  tokenHash: string,
+  expiresAt: Date,
+  cooldownMs: number,
+): Promise<boolean> {
+  try {
+    const latestAllowedExpiry = new Date(expiresAt.getTime() - cooldownMs);
+    const result = await sql`
+      UPDATE "user"
+      SET email_verification_token_hash=${tokenHash},
+        email_verification_expires_at=${expiresAt.toISOString()},
+        updated_at=now()
+      WHERE email=${email} AND email_verified IS NULL
+        AND (email_verification_expires_at IS NULL
+          OR email_verification_expires_at <= ${latestAllowedExpiry.toISOString()})`;
+    return result.rowCount === 1;
+  } catch (error) {
+    console.error('DB: failed to replace email verification token:', error);
+    throw new Error('Failed to replace email verification token.');
+  }
+}
+
 // Checks the token and uses it up in one query, so a link works only once.
 // Returns false if the token doesn't match or has expired.
 export async function verifyEmail(

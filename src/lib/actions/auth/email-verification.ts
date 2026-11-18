@@ -1,44 +1,42 @@
 'use server';
 
 import { sendVerificationEmail } from '@/lib/actions/auth/utils/send-verification-email';
-import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
 import {
+  EMAIL_VERIFICATION_RESEND_COOLDOWN_MS,
   EMAIL_VERIFICATION_TTL_MS,
   generateToken,
   hashToken,
 } from '@/lib/actions/auth/utils/generate-token';
 import {
   getUser,
-  updateUser,
+  replaceEmailVerificationToken,
   verifyEmail as verifyUserEmail,
 } from '@/lib/db/users';
-import { EmailRateLimit } from '@/lib/errors';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function resendVerificationEmail(email: string) {
   try {
-    checkEmailSendingFrequency(email, 'verification');
     const { token, tokenHash, expiresAt } = generateToken(
       EMAIL_VERIFICATION_TTL_MS,
     );
 
-    await Promise.all([
-      sendVerificationEmail(email, token),
-      updateUser(email, {
-        email_verification_token_hash: tokenHash,
-        email_verification_expires_at: expiresAt,
-      }),
-    ]);
+    const isTokenReplaced = await replaceEmailVerificationToken(
+      email,
+      tokenHash,
+      expiresAt,
+      EMAIL_VERIFICATION_RESEND_COOLDOWN_MS,
+    );
+
+    if (isTokenReplaced) await sendVerificationEmail(email, token);
   } catch (error) {
-    return {
-      message:
-        error instanceof EmailRateLimit ? error.message : DEFAULT_ERROR_MESSAGE,
-    };
+    console.error('Error resending verification email:', error);
+    return { message: DEFAULT_ERROR_MESSAGE };
   }
 
   return {
     success: true,
-    message: 'Email verification successfully sent.',
+    message:
+      'If this email is awaiting verification, a link has been sent. You can request a new one every few minutes.',
   };
 }
 

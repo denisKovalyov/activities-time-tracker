@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 
 export const EMAIL_VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000;
+export const EMAIL_VERIFICATION_RESEND_COOLDOWN_MS = 5 * 60 * 1000;
 export const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000;
 
 // The token is random enough, so a plain hash without salt is fine
