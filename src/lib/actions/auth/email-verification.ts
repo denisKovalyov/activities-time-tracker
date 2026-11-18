@@ -2,7 +2,7 @@
 
 import { sendVerificationEmail } from '@/lib/actions/auth/utils/send-verification-email';
 import {
-  EMAIL_VERIFICATION_RESEND_COOLDOWN_MS,
+  EMAIL_RESEND_COOLDOWN_MS,
   EMAIL_VERIFICATION_TTL_MS,
   generateToken,
   hashToken,
@@ -24,7 +24,7 @@ export async function resendVerificationEmail(email: string) {
       email,
       tokenHash,
       expiresAt,
-      EMAIL_VERIFICATION_RESEND_COOLDOWN_MS,
+      EMAIL_RESEND_COOLDOWN_MS,
     );
 
     if (isTokenReplaced) await sendVerificationEmail(email, token);

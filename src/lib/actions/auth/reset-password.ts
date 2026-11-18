@@ -2,19 +2,17 @@
 
 import { redirect } from 'next/navigation';
 
-import { EmailRateLimit } from '@/lib/errors';
 import { ResetPasswordTemplate } from '@/ui/email-templates/reset-password';
 import { setDelay } from '@/lib/utils';
 import {
-  getUser,
   isPasswordResetTokenValid,
+  replacePasswordResetToken,
   resetPassword,
-  updateUser,
 } from '@/lib/db/users';
 import { ResetPasswordSchema } from '@/lib/validation';
 import { sendEmail } from '@/lib/actions/email/send-email';
-import { checkEmailSendingFrequency } from '@/lib/actions/auth/utils/check-email-sending-frequency';
 import {
+  EMAIL_RESEND_COOLDOWN_MS,
   PASSWORD_RESET_TTL_MS,
   generateToken,
   hashToken,
@@ -40,29 +38,22 @@ export async function sendResetPasswordLink(email: string) {
   const successLink = `/reset-password/sent?email=${encodeURIComponent(email)}`;
 
   try {
-    checkEmailSendingFrequency(email, 'password-reset');
-    const user = await getUser(email);
+    const { token, tokenHash, expiresAt } = generateToken(
+      PASSWORD_RESET_TTL_MS,
+    );
 
-    if (user) {
-      const { token, tokenHash, expiresAt } = generateToken(
-        PASSWORD_RESET_TTL_MS,
-      );
+    const isTokenReplaced = await replacePasswordResetToken(
+      email,
+      tokenHash,
+      expiresAt,
+      EMAIL_RESEND_COOLDOWN_MS,
+    );
 
-      await Promise.all([
-        sendResetPasswordEmail(email, token),
-        updateUser(email, {
-          password_reset_token_hash: tokenHash,
-          password_reset_expires_at: expiresAt,
-        }),
-      ]);
-    }
+    if (isTokenReplaced) await sendResetPasswordEmail(email, token);
   } catch (error) {
     console.error(error);
 
-    return {
-      message:
-        error instanceof EmailRateLimit ? error.message : DEFAULT_ERROR_MESSAGE,
-    };
+    return { message: DEFAULT_ERROR_MESSAGE };
   }
 
   const delay = SENDING_RESET_LINK_MS - (Date.now() - executionStart);

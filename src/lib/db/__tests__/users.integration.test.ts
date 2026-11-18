@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
   replaceEmailVerificationToken,
+  replacePasswordResetToken,
   resetPassword,
   verifyEmail,
 } from '@/lib/db/users';
@@ -13,15 +14,26 @@ const TOKEN_HASH = 'token-hash';
 const FUTURE = "now() + interval '1 hour'";
 const PAST = "now() - interval '1 minute'";
 const TTL_MS = 24 * 60 * 60 * 1000;
+const RESET_TTL_MS = 60 * 60 * 1000;
 const COOLDOWN_MS = 5 * 60 * 1000;
 const SENT_JUST_NOW = "now() + interval '24 hours'";
 const SENT_AN_HOUR_AGO = "now() + interval '23 hours'";
+const RESET_SENT_JUST_NOW = "now() + interval '1 hour'";
+const RESET_SENT_HALF_AN_HOUR_AGO = "now() + interval '30 minutes'";
 
 const replaceToken = (email = EMAIL, tokenHash = 'new-hash') =>
   replaceEmailVerificationToken(
     email,
     tokenHash,
     new Date(Date.now() + TTL_MS),
+    COOLDOWN_MS,
+  );
+
+const replaceResetToken = (email = EMAIL, tokenHash = 'new-hash') =>
+  replacePasswordResetToken(
+    email,
+    tokenHash,
+    new Date(Date.now() + RESET_TTL_MS),
     COOLDOWN_MS,
   );
 
@@ -176,6 +188,60 @@ describe('replaceEmailVerificationToken', () => {
 
     expect(
       (await getUserRow(OTHER_EMAIL)).email_verification_token_hash,
+    ).toBeNull();
+  });
+});
+
+describe('replacePasswordResetToken', () => {
+  it('replaces a token sent before the cooldown', async () => {
+    await setToken('password_reset', TOKEN_HASH, {
+      expiresAt: RESET_SENT_HALF_AN_HOUR_AGO,
+    });
+
+    expect(await replaceResetToken()).toBe(true);
+    expect((await getUserRow()).password_reset_token_hash).toBe('new-hash');
+  });
+
+  it('sets a token when the user has none', async () => {
+    expect(await replaceResetToken()).toBe(true);
+    expect((await getUserRow()).password_reset_token_hash).toBe('new-hash');
+  });
+
+  it('keeps a token sent within the cooldown', async () => {
+    await setToken('password_reset', TOKEN_HASH, {
+      expiresAt: RESET_SENT_JUST_NOW,
+    });
+
+    expect(await replaceResetToken()).toBe(false);
+    expect((await getUserRow()).password_reset_token_hash).toBe(TOKEN_HASH);
+  });
+
+  it('lets only one of parallel requests through', async () => {
+    const results = await Promise.all([
+      replaceResetToken(EMAIL, 'first-hash'),
+      replaceResetToken(EMAIL, 'second-hash'),
+    ]);
+
+    expect(results.filter(Boolean)).toHaveLength(1);
+  });
+
+  it('works for a verified user', async () => {
+    await query(`UPDATE "user" SET email_verified=now() WHERE email=$1`, [
+      EMAIL,
+    ]);
+
+    expect(await replaceResetToken()).toBe(true);
+  });
+
+  it('rejects an unknown email', async () => {
+    expect(await replaceResetToken('unknown@test.com')).toBe(false);
+  });
+
+  it('does not touch other users', async () => {
+    await replaceResetToken();
+
+    expect(
+      (await getUserRow(OTHER_EMAIL)).password_reset_token_hash,
     ).toBeNull();
   });
 });
