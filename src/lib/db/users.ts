@@ -3,13 +3,6 @@ import { sql } from '@vercel/postgres';
 
 import type { Credentials, User } from '@/lib/definitions';
 
-// "a=$1, b=$2" for an UPDATE. Field names are interpolated into SQL, so they
-// must come from the code, never from user input.
-const getUpdatedFields = (data: { [key: string]: unknown }) =>
-  Object.keys(data)
-    .map((field, i) => `${field}=$${i + 1}`)
-    .join(', ');
-
 export async function getUser(email: string): Promise<User | undefined> {
   try {
     const user = await sql<User>`SELECT * FROM "user" WHERE email=${email}`;
@@ -46,30 +39,6 @@ export async function createUser({
   }
 }
 
-export async function updateUser(
-  email: string,
-  fields: Partial<User>,
-): Promise<void> {
-  try {
-    const updatedFields = {
-      ...fields,
-      updated_at: new Date().toISOString(),
-    };
-
-    const fieldsString = getUpdatedFields(updatedFields);
-
-    const values = Object.values(updatedFields);
-
-    await sql.query(
-      `UPDATE "user" SET ${fieldsString} WHERE email=$${values.length + 1}`,
-      [...values, email],
-    );
-  } catch (error) {
-    console.error('DB: failed to update user:', error);
-    throw new Error('Failed to update user.');
-  }
-}
-
 // Checks the cooldown and replaces the token in one query, so parallel requests
 // can't send several emails. The previous token's send time is derived from its
 // expiry. Returns false if the user is missing, verified or within the cooldown.
@@ -93,6 +62,31 @@ export async function replaceEmailVerificationToken(
   } catch (error) {
     console.error('DB: failed to replace email verification token:', error);
     throw new Error('Failed to replace email verification token.');
+  }
+}
+
+// Same as replaceEmailVerificationToken. Returns false if the user is missing
+// or within the cooldown.
+export async function replacePasswordResetToken(
+  email: string,
+  tokenHash: string,
+  expiresAt: Date,
+  cooldownMs: number,
+): Promise<boolean> {
+  try {
+    const latestAllowedExpiry = new Date(expiresAt.getTime() - cooldownMs);
+    const result = await sql`
+      UPDATE "user"
+      SET password_reset_token_hash=${tokenHash},
+        password_reset_expires_at=${expiresAt.toISOString()},
+        updated_at=now()
+      WHERE email=${email}
+        AND (password_reset_expires_at IS NULL
+          OR password_reset_expires_at <= ${latestAllowedExpiry.toISOString()})`;
+    return result.rowCount === 1;
+  } catch (error) {
+    console.error('DB: failed to replace password reset token:', error);
+    throw new Error('Failed to replace password reset token.');
   }
 }
 
