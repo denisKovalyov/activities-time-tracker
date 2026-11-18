@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { resetPassword, verifyEmail } from '@/lib/db/users';
+import {
+  replaceEmailVerificationToken,
+  resetPassword,
+  verifyEmail,
+} from '@/lib/db/users';
 import { clearDatabase, createUser, query } from '@/test/integration/helpers';
 
 const EMAIL = 'user@test.com';
@@ -8,6 +12,18 @@ const OTHER_EMAIL = 'other@test.com';
 const TOKEN_HASH = 'token-hash';
 const FUTURE = "now() + interval '1 hour'";
 const PAST = "now() - interval '1 minute'";
+const TTL_MS = 24 * 60 * 60 * 1000;
+const COOLDOWN_MS = 5 * 60 * 1000;
+const SENT_JUST_NOW = "now() + interval '24 hours'";
+const SENT_AN_HOUR_AGO = "now() + interval '23 hours'";
+
+const replaceToken = (email = EMAIL, tokenHash = 'new-hash') =>
+  replaceEmailVerificationToken(
+    email,
+    tokenHash,
+    new Date(Date.now() + TTL_MS),
+    COOLDOWN_MS,
+  );
 
 // Column names and expiry are interpolated: they come from the tests only
 const setToken = (
@@ -106,6 +122,61 @@ describe('resetPassword', () => {
     );
     expect((await getUserRow()).password).toBe('');
     expect((await getUserRow(OTHER_EMAIL)).password).toBe('');
+  });
+});
+
+describe('replaceEmailVerificationToken', () => {
+  it('replaces a token sent before the cooldown', async () => {
+    await setToken('email_verification', TOKEN_HASH, {
+      expiresAt: SENT_AN_HOUR_AGO,
+    });
+
+    expect(await replaceToken()).toBe(true);
+    expect((await getUserRow()).email_verification_token_hash).toBe('new-hash');
+  });
+
+  it('sets a token when the user has none', async () => {
+    expect(await replaceToken()).toBe(true);
+    expect((await getUserRow()).email_verification_token_hash).toBe('new-hash');
+  });
+
+  it('keeps a token sent within the cooldown', async () => {
+    await setToken('email_verification', TOKEN_HASH, {
+      expiresAt: SENT_JUST_NOW,
+    });
+
+    expect(await replaceToken()).toBe(false);
+    expect((await getUserRow()).email_verification_token_hash).toBe(TOKEN_HASH);
+  });
+
+  it('lets only one of parallel requests through', async () => {
+    const results = await Promise.all([
+      replaceToken(EMAIL, 'first-hash'),
+      replaceToken(EMAIL, 'second-hash'),
+    ]);
+
+    expect(results.filter(Boolean)).toHaveLength(1);
+  });
+
+  it('rejects a verified user', async () => {
+    await query(`UPDATE "user" SET email_verified=now() WHERE email=$1`, [
+      EMAIL,
+    ]);
+
+    expect(await replaceToken()).toBe(false);
+    expect((await getUserRow()).email_verification_token_hash).toBeNull();
+  });
+
+  it('rejects an unknown email', async () => {
+    expect(await replaceToken('unknown@test.com')).toBe(false);
+  });
+
+  it('does not touch other users', async () => {
+    await replaceToken();
+
+    expect(
+      (await getUserRow(OTHER_EMAIL)).email_verification_token_hash,
+    ).toBeNull();
   });
 });
 

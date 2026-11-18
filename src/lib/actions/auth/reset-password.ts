@@ -19,25 +19,21 @@ import {
   generateToken,
   hashToken,
 } from '@/lib/actions/auth/utils/generate-token';
+import { getAppUrl } from '@/lib/actions/auth/utils/get-app-url';
 import { hashPassword } from '@/lib/actions/auth/utils/hash-password';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
-import { headers } from 'next/headers';
 
 const SENDING_RESET_LINK_MS = 1000;
 const NOT_FOUND_LINK = '/reset-password/request?not-found-link=true';
 const INVALID_LINK_MESSAGE =
   'The link is invalid, expired or was already used. Please request a new one.';
 
-const sendResetPasswordEmail = async (email: string, token: string) => {
-  const headersList = await headers();
-  const origin = headersList.get('origin') || '';
-
-  return sendEmail({
+const sendResetPasswordEmail = async (email: string, token: string) =>
+  sendEmail({
     email,
     subject: 'Reset Password',
-    body: ResetPasswordTemplate({ email, token, origin }),
+    body: ResetPasswordTemplate({ email, token, origin: getAppUrl() }),
   });
-};
 
 export async function sendResetPasswordLink(email: string) {
   const executionStart = Date.now();
