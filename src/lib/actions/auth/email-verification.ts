@@ -1,6 +1,6 @@
 'use server';
 
-import { sendVerificationEmail } from '@/lib/actions/auth/utils/send-verification-email';
+import { sendVerificationEmail } from '@/lib/actions/auth/utils/email-send';
 import {
   EMAIL_RESEND_COOLDOWN_MS,
   EMAIL_VERIFICATION_TTL_MS,
@@ -8,19 +8,19 @@ import {
   hashToken,
 } from '@/lib/actions/auth/utils/generate-token';
 import {
-  getUser,
-  replaceEmailVerificationToken,
-  verifyEmail as verifyUserEmail,
+  getUser as dbGetUser,
+  replaceEmailVerificationToken as dbReplaceEmailVerificationToken,
+  verifyEmail as dbVerifyEmail,
 } from '@/lib/db/users';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
-export async function resendVerificationEmail(email: string) {
+export async function restartEmailVerification(email: string) {
   try {
     const { token, tokenHash, expiresAt } = generateToken(
       EMAIL_VERIFICATION_TTL_MS,
     );
 
-    const isTokenReplaced = await replaceEmailVerificationToken(
+    const isTokenReplaced = await dbReplaceEmailVerificationToken(
       email,
       tokenHash,
       expiresAt,
@@ -29,7 +29,7 @@ export async function resendVerificationEmail(email: string) {
 
     if (isTokenReplaced) await sendVerificationEmail(email, token);
   } catch (error) {
-    console.error('Error resending verification email:', error);
+    console.error('Error restarting email verification:', error);
     return { message: DEFAULT_ERROR_MESSAGE };
   }
 
@@ -45,9 +45,12 @@ export async function verifyEmail(email: string | null, token: string | null) {
       return { message: 'Missing required fields' };
     }
 
+    // Verifying first takes one query in the usual case. Only if it fails, the
+    // user is checked: the link may have been opened once already. A token
+    // exists only for unverified users, so verifying needs no such check.
     const isVerified =
-      (await verifyUserEmail(email, hashToken(token))) ||
-      Boolean((await getUser(email))?.email_verified);
+      (await dbVerifyEmail(email, hashToken(token))) ||
+      Boolean((await dbGetUser(email))?.email_verified);
 
     if (!isVerified) {
       return { message: 'The link is invalid or has expired.' };

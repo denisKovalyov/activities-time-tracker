@@ -3,7 +3,7 @@
 import { useActionState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-import { resendVerificationEmail } from '@/lib/actions/auth/email-verification';
+import { restartEmailVerification } from '@/lib/actions/auth/email-verification';
 import { ResendButton } from './resend-button';
 import { Logo } from '@/ui/common/logo';
 import { FormErrorMessage } from '@/ui/common/form/form';
@@ -16,7 +16,7 @@ export function EmailVerificationRequestForm() {
   const verificationSent = Boolean(searchParams.get('verification_sent'));
 
   const [formState, action] = useActionState(
-    resendVerificationEmail.bind(null, decodeURIComponent(email!)),
+    restartEmailVerification.bind(null, decodeURIComponent(email!)),
     undefined,
   );
 

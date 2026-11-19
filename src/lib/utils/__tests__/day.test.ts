@@ -8,7 +8,7 @@ import {
   isDay,
   isValidTimeZone,
   toDay,
-} from '../utils/day';
+} from '../day';
 
 describe('day', () => {
   describe('toDay', () => {

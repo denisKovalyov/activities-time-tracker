@@ -3,7 +3,6 @@
 import { AuthError } from 'next-auth';
 import { redirect } from 'next/navigation';
 
-import { EmailNotVerifiedError } from '@/lib/errors';
 import { Credentials } from '@/lib/definitions';
 import { SignInSchema } from '@/lib/validation';
 import { isUsersEmailVerified } from '@/lib/actions/auth/utils/is-users-email-verified';
@@ -14,10 +13,7 @@ import {
   NEXT_REDIRECT_ERROR,
 } from '@/lib/actions/constants';
 
-export async function googleAuthenticate(
-  prevState: string | undefined,
-  formData: FormData,
-) {
+export async function googleAuthenticate() {
   try {
     await signIn('google');
   } catch (error) {
@@ -43,7 +39,7 @@ export async function authenticate(values: Credentials) {
 
   try {
     isEmailVerified = await isUsersEmailVerified(values.email);
-    await signIn('credentials', values);
+    if (isEmailVerified) await signIn('credentials', values);
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -54,10 +50,7 @@ export async function authenticate(values: Credentials) {
       }
     }
 
-    if (
-      !(error instanceof EmailNotVerifiedError) &&
-      (error as Error).message !== NEXT_REDIRECT_ERROR
-    ) {
+    if ((error as Error).message !== NEXT_REDIRECT_ERROR) {
       console.error(error);
       return { message: DEFAULT_ERROR_MESSAGE };
     }

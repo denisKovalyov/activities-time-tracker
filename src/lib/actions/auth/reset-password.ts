@@ -2,39 +2,32 @@
 
 import { redirect } from 'next/navigation';
 
-import { ResetPasswordTemplate } from '@/ui/email-templates/reset-password';
 import { setDelay } from '@/lib/utils';
 import {
-  isPasswordResetTokenValid,
-  replacePasswordResetToken,
-  resetPassword,
+  isPasswordResetTokenValid as dbIsPasswordResetTokenValid,
+  replacePasswordResetToken as dbReplacePasswordResetToken,
+  resetPassword as dbResetPassword,
 } from '@/lib/db/users';
 import { ResetPasswordSchema } from '@/lib/validation';
-import { sendEmail } from '@/lib/actions/email/send-email';
+import { sendResetPasswordEmail } from '@/lib/actions/auth/utils/email-send';
 import {
   EMAIL_RESEND_COOLDOWN_MS,
   PASSWORD_RESET_TTL_MS,
   generateToken,
   hashToken,
 } from '@/lib/actions/auth/utils/generate-token';
-import { getAppUrl } from '@/lib/actions/auth/utils/get-app-url';
 import { hashPassword } from '@/lib/actions/auth/utils/hash-password';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
-const SENDING_RESET_LINK_MS = 1000;
+// The response takes at least this long whether an email was sent or not, so
+// its time doesn't reveal which emails are registered
+const MIN_RESPONSE_TIME_MS = 1000;
 const NOT_FOUND_LINK = '/reset-password/request?not-found-link=true';
 const INVALID_LINK_MESSAGE =
   'The link is invalid, expired or was already used. Please request a new one.';
 
-const sendResetPasswordEmail = async (email: string, token: string) =>
-  sendEmail({
-    email,
-    subject: 'Reset Password',
-    body: ResetPasswordTemplate({ email, token, origin: getAppUrl() }),
-  });
-
 export async function sendResetPasswordLink(email: string) {
-  const executionStart = Date.now();
+  const startedAt = Date.now();
   const successLink = `/reset-password/sent?email=${encodeURIComponent(email)}`;
 
   try {
@@ -42,7 +35,7 @@ export async function sendResetPasswordLink(email: string) {
       PASSWORD_RESET_TTL_MS,
     );
 
-    const isTokenReplaced = await replacePasswordResetToken(
+    const isTokenReplaced = await dbReplacePasswordResetToken(
       email,
       tokenHash,
       expiresAt,
@@ -56,8 +49,7 @@ export async function sendResetPasswordLink(email: string) {
     return { message: DEFAULT_ERROR_MESSAGE };
   }
 
-  const delay = SENDING_RESET_LINK_MS - (Date.now() - executionStart);
-  if (delay >= 50) await setDelay(delay);
+  await setDelay(MIN_RESPONSE_TIME_MS - (Date.now() - startedAt));
   redirect(successLink);
 }
 
@@ -69,7 +61,7 @@ export async function checkResetPasswordLink(
   let isValid: boolean;
 
   try {
-    isValid = await isPasswordResetTokenValid(email, hashToken(token));
+    isValid = await dbIsPasswordResetTokenValid(email, hashToken(token));
   } catch (e) {
     return { message: DEFAULT_ERROR_MESSAGE };
   }
@@ -92,7 +84,7 @@ export async function saveNewPassword(
   if (!validatedFields.success) return { message: 'Invalid data.' };
 
   try {
-    const isReset = await resetPassword(
+    const isReset = await dbResetPassword(
       validatedFields.data.email,
       hashToken(validatedFields.data.token),
       await hashPassword(validatedFields.data.password),
