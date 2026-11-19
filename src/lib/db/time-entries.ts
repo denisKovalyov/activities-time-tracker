@@ -47,7 +47,7 @@ const queryRunningTimer = async (client: VercelPoolClient, userId: string) => {
 };
 
 // Starting the activity that is already running changes nothing
-export async function startTimer(
+export async function dbStartTimer(
   userId: string,
   activityId: string,
   now?: Date,
@@ -75,7 +75,7 @@ export async function startTimer(
 }
 
 // Returns the stopped timer, or null if nothing was running
-export async function stopTimer(
+export async function dbStopTimer(
   userId: string,
   now?: Date,
 ): Promise<RunningTimer | null> {
@@ -179,7 +179,7 @@ export type TimeSnapshot = {
 
 // Reads the running timer and totals from one snapshot of the database, so
 // the live time added on top of the totals can't count a switch twice
-export async function readTimeSnapshot<T>(
+export async function dbReadTimeSnapshot<T>(
   userId: string,
   read: (snapshot: TimeSnapshot) => Promise<T>,
 ): Promise<T> {

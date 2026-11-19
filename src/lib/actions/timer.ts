@@ -2,10 +2,7 @@
 
 import { z } from 'zod';
 
-import {
-  startTimer as dbStartTimer,
-  stopTimer as dbStopTimer,
-} from '@/lib/db/time-entries';
+import { dbStartTimer, dbStopTimer } from '@/lib/db/time-entries';
 import { getUserId } from '@/lib/actions/utils/get-user-id';
 import { revalidateUserData } from '@/lib/actions/utils/revalidate';
 import {

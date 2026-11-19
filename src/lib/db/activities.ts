@@ -5,7 +5,7 @@ import { generateKeyBetween } from 'fractional-indexing';
 import { withUserLock } from '@/lib/db/transaction';
 import type { Activity, ActivityFields, Move } from '@/lib/db/types';
 
-export async function listActivities(userId: string): Promise<Activity[]> {
+export async function dbListActivities(userId: string): Promise<Activity[]> {
   try {
     const result = await sql<Activity>`
       SELECT * FROM activity
@@ -18,9 +18,9 @@ export async function listActivities(userId: string): Promise<Activity[]> {
   }
 }
 
-// Adds to the end of the list. The user lock stops two simultaneous creates
+// Adds to the end of the list. The user lock stops two simultaneous creating
 // from getting the same position.
-export async function createActivity(
+export async function dbCreateActivity(
   userId: string,
   { name, color, icon }: ActivityFields,
 ): Promise<Activity> {
@@ -52,7 +52,7 @@ export async function createActivity(
 // Column names are interpolated into SQL, so they come only from this list
 const UPDATABLE_FIELDS = ['name', 'color', 'icon'] as const;
 
-export async function updateActivity(
+export async function dbUpdateActivity(
   userId: string,
   id: string,
   fields: Partial<ActivityFields>,
@@ -118,7 +118,7 @@ async function applyMove(
 
 // All or none: a move of a missing activity (e.g. deleted in another tab) or
 // of another user's activity fails the whole batch.
-export async function moveActivities(
+export async function dbMoveActivities(
   userId: string,
   moves: Move[],
 ): Promise<Activity[]> {
@@ -139,7 +139,7 @@ export async function moveActivities(
 }
 
 // Its time entries are removed by ON DELETE CASCADE
-export async function deleteActivity(userId: string, id: string) {
+export async function dbDeleteActivity(userId: string, id: string) {
   try {
     await sql`DELETE FROM activity WHERE id=${id} AND user_id=${userId}`;
   } catch (error) {

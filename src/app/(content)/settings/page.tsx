@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import { getUser } from '@/lib/db/users';
+import { dbGetUser } from '@/lib/db/users';
 import { SettingsTabs } from '@/ui/settings/tabs';
 
 export default async function Settings({
@@ -13,7 +13,7 @@ export default async function Settings({
   ]);
 
   const email = session?.user?.email;
-  const user = email ? await getUser(email) : undefined;
+  const user = email ? await dbGetUser(email) : undefined;
 
   const account = user && {
     email: user.email,

@@ -4,8 +4,8 @@ import { redirect } from 'next/navigation';
 
 import { Credentials } from '@/lib/definitions';
 import { SignUpSchema } from '@/lib/validation';
-import { createUser, getUser } from '@/lib/db/users';
-import { sendVerificationEmail } from '@/lib/actions/auth/utils/send-verification-email';
+import { dbCreateUser, dbGetUser } from '@/lib/db/users';
+import { sendVerificationEmail } from '@/lib/actions/auth/utils/email-send';
 import {
   EMAIL_VERIFICATION_TTL_MS,
   generateToken,
@@ -25,7 +25,7 @@ export async function signUp({ email, password }: Credentials) {
   }
 
   try {
-    const isEmailExists = await getUser(email);
+    const isEmailExists = await dbGetUser(email);
 
     if (isEmailExists)
       return {
@@ -39,7 +39,7 @@ export async function signUp({ email, password }: Credentials) {
       EMAIL_VERIFICATION_TTL_MS,
     );
 
-    await createUser({
+    await dbCreateUser({
       email: email,
       password: hashedPassword,
       emailVerificationTokenHash: tokenHash,

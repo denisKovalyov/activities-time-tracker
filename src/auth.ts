@@ -5,7 +5,7 @@ import GoogleProvider from 'next-auth/providers/google';
 
 import type { Credentials, User } from '@/lib/definitions';
 import { authConfig } from './auth.config';
-import { getUser, createUser } from '@/lib/db/users';
+import { dbGetUser, dbCreateUser } from '@/lib/db/users';
 
 // The user goes to the JWT and the session, which the client can read, so
 // the password and token hashes must stay out
@@ -28,7 +28,7 @@ export const {
     CredentialsProvider({
       async authorize(credentials) {
         const { email, password } = credentials as Credentials;
-        const user = await getUser(email);
+        const user = await dbGetUser(email);
 
         if (!user) return null;
 
@@ -39,17 +39,17 @@ export const {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-      async profile({ email, email_verified }) {
-        let user = await getUser(email);
+      async profile({ email }) {
+        let user = await dbGetUser(email);
 
         if (!user) {
-          user = await createUser({
+          user = await dbCreateUser({
             email,
             password: '',
           });
         }
 
-        return toSessionUser({ ...user, email_verified });
+        return toSessionUser(user);
       },
     }),
   ],

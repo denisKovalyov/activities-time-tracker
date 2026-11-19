@@ -4,8 +4,8 @@ import {
   getDaysChartData,
   sumValues,
 } from '@/ui/statistics/chart-data';
-import { listActivities } from '@/lib/db/activities';
-import { readTimeSnapshot } from '@/lib/db/time-entries';
+import { dbListActivities } from '@/lib/db/activities';
+import { dbReadTimeSnapshot } from '@/lib/db/time-entries';
 import {
   type Day,
   addDays,
@@ -14,7 +14,7 @@ import {
   toDay,
 } from '@/lib/utils/day';
 import { getUserId } from '@/lib/actions/utils/get-user-id';
-import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
+import { getUserTimeZone } from '@/app/(content)/next-api-helpers';
 
 export default async function Statistics() {
   const userId = await getUserId();
@@ -25,9 +25,9 @@ export default async function Statistics() {
 
   const [activities, { timer, days, todayTotals, weekTotals, monthTotals }] =
     await Promise.all([
-      listActivities(userId),
+      dbListActivities(userId),
       // The charts add live time of the running timer on top of the totals
-      readTimeSnapshot(userId, async (snapshot) => ({
+      dbReadTimeSnapshot(userId, async (snapshot) => ({
         timer: await snapshot.runningTimer(),
         days: await snapshot.totalsByDay(since(addDays(today, -6))),
         todayTotals: await snapshot.totalsByActivity(since(today)),
