@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
+  dbCreateUser,
   dbReplaceEmailVerificationToken,
   dbReplacePasswordResetToken,
   dbResetPassword,
@@ -72,6 +73,26 @@ beforeEach(async () => {
   await clearDatabase();
   await createUser(EMAIL);
   await createUser(OTHER_EMAIL);
+});
+
+describe('dbCreateUser', () => {
+  it('creates an unverified user by default', async () => {
+    await dbCreateUser({ email: 'new@test.com', password: 'hash' });
+
+    expect((await getUserRow('new@test.com')).email_verified).toBeNull();
+  });
+
+  it('creates a verified user', async () => {
+    await dbCreateUser({
+      email: 'new@test.com',
+      password: '',
+      emailVerified: new Date(),
+    });
+
+    expect((await getUserRow('new@test.com')).email_verified).toBeInstanceOf(
+      Date,
+    );
+  });
 });
 
 describe('resetPassword', () => {

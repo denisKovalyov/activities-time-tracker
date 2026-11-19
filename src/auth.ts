@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import NextAuth from 'next-auth';
+import NextAuth, { CredentialsSignin } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 
@@ -17,6 +17,14 @@ const toSessionUser = ({
   created_at,
 }: User) => ({ id, name, email, email_verified, created_at });
 
+export const EMAIL_NOT_VERIFIED = 'email_not_verified';
+
+// Thrown only after the password matched, so only the owner learns that the
+// email still needs verification
+class EmailNotVerifiedError extends CredentialsSignin {
+  code = EMAIL_NOT_VERIFIED;
+}
+
 export const {
   handlers: { GET, POST },
   auth,
@@ -33,19 +41,25 @@ export const {
         if (!user) return null;
 
         const passwordsMatch = await bcrypt.compare(password, user.password);
-        return passwordsMatch ? toSessionUser(user) : null;
+        if (!passwordsMatch) return null;
+        if (!user.email_verified) throw new EmailNotVerifiedError();
+
+        return toSessionUser(user);
       },
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-      async profile({ email }) {
+      async profile({ email, email_verified }) {
         let user = await dbGetUser(email);
 
+        // An existing unverified account stays unverified: its password may
+        // have been set by someone else
         if (!user) {
           user = await dbCreateUser({
             email,
             password: '',
+            emailVerified: email_verified ? new Date() : null,
           });
         }
 
