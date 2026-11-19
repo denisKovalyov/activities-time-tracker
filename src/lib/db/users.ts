@@ -16,9 +16,11 @@ export async function dbGetUser(email: string): Promise<User | undefined> {
 export async function dbCreateUser({
   email,
   password: hashedPassword,
+  emailVerified = null,
   emailVerificationTokenHash = null,
   emailVerificationExpiresAt = null,
 }: Credentials & {
+  emailVerified?: Date | null;
   emailVerificationTokenHash?: string | null;
   emailVerificationExpiresAt?: Date | null;
 }): Promise<User> {
@@ -26,9 +28,11 @@ export async function dbCreateUser({
     const date = new Date().toISOString();
 
     const result = await sql`
-      INSERT INTO "user"(name, email, password, email_verification_token_hash,
-        email_verification_expires_at, created_at, updated_at)
-      VALUES ('', ${email}, ${hashedPassword}, ${emailVerificationTokenHash},
+      INSERT INTO "user"(name, email, password, email_verified,
+        email_verification_token_hash, email_verification_expires_at,
+        created_at, updated_at)
+      VALUES ('', ${email}, ${hashedPassword},
+        ${emailVerified?.toISOString() ?? null}, ${emailVerificationTokenHash},
         ${emailVerificationExpiresAt?.toISOString() ?? null}, ${date}, ${date})
       RETURNING *`;
 

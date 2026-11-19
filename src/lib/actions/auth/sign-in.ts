@@ -1,17 +1,13 @@
 'use server';
 
-import { AuthError } from 'next-auth';
-import { redirect } from 'next/navigation';
+import { AuthError, CredentialsSignin } from 'next-auth';
+import { redirect, unstable_rethrow } from 'next/navigation';
 
 import { Credentials } from '@/lib/definitions';
 import { SignInSchema } from '@/lib/validation';
-import { isUsersEmailVerified } from '@/lib/actions/auth/utils/is-users-email-verified';
-import { signIn } from '@/auth';
+import { EMAIL_NOT_VERIFIED, signIn } from '@/auth';
 import { PROTECTED_PAGES } from '@/auth.config';
-import {
-  DEFAULT_ERROR_MESSAGE,
-  NEXT_REDIRECT_ERROR,
-} from '@/lib/actions/constants';
+import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 export async function googleAuthenticate() {
   try {
@@ -35,30 +31,24 @@ export async function authenticate(values: Credentials) {
     return { errors: validatedFields.error.flatten().fieldErrors };
   }
 
-  let isEmailVerified = false;
-
   try {
-    isEmailVerified = await isUsersEmailVerified(values.email);
-    if (isEmailVerified) await signIn('credentials', values);
+    await signIn('credentials', {
+      ...validatedFields.data,
+      redirectTo: PROTECTED_PAGES[0],
+    });
   } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return { message: 'Invalid credentials.' };
-        default:
-          return { message: DEFAULT_ERROR_MESSAGE };
+    unstable_rethrow(error);
+
+    if (error instanceof CredentialsSignin) {
+      if (error.code === EMAIL_NOT_VERIFIED) {
+        redirect(
+          `/email/verify/send?email=${encodeURIComponent(values.email)}`,
+        );
       }
+      return { message: 'Invalid credentials.' };
     }
 
-    if ((error as Error).message !== NEXT_REDIRECT_ERROR) {
-      console.error(error);
-      return { message: DEFAULT_ERROR_MESSAGE };
-    }
-  }
-
-  if (isEmailVerified) {
-    redirect(PROTECTED_PAGES[0]);
-  } else {
-    redirect(`/email/verify/send?email=${encodeURIComponent(values.email)}`);
+    if (!(error instanceof AuthError)) console.error(error);
+    return { message: DEFAULT_ERROR_MESSAGE };
   }
 }
