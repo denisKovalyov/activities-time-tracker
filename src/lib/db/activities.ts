@@ -18,7 +18,7 @@ export async function listActivities(userId: string): Promise<Activity[]> {
   }
 }
 
-// Adds to the end of the list. The user lock stops two simultaneous creates
+// Adds to the end of the list. The user lock stops two simultaneous creating
 // from getting the same position.
 export async function createActivity(
   userId: string,

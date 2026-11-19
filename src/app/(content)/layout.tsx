@@ -8,7 +8,7 @@ import { PageName } from '@/ui/layout/page-name';
 import { Logo } from '@/ui/common/logo';
 import { KeepDataFresh } from '@/ui/layout/keep-data-fresh';
 import { toDay } from '@/lib/utils/day';
-import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
+import { getUserTimeZone } from '@/app/(content)/next-api-helpers';
 
 export default async function Layout({ children }: { children: ReactNode }) {
   const timeZone = await getUserTimeZone();

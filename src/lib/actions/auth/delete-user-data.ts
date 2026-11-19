@@ -7,7 +7,7 @@ import { getUserId } from '@/lib/actions/utils/get-user-id';
 export async function deleteUserData() {
   try {
     const userId = await getUserId();
-    // Activities and time entries are removed by ON DELETE CASCADE
+    // ON DELETE CASCADE removes activities and time entries
     await dbDeleteUser(userId);
     return { success: true };
   } catch (error: unknown) {

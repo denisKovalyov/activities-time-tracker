@@ -14,7 +14,7 @@ import {
   toDay,
 } from '@/lib/utils/day';
 import { getUserId } from '@/lib/actions/utils/get-user-id';
-import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
+import { getUserTimeZone } from '@/app/(content)/next-api-helpers';
 
 export default async function Statistics() {
   const userId = await getUserId();

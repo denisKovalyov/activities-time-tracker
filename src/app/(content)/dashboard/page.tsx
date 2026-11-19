@@ -6,7 +6,7 @@ import { listActivities } from '@/lib/db/activities';
 import { readTimeSnapshot } from '@/lib/db/time-entries';
 import { toDay } from '@/lib/utils/day';
 import { getUserId } from '@/lib/actions/utils/get-user-id';
-import { getUserTimeZone } from '@/app/(dashboard)/next-api-helpers';
+import { getUserTimeZone } from '@/app/(content)/next-api-helpers';
 
 export default async function Activities() {
   const userId = await getUserId();
