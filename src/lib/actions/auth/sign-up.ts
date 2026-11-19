@@ -4,10 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { Credentials } from '@/lib/definitions';
 import { SignUpSchema } from '@/lib/validation';
-import {
-  createUser as dbCreateUser,
-  getUser as dbGetUser,
-} from '@/lib/db/users';
+import { dbCreateUser, dbGetUser } from '@/lib/db/users';
 import { sendVerificationEmail } from '@/lib/actions/auth/utils/email-send';
 import {
   EMAIL_VERIFICATION_TTL_MS,

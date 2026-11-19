@@ -4,8 +4,8 @@ import {
   getDaysChartData,
   sumValues,
 } from '@/ui/statistics/chart-data';
-import { listActivities as dbListActivities } from '@/lib/db/activities';
-import { readTimeSnapshot as dbReadTimeSnapshot } from '@/lib/db/time-entries';
+import { dbListActivities } from '@/lib/db/activities';
+import { dbReadTimeSnapshot } from '@/lib/db/time-entries';
 import {
   type Day,
   addDays,

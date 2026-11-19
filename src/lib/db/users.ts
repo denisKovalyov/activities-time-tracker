@@ -3,7 +3,7 @@ import { sql } from '@vercel/postgres';
 
 import type { Credentials, User } from '@/lib/definitions';
 
-export async function getUser(email: string): Promise<User | undefined> {
+export async function dbGetUser(email: string): Promise<User | undefined> {
   try {
     const user = await sql<User>`SELECT * FROM "user" WHERE email=${email}`;
     return user.rows[0];
@@ -13,7 +13,7 @@ export async function getUser(email: string): Promise<User | undefined> {
   }
 }
 
-export async function createUser({
+export async function dbCreateUser({
   email,
   password: hashedPassword,
   emailVerificationTokenHash = null,
@@ -42,7 +42,7 @@ export async function createUser({
 // Checks the cooldown and replaces the token in one query, so parallel requests
 // can't send several emails. The previous token's send time is derived from its
 // expiry. Returns false if the user is missing, verified or within the cooldown.
-export async function replaceEmailVerificationToken(
+export async function dbReplaceEmailVerificationToken(
   email: string,
   tokenHash: string,
   expiresAt: Date,
@@ -65,9 +65,9 @@ export async function replaceEmailVerificationToken(
   }
 }
 
-// Same as replaceEmailVerificationToken. Returns false if the user is missing
+// Same as dbReplaceEmailVerificationToken. Returns false if the user is missing
 // or within the cooldown.
-export async function replacePasswordResetToken(
+export async function dbReplacePasswordResetToken(
   email: string,
   tokenHash: string,
   expiresAt: Date,
@@ -92,7 +92,7 @@ export async function replacePasswordResetToken(
 
 // Checks the token and uses it up in one query, so a link works only once.
 // Returns false if the token doesn't match or has expired.
-export async function verifyEmail(
+export async function dbVerifyEmail(
   email: string,
   tokenHash: string,
 ): Promise<boolean> {
@@ -110,7 +110,7 @@ export async function verifyEmail(
   }
 }
 
-export async function isPasswordResetTokenValid(
+export async function dbIsPasswordResetTokenValid(
   email: string,
   tokenHash: string,
 ): Promise<boolean> {
@@ -126,8 +126,8 @@ export async function isPasswordResetTokenValid(
   }
 }
 
-// Same as verifyEmail: one query, so a link works only once
-export async function resetPassword(
+// Same as dbVerifyEmail: one query, so a link works only once
+export async function dbResetPassword(
   email: string,
   tokenHash: string,
   hashedPassword: string,
@@ -146,7 +146,7 @@ export async function resetPassword(
   }
 }
 
-export async function deleteUser(id: string): Promise<void> {
+export async function dbDeleteUser(id: string): Promise<void> {
   try {
     await sql`DELETE FROM "user" WHERE id = ${id}`;
   } catch (error) {

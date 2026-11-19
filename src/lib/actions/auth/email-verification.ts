@@ -8,26 +8,34 @@ import {
   hashToken,
 } from '@/lib/actions/auth/utils/generate-token';
 import {
-  getUser as dbGetUser,
-  replaceEmailVerificationToken as dbReplaceEmailVerificationToken,
-  verifyEmail as dbVerifyEmail,
+  dbGetUser,
+  dbReplaceEmailVerificationToken,
+  dbVerifyEmail,
 } from '@/lib/db/users';
+import { EmailSchema, VerifyEmailSchema } from '@/lib/validation';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
+const INVALID_LINK_MESSAGE = 'The link is invalid or has expired.';
+
 export async function restartEmailVerification(email: string) {
+  const validatedFields = EmailSchema.safeParse({ email });
+  if (!validatedFields.success) return { message: 'Invalid data.' };
+
   try {
     const { token, tokenHash, expiresAt } = generateToken(
       EMAIL_VERIFICATION_TTL_MS,
     );
 
     const isTokenReplaced = await dbReplaceEmailVerificationToken(
-      email,
+      validatedFields.data.email,
       tokenHash,
       expiresAt,
       EMAIL_RESEND_COOLDOWN_MS,
     );
 
-    if (isTokenReplaced) await sendVerificationEmail(email, token);
+    if (isTokenReplaced) {
+      await sendVerificationEmail(validatedFields.data.email, token);
+    }
   } catch (error) {
     console.error('Error restarting email verification:', error);
     return { message: DEFAULT_ERROR_MESSAGE };
@@ -40,21 +48,19 @@ export async function restartEmailVerification(email: string) {
 }
 
 export async function verifyEmail(email: string | null, token: string | null) {
+  const validatedFields = VerifyEmailSchema.safeParse({ email, token });
+  if (!validatedFields.success) return { message: INVALID_LINK_MESSAGE };
+
   try {
-    if (!email || !token) {
-      return { message: 'Missing required fields' };
-    }
+    const { email: validEmail, token: validToken } = validatedFields.data;
 
-    // Verifying first takes one query in the usual case. Only if it fails, the
-    // user is checked: the link may have been opened once already. A token
-    // exists only for unverified users, so verifying needs no such check.
+    // Usually one query is enough. If it fails, the link may have been opened
+    // before, so check whether the email is already verified.
     const isVerified =
-      (await dbVerifyEmail(email, hashToken(token))) ||
-      Boolean((await dbGetUser(email))?.email_verified);
+      (await dbVerifyEmail(validEmail, hashToken(validToken))) ||
+      Boolean((await dbGetUser(validEmail))?.email_verified);
 
-    if (!isVerified) {
-      return { message: 'The link is invalid or has expired.' };
-    }
+    if (!isVerified) return { message: INVALID_LINK_MESSAGE };
 
     return {
       success: true,

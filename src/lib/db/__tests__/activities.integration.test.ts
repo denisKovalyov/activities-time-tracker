@@ -1,26 +1,26 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
-  createActivity,
-  deleteActivity,
-  listActivities,
-  moveActivities,
-  updateActivity,
+  dbCreateActivity,
+  dbDeleteActivity,
+  dbListActivities,
+  dbMoveActivities,
+  dbUpdateActivity,
 } from '@/lib/db/activities';
-import { startTimer } from '@/lib/db/time-entries';
+import { dbStartTimer } from '@/lib/db/time-entries';
 import { clearDatabase, createUser, query } from '@/test/integration/helpers';
 
 let userId: string;
 let otherUserId: string;
 
 const create = (name: string, user = userId) =>
-  createActivity(user, { name, color: 'ffffff', icon: 'circle' });
+  dbCreateActivity(user, { name, color: 'ffffff', icon: 'circle' });
 
 const move = (id: string, previousId: string | null) =>
-  moveActivities(userId, [{ id, previousId }]);
+  dbMoveActivities(userId, [{ id, previousId }]);
 
 const names = async () =>
-  (await listActivities(userId)).map(({ name }) => name);
+  (await dbListActivities(userId)).map(({ name }) => name);
 
 beforeEach(async () => {
   await clearDatabase();
@@ -40,7 +40,7 @@ describe('createActivity', () => {
   it('gives simultaneous creates different positions', async () => {
     await Promise.all(['A', 'B', 'C', 'D', 'E'].map((name) => create(name)));
 
-    const positions = (await listActivities(userId)).map((a) => a.position);
+    const positions = (await dbListActivities(userId)).map((a) => a.position);
     expect(new Set(positions).size).toBe(5);
   });
 });
@@ -82,7 +82,7 @@ describe('moveActivities', () => {
 
     await Promise.all([move(c.id, a.id), move(d.id, a.id)]);
 
-    const list = await listActivities(userId);
+    const list = await dbListActivities(userId);
     expect(new Set(list.map((x) => x.position)).size).toBe(4);
     expect(list[0].name).toBe('A');
   });
@@ -95,7 +95,7 @@ describe('moveActivities', () => {
       await move(i % 2 ? a.id : b.id, null);
     }
 
-    const lengths = (await listActivities(userId)).map(
+    const lengths = (await dbListActivities(userId)).map(
       (x) => x.position.length,
     );
     expect(Math.max(...lengths)).toBeLessThan(6);
@@ -105,10 +105,10 @@ describe('moveActivities', () => {
     const a = await create('A');
     const b = await create('B');
     const c = await create('C');
-    await deleteActivity(userId, a.id);
+    await dbDeleteActivity(userId, a.id);
 
     await expect(
-      moveActivities(userId, [
+      dbMoveActivities(userId, [
         { id: c.id, previousId: null },
         { id: b.id, previousId: a.id },
       ]),
@@ -121,10 +121,10 @@ describe('moveActivities', () => {
     await create('A');
     const b = await create('B');
     const c = await create('C');
-    await deleteActivity(userId, b.id);
+    await dbDeleteActivity(userId, b.id);
 
     await expect(
-      moveActivities(userId, [
+      dbMoveActivities(userId, [
         { id: c.id, previousId: null },
         { id: b.id, previousId: null },
       ]),
@@ -136,7 +136,7 @@ describe('moveActivities', () => {
   it('fails when the previous activity does not exist', async () => {
     const a = await create('A');
     const b = await create('B');
-    await deleteActivity(userId, a.id);
+    await dbDeleteActivity(userId, a.id);
 
     await expect(move(b.id, a.id)).rejects.toThrow();
   });
@@ -146,7 +146,7 @@ describe('updateActivity', () => {
   it('updates only the given fields', async () => {
     const a = await create('A');
 
-    const updated = await updateActivity(userId, a.id, { color: '000000' });
+    const updated = await dbUpdateActivity(userId, a.id, { color: '000000' });
 
     expect(updated).toMatchObject({
       name: 'A',
@@ -159,9 +159,9 @@ describe('updateActivity', () => {
 describe('deleteActivity', () => {
   it('removes time entries of the activity', async () => {
     const a = await create('A');
-    await startTimer(userId, a.id);
+    await dbStartTimer(userId, a.id);
 
-    await deleteActivity(userId, a.id);
+    await dbDeleteActivity(userId, a.id);
 
     expect(await query('SELECT * FROM time_entry')).toEqual([]);
   });
@@ -172,12 +172,12 @@ describe('other users', () => {
     const other = await create('X', otherUserId);
 
     expect(
-      await updateActivity(userId, other.id, { name: 'changed' }),
+      await dbUpdateActivity(userId, other.id, { name: 'changed' }),
     ).toBeUndefined();
     await expect(move(other.id, null)).rejects.toThrow();
-    await deleteActivity(userId, other.id);
+    await dbDeleteActivity(userId, other.id);
 
-    expect(await listActivities(userId)).toEqual([]);
-    expect((await listActivities(otherUserId))[0].name).toBe('X');
+    expect(await dbListActivities(userId)).toEqual([]);
+    expect((await dbListActivities(otherUserId))[0].name).toBe('X');
   });
 });

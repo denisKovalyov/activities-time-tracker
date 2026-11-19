@@ -5,10 +5,7 @@ import GoogleProvider from 'next-auth/providers/google';
 
 import type { Credentials, User } from '@/lib/definitions';
 import { authConfig } from './auth.config';
-import {
-  getUser as dbGetUser,
-  createUser as dbCreateUser,
-} from '@/lib/db/users';
+import { dbGetUser, dbCreateUser } from '@/lib/db/users';
 
 // The user goes to the JWT and the session, which the client can read, so
 // the password and token hashes must stay out

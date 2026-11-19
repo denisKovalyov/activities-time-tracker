@@ -3,10 +3,10 @@
 import { z } from 'zod';
 
 import {
-  createActivity as dbCreateActivity,
-  deleteActivity as dbDeleteActivity,
-  moveActivities as dbMoveActivities,
-  updateActivity as dbUpdateActivity,
+  dbCreateActivity,
+  dbDeleteActivity,
+  dbMoveActivities,
+  dbUpdateActivity,
 } from '@/lib/db/activities';
 import type { Activity, ActivityFields, Move } from '@/lib/db/types';
 import { ActivitySchema, EditActivitySchema } from '@/lib/validation';

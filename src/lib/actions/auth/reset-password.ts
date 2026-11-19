@@ -4,9 +4,9 @@ import { redirect } from 'next/navigation';
 
 import { setDelay } from '@/lib/utils';
 import {
-  isPasswordResetTokenValid as dbIsPasswordResetTokenValid,
-  replacePasswordResetToken as dbReplacePasswordResetToken,
-  resetPassword as dbResetPassword,
+  dbIsPasswordResetTokenValid,
+  dbReplacePasswordResetToken,
+  dbResetPassword,
 } from '@/lib/db/users';
 import { ResetPasswordSchema } from '@/lib/validation';
 import { sendResetPasswordEmail } from '@/lib/actions/auth/utils/email-send';

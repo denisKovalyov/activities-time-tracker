@@ -1,6 +1,6 @@
 'use server';
 
-import { deleteUser as dbDeleteUser } from '@/lib/db/users';
+import { dbDeleteUser } from '@/lib/db/users';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 import { getUserId } from '@/lib/actions/utils/get-user-id';
 

@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import { getUser as dbGetUser } from '@/lib/db/users';
+import { dbGetUser } from '@/lib/db/users';
 import { SettingsTabs } from '@/ui/settings/tabs';
 
 export default async function Settings({

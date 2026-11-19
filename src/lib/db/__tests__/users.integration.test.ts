@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
-  replaceEmailVerificationToken,
-  replacePasswordResetToken,
-  resetPassword,
-  verifyEmail,
+  dbReplaceEmailVerificationToken,
+  dbReplacePasswordResetToken,
+  dbResetPassword,
+  dbVerifyEmail,
 } from '@/lib/db/users';
 import { clearDatabase, createUser, query } from '@/test/integration/helpers';
 
@@ -22,7 +22,7 @@ const RESET_SENT_JUST_NOW = "now() + interval '1 hour'";
 const RESET_SENT_HALF_AN_HOUR_AGO = "now() + interval '30 minutes'";
 
 const replaceToken = (email = EMAIL, tokenHash = 'new-hash') =>
-  replaceEmailVerificationToken(
+  dbReplaceEmailVerificationToken(
     email,
     tokenHash,
     new Date(Date.now() + TTL_MS),
@@ -30,7 +30,7 @@ const replaceToken = (email = EMAIL, tokenHash = 'new-hash') =>
   );
 
 const replaceResetToken = (email = EMAIL, tokenHash = 'new-hash') =>
-  replacePasswordResetToken(
+  dbReplacePasswordResetToken(
     email,
     tokenHash,
     new Date(Date.now() + RESET_TTL_MS),
@@ -78,7 +78,7 @@ describe('resetPassword', () => {
   beforeEach(() => setToken('password_reset', TOKEN_HASH));
 
   it('saves the password and uses up the token', async () => {
-    expect(await resetPassword(EMAIL, TOKEN_HASH, 'new-hash')).toBe(true);
+    expect(await dbResetPassword(EMAIL, TOKEN_HASH, 'new-hash')).toBe(true);
 
     expect(await getUserRow()).toMatchObject({
       password: 'new-hash',
@@ -88,14 +88,16 @@ describe('resetPassword', () => {
   });
 
   it('works only once', async () => {
-    await resetPassword(EMAIL, TOKEN_HASH, 'new-hash');
+    await dbResetPassword(EMAIL, TOKEN_HASH, 'new-hash');
 
-    expect(await resetPassword(EMAIL, TOKEN_HASH, 'attacker-hash')).toBe(false);
+    expect(await dbResetPassword(EMAIL, TOKEN_HASH, 'attacker-hash')).toBe(
+      false,
+    );
     expect((await getUserRow()).password).toBe('new-hash');
   });
 
   it('rejects a wrong token', async () => {
-    expect(await resetPassword(EMAIL, 'wrong', 'attacker-hash')).toBe(false);
+    expect(await dbResetPassword(EMAIL, 'wrong', 'attacker-hash')).toBe(false);
 
     expect(await getUserRow()).toMatchObject({
       password: '',
@@ -106,15 +108,17 @@ describe('resetPassword', () => {
   it('rejects an expired token', async () => {
     await setToken('password_reset', TOKEN_HASH, { expiresAt: PAST });
 
-    expect(await resetPassword(EMAIL, TOKEN_HASH, 'attacker-hash')).toBe(false);
+    expect(await dbResetPassword(EMAIL, TOKEN_HASH, 'attacker-hash')).toBe(
+      false,
+    );
     expect((await getUserRow()).password).toBe('');
   });
 
   it('rejects any token when the user has none', async () => {
     await setToken('password_reset', null);
 
-    expect(await resetPassword(EMAIL, '', 'attacker-hash')).toBe(false);
-    expect(await resetPassword(EMAIL, 'null', 'attacker-hash')).toBe(false);
+    expect(await dbResetPassword(EMAIL, '', 'attacker-hash')).toBe(false);
+    expect(await dbResetPassword(EMAIL, 'null', 'attacker-hash')).toBe(false);
     expect((await getUserRow()).password).toBe('');
   });
 
@@ -122,14 +126,16 @@ describe('resetPassword', () => {
     await setToken('password_reset', null);
     await setToken('email_verification', TOKEN_HASH);
 
-    expect(await resetPassword(EMAIL, TOKEN_HASH, 'attacker-hash')).toBe(false);
+    expect(await dbResetPassword(EMAIL, TOKEN_HASH, 'attacker-hash')).toBe(
+      false,
+    );
     expect((await getUserRow()).password).toBe('');
   });
 
   it('rejects the token of another user', async () => {
     await setToken('password_reset', 'other-hash', { email: OTHER_EMAIL });
 
-    expect(await resetPassword(EMAIL, 'other-hash', 'attacker-hash')).toBe(
+    expect(await dbResetPassword(EMAIL, 'other-hash', 'attacker-hash')).toBe(
       false,
     );
     expect((await getUserRow()).password).toBe('');
@@ -250,7 +256,7 @@ describe('verifyEmail', () => {
   beforeEach(() => setToken('email_verification', TOKEN_HASH));
 
   it('verifies the email and uses up the token', async () => {
-    expect(await verifyEmail(EMAIL, TOKEN_HASH)).toBe(true);
+    expect(await dbVerifyEmail(EMAIL, TOKEN_HASH)).toBe(true);
 
     const user = await getUserRow();
     expect(user.email_verified).toBeInstanceOf(Date);
@@ -261,20 +267,20 @@ describe('verifyEmail', () => {
   });
 
   it('works only once', async () => {
-    await verifyEmail(EMAIL, TOKEN_HASH);
+    await dbVerifyEmail(EMAIL, TOKEN_HASH);
 
-    expect(await verifyEmail(EMAIL, TOKEN_HASH)).toBe(false);
+    expect(await dbVerifyEmail(EMAIL, TOKEN_HASH)).toBe(false);
   });
 
   it('rejects a wrong token', async () => {
-    expect(await verifyEmail(EMAIL, 'wrong')).toBe(false);
+    expect(await dbVerifyEmail(EMAIL, 'wrong')).toBe(false);
     expect((await getUserRow()).email_verified).toBeNull();
   });
 
   it('rejects an expired token', async () => {
     await setToken('email_verification', TOKEN_HASH, { expiresAt: PAST });
 
-    expect(await verifyEmail(EMAIL, TOKEN_HASH)).toBe(false);
+    expect(await dbVerifyEmail(EMAIL, TOKEN_HASH)).toBe(false);
     expect((await getUserRow()).email_verified).toBeNull();
   });
 
@@ -282,14 +288,14 @@ describe('verifyEmail', () => {
     await setToken('email_verification', null);
     await setToken('password_reset', TOKEN_HASH);
 
-    expect(await verifyEmail(EMAIL, TOKEN_HASH)).toBe(false);
+    expect(await dbVerifyEmail(EMAIL, TOKEN_HASH)).toBe(false);
     expect((await getUserRow()).email_verified).toBeNull();
   });
 
   it('rejects the token of another user', async () => {
     await setToken('email_verification', 'other-hash', { email: OTHER_EMAIL });
 
-    expect(await verifyEmail(EMAIL, 'other-hash')).toBe(false);
+    expect(await dbVerifyEmail(EMAIL, 'other-hash')).toBe(false);
     expect((await getUserRow()).email_verified).toBeNull();
     expect((await getUserRow(OTHER_EMAIL)).email_verified).toBeNull();
   });

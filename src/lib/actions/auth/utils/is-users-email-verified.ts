@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { getUser as dbGetUser } from '@/lib/db/users';
+import { dbGetUser } from '@/lib/db/users';
 
 // Not a server action (public endpoint), to prevent checking which emails are
 // registered. A missing user counts as verified: sign-in then reports invalid

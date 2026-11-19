@@ -26,6 +26,8 @@ reviews:
         access and SQL queries are parameterized. Exception: public auth
         actions. Sign-in, email verification and password reset are
         authorized by credentials or a single-use, expiring token. Sign-up
-        and requesting a token need only an email but must be rate-limited.
+        and requesting a token need only an email. Repeated emails to one
+        address are limited by a cooldown in the database; limiting by IP is
+        intentionally not used.
 chat:
   auto_reply: true
