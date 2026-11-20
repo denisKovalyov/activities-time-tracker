@@ -2,11 +2,11 @@ import 'server-only';
 import { sql } from '@vercel/postgres';
 
 import type { Credentials, User } from '@/lib/definitions';
-
-// Postgres intervals, counted from the time the email was sent
-const EMAIL_VERIFICATION_TTL = '1 day';
-const PASSWORD_RESET_TTL = '1 hour';
-const EMAIL_RESEND_COOLDOWN = '5 minutes';
+import {
+  EMAIL_RESEND_COOLDOWN,
+  EMAIL_VERIFICATION_TTL,
+  PASSWORD_RESET_TTL,
+} from '@/lib/constants';
 
 export async function dbGetUser(email: string): Promise<User | undefined> {
   try {
