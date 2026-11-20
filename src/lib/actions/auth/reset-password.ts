@@ -11,8 +11,6 @@ import {
 import { ResetPasswordSchema } from '@/lib/validation';
 import { sendResetPasswordEmail } from '@/lib/actions/auth/utils/email-send';
 import {
-  EMAIL_RESEND_COOLDOWN_MS,
-  PASSWORD_RESET_TTL_MS,
   generateToken,
   hashToken,
 } from '@/lib/actions/auth/utils/generate-token';
@@ -31,16 +29,9 @@ export async function sendResetPasswordLink(email: string) {
   const successLink = `/reset-password/sent?email=${encodeURIComponent(email)}`;
 
   try {
-    const { token, tokenHash, expiresAt } = generateToken(
-      PASSWORD_RESET_TTL_MS,
-    );
+    const { token, tokenHash } = generateToken();
 
-    const isTokenReplaced = await dbReplacePasswordResetToken(
-      email,
-      tokenHash,
-      expiresAt,
-      EMAIL_RESEND_COOLDOWN_MS,
-    );
+    const isTokenReplaced = await dbReplacePasswordResetToken(email, tokenHash);
 
     if (isTokenReplaced) await sendResetPasswordEmail(email, token);
   } catch (error) {

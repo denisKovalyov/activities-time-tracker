@@ -6,10 +6,7 @@ import { Credentials } from '@/lib/definitions';
 import { SignUpSchema } from '@/lib/validation';
 import { dbCreateUser, dbGetUser } from '@/lib/db/users';
 import { sendVerificationEmail } from '@/lib/actions/auth/utils/email-send';
-import {
-  EMAIL_VERIFICATION_TTL_MS,
-  generateToken,
-} from '@/lib/actions/auth/utils/generate-token';
+import { generateToken } from '@/lib/actions/auth/utils/generate-token';
 import { hashPassword } from '@/lib/actions/auth/utils/hash-password';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
@@ -35,15 +32,12 @@ export async function signUp({ email, password }: Credentials) {
       };
 
     const hashedPassword = await hashPassword(password);
-    const { token, tokenHash, expiresAt } = generateToken(
-      EMAIL_VERIFICATION_TTL_MS,
-    );
+    const { token, tokenHash } = generateToken();
 
     await dbCreateUser({
       email: email,
       password: hashedPassword,
       emailVerificationTokenHash: tokenHash,
-      emailVerificationExpiresAt: expiresAt,
     });
     await sendVerificationEmail(email, token);
   } catch (error) {

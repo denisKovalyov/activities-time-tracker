@@ -12,41 +12,29 @@ import { clearDatabase, createUser, query } from '@/test/integration/helpers';
 const EMAIL = 'user@test.com';
 const OTHER_EMAIL = 'other@test.com';
 const TOKEN_HASH = 'token-hash';
-const FUTURE = "now() + interval '1 hour'";
-const PAST = "now() - interval '1 minute'";
-const TTL_MS = 24 * 60 * 60 * 1000;
-const RESET_TTL_MS = 60 * 60 * 1000;
-const COOLDOWN_MS = 5 * 60 * 1000;
-const SENT_JUST_NOW = "now() + interval '24 hours'";
-const SENT_AN_HOUR_AGO = "now() + interval '23 hours'";
-const RESET_SENT_JUST_NOW = "now() + interval '1 hour'";
-const RESET_SENT_HALF_AN_HOUR_AGO = "now() + interval '30 minutes'";
+// The cooldown is 5 minutes, verification links live 1 day, reset links 1 hour
+const SENT_2_MINUTES_AGO = "now() - interval '2 minutes'";
+const SENT_10_MINUTES_AGO = "now() - interval '10 minutes'";
+const SENT_50_MINUTES_AGO = "now() - interval '50 minutes'";
+const SENT_2_HOURS_AGO = "now() - interval '2 hours'";
+const SENT_23_HOURS_AGO = "now() - interval '23 hours'";
+const SENT_2_DAYS_AGO = "now() - interval '2 days'";
 
 const replaceToken = (email = EMAIL, tokenHash = 'new-hash') =>
-  dbReplaceEmailVerificationToken(
-    email,
-    tokenHash,
-    new Date(Date.now() + TTL_MS),
-    COOLDOWN_MS,
-  );
+  dbReplaceEmailVerificationToken(email, tokenHash);
 
 const replaceResetToken = (email = EMAIL, tokenHash = 'new-hash') =>
-  dbReplacePasswordResetToken(
-    email,
-    tokenHash,
-    new Date(Date.now() + RESET_TTL_MS),
-    COOLDOWN_MS,
-  );
+  dbReplacePasswordResetToken(email, tokenHash);
 
-// Column names and expiry are interpolated: they come from the tests only
+// Column names and sent time are interpolated: they come from the tests only
 const setToken = (
   kind: 'email_verification' | 'password_reset',
   tokenHash: string | null,
-  { email = EMAIL, expiresAt = FUTURE } = {},
+  { email = EMAIL, sentAt = 'now()' } = {},
 ) =>
   query(
     `UPDATE "user"
-    SET ${kind}_token_hash=$1, ${kind}_expires_at=${expiresAt}
+    SET ${kind}_token_hash=$1, ${kind}_sent_at=${sentAt}
     WHERE email=$2`,
     [tokenHash, email],
   );
@@ -56,13 +44,13 @@ const getUserRow = async (email = EMAIL) => {
     password: string;
     email_verified: Date | null;
     email_verification_token_hash: string | null;
-    email_verification_expires_at: Date | null;
+    email_verification_sent_at: Date | null;
     password_reset_token_hash: string | null;
-    password_reset_expires_at: Date | null;
+    password_reset_sent_at: Date | null;
   }>(
     `SELECT password, email_verified, email_verification_token_hash,
-      email_verification_expires_at, password_reset_token_hash,
-      password_reset_expires_at
+      email_verification_sent_at, password_reset_token_hash,
+      password_reset_sent_at
     FROM "user" WHERE email=$1`,
     [email],
   );
@@ -93,9 +81,30 @@ describe('dbCreateUser', () => {
       Date,
     );
   });
+
+  it('saves when the verification email was sent', async () => {
+    await dbCreateUser({
+      email: 'new@test.com',
+      password: 'hash',
+      emailVerificationTokenHash: TOKEN_HASH,
+    });
+
+    expect(await getUserRow('new@test.com')).toMatchObject({
+      email_verification_token_hash: TOKEN_HASH,
+      email_verification_sent_at: expect.any(Date),
+    });
+  });
+
+  it('leaves the sent time empty without a token', async () => {
+    await dbCreateUser({ email: 'new@test.com', password: 'hash' });
+
+    expect(
+      (await getUserRow('new@test.com')).email_verification_sent_at,
+    ).toBeNull();
+  });
 });
 
-describe('resetPassword', () => {
+describe('dbResetPassword', () => {
   beforeEach(() => setToken('password_reset', TOKEN_HASH));
 
   it('saves the password and uses up the token', async () => {
@@ -104,7 +113,7 @@ describe('resetPassword', () => {
     expect(await getUserRow()).toMatchObject({
       password: 'new-hash',
       password_reset_token_hash: null,
-      password_reset_expires_at: null,
+      password_reset_sent_at: null,
     });
   });
 
@@ -126,8 +135,16 @@ describe('resetPassword', () => {
     });
   });
 
+  it('accepts a link sent less than an hour ago', async () => {
+    await setToken('password_reset', TOKEN_HASH, {
+      sentAt: SENT_50_MINUTES_AGO,
+    });
+
+    expect(await dbResetPassword(EMAIL, TOKEN_HASH, 'new-hash')).toBe(true);
+  });
+
   it('rejects an expired token', async () => {
-    await setToken('password_reset', TOKEN_HASH, { expiresAt: PAST });
+    await setToken('password_reset', TOKEN_HASH, { sentAt: SENT_2_HOURS_AGO });
 
     expect(await dbResetPassword(EMAIL, TOKEN_HASH, 'attacker-hash')).toBe(
       false,
@@ -164,10 +181,10 @@ describe('resetPassword', () => {
   });
 });
 
-describe('replaceEmailVerificationToken', () => {
+describe('dbReplaceEmailVerificationToken', () => {
   it('replaces a token sent before the cooldown', async () => {
     await setToken('email_verification', TOKEN_HASH, {
-      expiresAt: SENT_AN_HOUR_AGO,
+      sentAt: SENT_10_MINUTES_AGO,
     });
 
     expect(await replaceToken()).toBe(true);
@@ -181,7 +198,7 @@ describe('replaceEmailVerificationToken', () => {
 
   it('keeps a token sent within the cooldown', async () => {
     await setToken('email_verification', TOKEN_HASH, {
-      expiresAt: SENT_JUST_NOW,
+      sentAt: SENT_2_MINUTES_AGO,
     });
 
     expect(await replaceToken()).toBe(false);
@@ -219,10 +236,10 @@ describe('replaceEmailVerificationToken', () => {
   });
 });
 
-describe('replacePasswordResetToken', () => {
+describe('dbReplacePasswordResetToken', () => {
   it('replaces a token sent before the cooldown', async () => {
     await setToken('password_reset', TOKEN_HASH, {
-      expiresAt: RESET_SENT_HALF_AN_HOUR_AGO,
+      sentAt: SENT_10_MINUTES_AGO,
     });
 
     expect(await replaceResetToken()).toBe(true);
@@ -236,7 +253,7 @@ describe('replacePasswordResetToken', () => {
 
   it('keeps a token sent within the cooldown', async () => {
     await setToken('password_reset', TOKEN_HASH, {
-      expiresAt: RESET_SENT_JUST_NOW,
+      sentAt: SENT_2_MINUTES_AGO,
     });
 
     expect(await replaceResetToken()).toBe(false);
@@ -273,7 +290,7 @@ describe('replacePasswordResetToken', () => {
   });
 });
 
-describe('verifyEmail', () => {
+describe('dbVerifyEmail', () => {
   beforeEach(() => setToken('email_verification', TOKEN_HASH));
 
   it('verifies the email and uses up the token', async () => {
@@ -283,7 +300,7 @@ describe('verifyEmail', () => {
     expect(user.email_verified).toBeInstanceOf(Date);
     expect(user).toMatchObject({
       email_verification_token_hash: null,
-      email_verification_expires_at: null,
+      email_verification_sent_at: null,
     });
   });
 
@@ -298,8 +315,18 @@ describe('verifyEmail', () => {
     expect((await getUserRow()).email_verified).toBeNull();
   });
 
+  it('accepts a link sent less than a day ago', async () => {
+    await setToken('email_verification', TOKEN_HASH, {
+      sentAt: SENT_23_HOURS_AGO,
+    });
+
+    expect(await dbVerifyEmail(EMAIL, TOKEN_HASH)).toBe(true);
+  });
+
   it('rejects an expired token', async () => {
-    await setToken('email_verification', TOKEN_HASH, { expiresAt: PAST });
+    await setToken('email_verification', TOKEN_HASH, {
+      sentAt: SENT_2_DAYS_AGO,
+    });
 
     expect(await dbVerifyEmail(EMAIL, TOKEN_HASH)).toBe(false);
     expect((await getUserRow()).email_verified).toBeNull();
