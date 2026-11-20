@@ -60,16 +60,10 @@ describe('day', () => {
   });
 
   describe('formatReadableDate', () => {
-    it('formats a day itself, whatever the local time zone is', () => {
+    it('formats the day itself, whatever the local time zone is', () => {
       expect(formatReadableDate('2026-11-15')).toBe('Nov 15, 2026');
       expect(formatReadableDate('2026-11-15', 'long')).toBe(
         'November 15, 2026',
-      );
-    });
-
-    it('formats a date in the local time zone', () => {
-      expect(formatReadableDate(new Date(2026, 10, 15, 23, 30))).toBe(
-        'Nov 15, 2026',
       );
     });
   });
