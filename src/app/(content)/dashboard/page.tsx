@@ -3,7 +3,7 @@ import { RemoveActivityDialog } from '@/ui/dashboard/remove-activity-dialog';
 import { DashboardWrapper } from '@/ui/dashboard';
 import { TimerProvider } from '@/ui/timer/timer-provider';
 import { dbListActivities } from '@/lib/db/activities';
-import { dbReadTimeSnapshot } from '@/lib/db/time-entries';
+import { dbReadTimerAndTotals } from '@/lib/db/time-entries';
 import { toDay } from '@/lib/utils/day';
 import { getUserId } from '@/lib/actions/utils/get-user-id';
 import { getUserTimeZone } from '@/app/(content)/next-api-helpers';
@@ -17,15 +17,7 @@ export default async function Activities() {
 
   const [activities, { timer, totals }] = await Promise.all([
     dbListActivities(userId),
-    dbReadTimeSnapshot(userId, async (snapshot) => ({
-      timer: await snapshot.runningTimer(),
-      totals: await snapshot.totalsByActivity({
-        from: today,
-        to: today,
-        timeZone,
-        now,
-      }),
-    })),
+    dbReadTimerAndTotals(userId, { from: today, to: today, timeZone, now }),
   ]);
 
   return (

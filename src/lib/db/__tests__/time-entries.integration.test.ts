@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { dbCreateActivity } from '@/lib/db/activities';
 import {
-  dbReadTimeSnapshot,
+  dbReadTimerAndStatistics,
+  dbReadTimerAndTotals,
   dbStartTimer,
   dbStopTimer,
 } from '@/lib/db/time-entries';
@@ -17,13 +18,20 @@ const at = (iso: string) => new Date(iso);
 const create = (name: string, user = userId) =>
   dbCreateActivity(user, { name, color: 'ffffff', icon: 'circle' });
 
-// The app reads time only through snapshots
-const getRunningTimer = (user: string) =>
-  dbReadTimeSnapshot(user, (snapshot) => snapshot.runningTimer());
-const getTotalsByActivity = (user: string, days: DayRange) =>
-  dbReadTimeSnapshot(user, (snapshot) => snapshot.totalsByActivity(days));
-const getTotalsByDay = (user: string, days: DayRange) =>
-  dbReadTimeSnapshot(user, (snapshot) => snapshot.totalsByDay(days));
+// The app reads time only through these two snapshot reads
+const getRunningTimer = async (user: string) =>
+  (await dbReadTimerAndTotals(user, range({}))).timer;
+const getTotalsByActivity = async (user: string, days: DayRange) =>
+  (await dbReadTimerAndTotals(user, days)).totals;
+const getTotalsByDay = async (user: string, days: DayRange) =>
+  (
+    await dbReadTimerAndStatistics(user, {
+      days,
+      today: days,
+      week: days,
+      month: days,
+    })
+  ).days;
 
 const range = (overrides: Partial<DayRange>): DayRange => ({
   from: '2026-11-15',
@@ -209,22 +217,14 @@ describe('getTotalsByDay', () => {
   });
 });
 
-describe('readTimeSnapshot', () => {
+describe('dbReadTimerAndTotals', () => {
   it('reads the running timer and totals together', async () => {
     const a = await create('A');
     await dbStartTimer(userId, a.id, at('2026-11-15T10:00:00Z'));
 
-    const { timer, totals, days } = await dbReadTimeSnapshot(
+    const { timer, totals } = await dbReadTimerAndTotals(
       userId,
-      async (snapshot) => ({
-        timer: await snapshot.runningTimer(),
-        totals: await snapshot.totalsByActivity(
-          range({ now: at('2026-11-15T10:30:00Z') }),
-        ),
-        days: await snapshot.totalsByDay(
-          range({ now: at('2026-11-15T10:30:00Z') }),
-        ),
-      }),
+      range({ now: at('2026-11-15T10:30:00Z') }),
     );
 
     expect(timer).toEqual({
@@ -232,6 +232,38 @@ describe('readTimeSnapshot', () => {
       startedAt: at('2026-11-15T10:00:00Z'),
     });
     expect(totals).toEqual({ [a.id]: 1800 });
-    expect(days).toEqual([{ day: '2026-11-15', seconds: 1800 }]);
+  });
+});
+
+describe('dbReadTimerAndStatistics', () => {
+  it('reads the running timer, days and each range together', async () => {
+    const a = await create('A');
+    const b = await create('B');
+    await dbStartTimer(userId, b.id, at('2026-11-03T10:00:00Z'));
+    await dbStopTimer(userId, at('2026-11-03T11:00:00Z'));
+    await dbStartTimer(userId, a.id, at('2026-11-10T10:00:00Z'));
+    await dbStopTimer(userId, at('2026-11-10T11:00:00Z'));
+    await dbStartTimer(userId, a.id, at('2026-11-15T10:00:00Z'));
+
+    const now = at('2026-11-15T10:30:00Z');
+    const since = (from: string) => range({ from, now });
+
+    const statistics = await dbReadTimerAndStatistics(userId, {
+      days: since('2026-11-14'),
+      today: since('2026-11-15'),
+      week: since('2026-11-09'),
+      month: since('2026-11-01'),
+    });
+
+    expect(statistics).toEqual({
+      timer: { activityId: a.id, startedAt: at('2026-11-15T10:00:00Z') },
+      days: [
+        { day: '2026-11-14', seconds: 0 },
+        { day: '2026-11-15', seconds: 1800 },
+      ],
+      todayTotals: { [a.id]: 1800 },
+      weekTotals: { [a.id]: 5400 },
+      monthTotals: { [a.id]: 5400, [b.id]: 3600 },
+    });
   });
 });
