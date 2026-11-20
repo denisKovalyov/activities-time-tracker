@@ -17,7 +17,7 @@ import {
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
 import { createActivity, updateActivity } from '@/lib/actions/activities';
 import { useToast } from '@/ui/hooks/use-toast';
-import { matchFieldErrors } from '@/lib/utils';
+import { matchFieldErrors } from '@/lib/utils/ui';
 import {
   checkActivityExists,
   retrieveUpdatedValues,

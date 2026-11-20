@@ -14,7 +14,7 @@ import {
 import { SignOutButton } from '@/ui/layout/sign-out-button';
 import { Logo } from '@/ui/common/logo';
 import { MENU_ITEMS } from '@/ui/layout/constants';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 
 const itemClassNames =
   'flex h-9 w-9 items-center justify-center text-accent-foreground transition-colors hover:text-accent-foreground/80';

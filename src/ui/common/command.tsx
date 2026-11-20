@@ -5,7 +5,7 @@ import { type DialogProps } from '@radix-ui/react-dialog';
 import { MagnifyingGlass } from '@phosphor-icons/react';
 import { Command as CommandPrimitive } from 'cmdk';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 import { Dialog, DialogContent } from '@/ui/common/dialog';
 
 const Command = React.forwardRef<

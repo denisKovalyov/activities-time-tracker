@@ -5,7 +5,7 @@ import { type ReactNode, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import type { Icon } from '@phosphor-icons/react';
 import { MENU_ITEMS } from '@/ui/layout/constants';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 
 const ITEM_CLASS_NAME = 'flex items-end mx-6 p-4 rounded-full text-white';
 

@@ -19,7 +19,7 @@ import { DragButton } from '@/ui/dashboard/activities-list/activity-card/drag-bu
 import { ActivityTime } from '@/ui/dashboard/activities-list/activity-card/activity-time';
 import { useTimer } from '@/ui/timer/timer-provider';
 import { ActivitiesListItemProps } from '@/ui/dashboard/activities-list/types';
-import { cn, noop } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 
 export const ActivityListItem = ({
   activity,
@@ -77,7 +77,7 @@ export const ActivityListItem = ({
   });
 
   const controls = useDragControls();
-  const bindLongPress = useLongPress(isSwiping ? noop : onReorder);
+  const bindLongPress = useLongPress(isSwiping ? null : onReorder);
 
   const handleClickOutsideButtons = () => {
     setShift(0);

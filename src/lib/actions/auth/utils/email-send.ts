@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { getAppUrl } from '@/lib/actions/auth/utils/get-app-url';
-import { sendEmail } from '@/lib/actions/email/send-email';
+import { emailApiProvider } from '@/lib/email-api';
 import { EmailVerificationTemplate } from '@/ui/email-templates/email-verification';
 import { ResetPasswordTemplate } from '@/ui/email-templates/reset-password';
 
@@ -9,14 +9,14 @@ import { ResetPasswordTemplate } from '@/ui/email-templates/reset-password';
 // arbitrary addresses
 
 export const sendVerificationEmail = async (email: string, token: string) =>
-  sendEmail({
+  emailApiProvider.sendEmail({
     email,
     subject: 'Email Verification',
     body: EmailVerificationTemplate({ email, token, origin: getAppUrl() }),
   });
 
 export const sendResetPasswordEmail = async (email: string, token: string) =>
-  sendEmail({
+  emailApiProvider.sendEmail({
     email,
     subject: 'Reset Password',
     body: ResetPasswordTemplate({ email, token, origin: getAppUrl() }),

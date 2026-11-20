@@ -1,5 +1,5 @@
 import type { Activity, DayTotal, TimeTotals } from '@/lib/db/types';
-import { formatReadableDay } from '@/lib/utils/day';
+import { formatReadableDate } from '@/lib/utils/day';
 
 export type DataItem = {
   name: string;
@@ -28,7 +28,7 @@ export const getActivitiesChartData = (
 export const getDaysChartData = (days: DayTotal[]): DataItem[] =>
   days.toReversed().map(({ day, seconds }, i) => ({
     id: day,
-    name: i === 0 ? 'Today' : i === 1 ? 'Yesterday' : formatReadableDay(day),
+    name: i === 0 ? 'Today' : i === 1 ? 'Yesterday' : formatReadableDate(day),
     value: seconds,
   }));
 

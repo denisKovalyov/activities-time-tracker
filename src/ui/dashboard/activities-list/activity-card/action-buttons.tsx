@@ -2,7 +2,7 @@ import { forwardRef, CSSProperties } from 'react';
 import { ArrowsDownUp, NotePencil, X } from '@phosphor-icons/react';
 
 import { Button, ButtonProps } from '@/ui/common/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 
 const BUTTON_WIDTH = 55;
 export const BUTTONS_WIDTH = BUTTON_WIDTH * 3;

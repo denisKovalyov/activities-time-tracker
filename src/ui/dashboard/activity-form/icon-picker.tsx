@@ -16,7 +16,7 @@ import {
 import { Drawer, DrawerContent, DrawerTrigger } from '@/ui/common/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from '@/ui/common/popover';
 import { Icon, icons as iconsMap } from '@/ui/common/icon';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 
 const icons: string[] = Object.keys(iconsMap);
 

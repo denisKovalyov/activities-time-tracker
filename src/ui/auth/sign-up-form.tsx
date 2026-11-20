@@ -18,7 +18,8 @@ import { Logo } from '@/ui/common/logo';
 import { PasswordField } from './password-field';
 import { GoogleSignIn } from './google-sign-in';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
-import { cn, matchFieldErrors } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
+import { matchFieldErrors } from '@/lib/utils/ui';
 
 export function SignUpForm() {
   const [signUpError, setSignUpError] = useState<string | null>(null);

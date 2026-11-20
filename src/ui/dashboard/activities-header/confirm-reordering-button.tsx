@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { Button } from '@/ui/common/button';
 import { useRouter } from '@/ui/hooks/use-router';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 
 export const ConfirmReorderingButton = () => {
   const { router, pathname } = useRouter();

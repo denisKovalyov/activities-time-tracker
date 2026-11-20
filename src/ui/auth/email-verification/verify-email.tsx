@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { verifyEmail } from '@/lib/actions/auth/email-verification';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 import { buttonVariants } from '@/ui/common/button';
 import { Logo } from '@/ui/common/logo';
 import { Skeleton } from '@/ui/common/skeleton';
