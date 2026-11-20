@@ -2,8 +2,6 @@
 
 import { sendVerificationEmail } from '@/lib/actions/auth/utils/email-send';
 import {
-  EMAIL_RESEND_COOLDOWN_MS,
-  EMAIL_VERIFICATION_TTL_MS,
   generateToken,
   hashToken,
 } from '@/lib/actions/auth/utils/generate-token';
@@ -22,15 +20,11 @@ export async function restartEmailVerification(email: string) {
   if (!validatedFields.success) return { message: 'Invalid data.' };
 
   try {
-    const { token, tokenHash, expiresAt } = generateToken(
-      EMAIL_VERIFICATION_TTL_MS,
-    );
+    const { token, tokenHash } = generateToken();
 
     const isTokenReplaced = await dbReplaceEmailVerificationToken(
       validatedFields.data.email,
       tokenHash,
-      expiresAt,
-      EMAIL_RESEND_COOLDOWN_MS,
     );
 
     if (isTokenReplaced) {

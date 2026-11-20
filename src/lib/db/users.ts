@@ -2,13 +2,18 @@ import 'server-only';
 import { sql } from '@vercel/postgres';
 
 import type { Credentials, User } from '@/lib/definitions';
+import {
+  EMAIL_RESEND_COOLDOWN,
+  EMAIL_VERIFICATION_TTL,
+  PASSWORD_RESET_TTL,
+} from '@/lib/constants';
 
 export async function dbGetUser(email: string): Promise<User | undefined> {
   try {
     const user = await sql<User>`SELECT * FROM "user" WHERE email=${email}`;
     return user.rows[0];
   } catch (error) {
-    console.error('DB: nFailed to fetch user:', error);
+    console.error('DB: Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');
   }
 }
@@ -18,22 +23,22 @@ export async function dbCreateUser({
   password: hashedPassword,
   emailVerified = null,
   emailVerificationTokenHash = null,
-  emailVerificationExpiresAt = null,
 }: Credentials & {
   emailVerified?: Date | null;
   emailVerificationTokenHash?: string | null;
-  emailVerificationExpiresAt?: Date | null;
 }): Promise<User> {
   try {
     const date = new Date().toISOString();
 
     const result = await sql`
       INSERT INTO "user"(name, email, password, email_verified,
-        email_verification_token_hash, email_verification_expires_at,
+        email_verification_token_hash, email_verification_sent_at,
         created_at, updated_at)
       VALUES ('', ${email}, ${hashedPassword},
         ${emailVerified?.toISOString() ?? null}, ${emailVerificationTokenHash},
-        ${emailVerificationExpiresAt?.toISOString() ?? null}, ${date}, ${date})
+        CASE WHEN ${emailVerificationTokenHash}::text IS NULL THEN NULL
+          ELSE now() END,
+        ${date}, ${date})
       RETURNING *`;
 
     return result.rows[0] as User;
@@ -44,24 +49,21 @@ export async function dbCreateUser({
 }
 
 // Checks the cooldown and replaces the token in one query, so parallel requests
-// can't send several emails. The previous token's send time is derived from its
-// expiry. Returns false if the user is missing, verified or within the cooldown.
+// can't send several emails. Returns false if the user is missing, verified or
+// the previous email was sent within the cooldown.
 export async function dbReplaceEmailVerificationToken(
   email: string,
   tokenHash: string,
-  expiresAt: Date,
-  cooldownMs: number,
 ): Promise<boolean> {
   try {
-    const latestAllowedExpiry = new Date(expiresAt.getTime() - cooldownMs);
     const result = await sql`
       UPDATE "user"
       SET email_verification_token_hash=${tokenHash},
-        email_verification_expires_at=${expiresAt.toISOString()},
-        updated_at=now()
+        email_verification_sent_at=now(), updated_at=now()
       WHERE email=${email} AND email_verified IS NULL
-        AND (email_verification_expires_at IS NULL
-          OR email_verification_expires_at <= ${latestAllowedExpiry.toISOString()})`;
+        AND (email_verification_sent_at IS NULL
+          OR email_verification_sent_at
+            <= now() - ${EMAIL_RESEND_COOLDOWN}::interval)`;
     return result.rowCount === 1;
   } catch (error) {
     console.error('DB: failed to replace email verification token:', error);
@@ -70,23 +72,20 @@ export async function dbReplaceEmailVerificationToken(
 }
 
 // Same as dbReplaceEmailVerificationToken. Returns false if the user is missing
-// or within the cooldown.
+// or the previous email was sent within the cooldown.
 export async function dbReplacePasswordResetToken(
   email: string,
   tokenHash: string,
-  expiresAt: Date,
-  cooldownMs: number,
 ): Promise<boolean> {
   try {
-    const latestAllowedExpiry = new Date(expiresAt.getTime() - cooldownMs);
     const result = await sql`
       UPDATE "user"
       SET password_reset_token_hash=${tokenHash},
-        password_reset_expires_at=${expiresAt.toISOString()},
-        updated_at=now()
+        password_reset_sent_at=now(), updated_at=now()
       WHERE email=${email}
-        AND (password_reset_expires_at IS NULL
-          OR password_reset_expires_at <= ${latestAllowedExpiry.toISOString()})`;
+        AND (password_reset_sent_at IS NULL
+          OR password_reset_sent_at
+            <= now() - ${EMAIL_RESEND_COOLDOWN}::interval)`;
     return result.rowCount === 1;
   } catch (error) {
     console.error('DB: failed to replace password reset token:', error);
@@ -104,9 +103,10 @@ export async function dbVerifyEmail(
     const result = await sql`
       UPDATE "user"
       SET email_verified=now(), email_verification_token_hash=NULL,
-        email_verification_expires_at=NULL, updated_at=now()
+        email_verification_sent_at=NULL, updated_at=now()
       WHERE email=${email} AND email_verification_token_hash=${tokenHash}
-        AND email_verification_expires_at > now()`;
+        AND email_verification_sent_at
+          > now() - ${EMAIL_VERIFICATION_TTL}::interval`;
     return result.rowCount === 1;
   } catch (error) {
     console.error('DB: failed to verify email:', error);
@@ -122,7 +122,7 @@ export async function dbIsPasswordResetTokenValid(
     const result = await sql`
       SELECT 1 FROM "user"
       WHERE email=${email} AND password_reset_token_hash=${tokenHash}
-        AND password_reset_expires_at > now()`;
+        AND password_reset_sent_at > now() - ${PASSWORD_RESET_TTL}::interval`;
     return result.rowCount === 1;
   } catch (error) {
     console.error('DB: failed to check password reset token:', error);
@@ -140,9 +140,9 @@ export async function dbResetPassword(
     const result = await sql`
       UPDATE "user"
       SET password=${hashedPassword}, password_reset_token_hash=NULL,
-        password_reset_expires_at=NULL, updated_at=now()
+        password_reset_sent_at=NULL, updated_at=now()
       WHERE email=${email} AND password_reset_token_hash=${tokenHash}
-        AND password_reset_expires_at > now()`;
+        AND password_reset_sent_at > now() - ${PASSWORD_RESET_TTL}::interval`;
     return result.rowCount === 1;
   } catch (error) {
     console.error('DB: failed to reset password:', error);
