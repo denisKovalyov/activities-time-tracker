@@ -45,15 +45,12 @@ export const getWeekStart = (day: Day): Day => {
 
 export const getMonthStart = (day: Day): Day => `${day.slice(0, 8)}01`;
 
-// E.g. "Nov 15, 2026". A Date is formatted in the local time zone. A Day is
-// formatted in UTC, where it was parsed, so the local time zone can't shift it
-// to another day.
+// E.g. "Nov 15, 2026". Formatted in UTC, where it was parsed, so the local
+// time zone can't shift it to another day.
 export const formatReadableDate = (
-  date: Date | Day,
+  day: Day,
   dateStyle: Intl.DateTimeFormatOptions['dateStyle'] = 'medium',
 ) =>
-  typeof date === 'string'
-    ? new Intl.DateTimeFormat('en-US', { dateStyle, timeZone: 'UTC' }).format(
-        parseUtcDay(date),
-      )
-    : new Intl.DateTimeFormat('en-US', { dateStyle }).format(date);
+  new Intl.DateTimeFormat('en-US', { dateStyle, timeZone: 'UTC' }).format(
+    parseUtcDay(day),
+  );
