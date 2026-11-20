@@ -28,5 +28,3 @@ export const getCookies = () =>
     },
     {} as Record<string, string>,
   );
-
-export const noop = () => {};

@@ -1,5 +1,5 @@
 import { Logo } from '@/ui/common/logo';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 
 export function LoadingOverlay({
   show,

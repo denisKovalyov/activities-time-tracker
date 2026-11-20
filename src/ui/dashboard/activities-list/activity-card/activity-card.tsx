@@ -4,7 +4,7 @@ import { Card } from '@/ui/common/card';
 import { PlayPauseButton } from '@/ui/dashboard/activities-list/activity-card/play-pause-button';
 import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activity-icon';
 import { ActivityDropdownMenu } from '@/ui/dashboard/activities-list/activity-card/activity-dropdown-menu';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 import type { Activity } from '@/lib/db/types';
 
 export const ActivityCard = ({

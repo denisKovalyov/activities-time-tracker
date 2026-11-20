@@ -11,7 +11,7 @@ import {
   CardHeader,
 } from '@/ui/common/card';
 import { RemoveAccountDialog } from '@/ui/settings/remove-account-dialog';
-import { formatReadableDate } from '@/lib/utils';
+import { formatReadableDate } from '@/lib/utils/day';
 import { AccountDetails } from '@/ui/settings/types';
 
 const SUB_TITLE = 'Make changes to your account';
@@ -49,9 +49,10 @@ export const Account = ({ account: user }: { account?: AccountDetails }) => {
             <span className={paramNameStyle}>Created At</span>
             <span className="truncate px-4">
               {user?.created_at
-                ? formatReadableDate(new Date(user.created_at!), {
-                    dateStyle: isDesktop ? 'long' : 'medium',
-                  })
+                ? formatReadableDate(
+                    new Date(user.created_at!),
+                    isDesktop ? 'long' : 'medium',
+                  )
                 : ''}
             </span>
           </div>
@@ -60,9 +61,10 @@ export const Account = ({ account: user }: { account?: AccountDetails }) => {
             <span className={paramNameStyle}>Updated At</span>
             <span className="truncate px-4">
               {user?.updated_at
-                ? formatReadableDate(new Date(user.updated_at!), {
-                    dateStyle: isDesktop ? 'long' : 'medium',
-                  })
+                ? formatReadableDate(
+                    new Date(user.updated_at!),
+                    isDesktop ? 'long' : 'medium',
+                  )
                 : ''}
             </span>
           </div>

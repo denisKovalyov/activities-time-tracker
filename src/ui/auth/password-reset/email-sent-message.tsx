@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 import { buttonVariants } from '@/ui/common/button';
 
 const TITLE = 'Check Your Mailbox!';

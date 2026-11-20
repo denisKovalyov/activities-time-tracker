@@ -2,7 +2,7 @@ import { useState, PointerEvent } from 'react';
 import { List } from '@phosphor-icons/react';
 
 import { Button } from '@/ui/common/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 
 export type DragButtonProps = {
   onDragStart: (e: PointerEvent<HTMLButtonElement>) => void;

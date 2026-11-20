@@ -11,6 +11,8 @@ export const isValidTimeZone = (timeZone: string) => {
   }
 };
 
+// The calendar day of the moment in the given time zone, e.g. 23:30 UTC on
+// Nov 20 is already Nov 21 in Kyiv
 export const toDay = (date: Date, timeZone: string): Day => {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone,
@@ -26,38 +28,32 @@ export const toDay = (date: Date, timeZone: string): Day => {
 
 // Day arithmetic is done in UTC, where every day has exactly 24 hours,
 // so DST changes in the user's time zone can't shift the result.
-const parseDay = (day: Day) => new Date(`${day}T00:00:00Z`);
-const formatDay = (date: Date): Day => date.toISOString().slice(0, 10);
-
-const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-
-// The round trip rejects days that don't exist, e.g. 2026-02-30
-export const isDay = (value: string): value is Day => {
-  if (!DAY_PATTERN.test(value)) return false;
-  const date = parseDay(value);
-  return !Number.isNaN(date.getTime()) && formatDay(date) === value;
-};
+const parseUtcDay = (day: Day) => new Date(`${day}T00:00:00Z`);
+const toUtcDay = (date: Date): Day => date.toISOString().slice(0, 10);
 
 export const addDays = (day: Day, amount: number): Day => {
-  const date = parseDay(day);
+  const date = parseUtcDay(day);
   date.setUTCDate(date.getUTCDate() + amount);
-  return formatDay(date);
+  return toUtcDay(date);
 };
 
 // Weeks start on Monday
 export const getWeekStart = (day: Day): Day => {
-  const daysSinceMonday = (parseDay(day).getUTCDay() + 6) % 7;
+  const daysSinceMonday = (parseUtcDay(day).getUTCDay() + 6) % 7;
   return addDays(day, -daysSinceMonday);
 };
 
 export const getMonthStart = (day: Day): Day => `${day.slice(0, 8)}01`;
 
-// E.g. "Nov 15, 2026". Formatted in UTC, where it was parsed, so the local
-// time zone can't shift it to another day.
-export const formatReadableDay = (
-  day: Day,
+// E.g. "Nov 15, 2026". A Date is formatted in the local time zone. A Day is
+// formatted in UTC, where it was parsed, so the local time zone can't shift it
+// to another day.
+export const formatReadableDate = (
+  date: Date | Day,
   dateStyle: Intl.DateTimeFormatOptions['dateStyle'] = 'medium',
 ) =>
-  new Intl.DateTimeFormat('en-US', { dateStyle, timeZone: 'UTC' }).format(
-    parseDay(day),
-  );
+  typeof date === 'string'
+    ? new Intl.DateTimeFormat('en-US', { dateStyle, timeZone: 'UTC' }).format(
+        parseUtcDay(date),
+      )
+    : new Intl.DateTimeFormat('en-US', { dateStyle }).format(date);

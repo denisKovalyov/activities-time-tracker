@@ -23,7 +23,7 @@ import {
 } from '@/ui/common/chart';
 import {
   type Day,
-  formatReadableDay,
+  formatReadableDate,
   getMonthStart,
   getWeekStart,
 } from '@/lib/utils/day';
@@ -183,12 +183,12 @@ export function TimeChart({
     : 'No data';
 
   const dateStyle = isDesktop ? 'long' : 'medium';
-  let dateStr = formatReadableDay(today, dateStyle);
+  let dateStr = formatReadableDate(today, dateStyle);
   if (period === 'week' || period === 'month') {
     const periodStart = (period === 'week' ? getWeekStart : getMonthStart)(
       today,
     );
-    dateStr = `${formatReadableDay(periodStart, dateStyle)} - ${dateStr}`;
+    dateStr = `${formatReadableDate(periodStart, dateStyle)} - ${dateStr}`;
   }
 
   const approximateLabelWidth =

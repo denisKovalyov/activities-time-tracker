@@ -8,7 +8,7 @@ import {
 } from '@phosphor-icons/react/dist/ssr';
 
 import { Button } from '@/ui/common/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 import {
   DropdownMenu,
   DropdownMenuTrigger,

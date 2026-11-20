@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 
-import { setDelay } from '@/lib/utils';
+import { setDelay } from '@/lib/utils/common';
 import {
   dbIsPasswordResetTokenValid,
   dbReplacePasswordResetToken,

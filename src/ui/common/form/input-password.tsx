@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Input, type InputProps } from './input';
 import { Button } from '@/ui/common/button';
 import { Eye, EyeSlash } from '@phosphor-icons/react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 
 const InputPassword = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, ...props }, ref) => {

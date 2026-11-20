@@ -2,7 +2,7 @@ import { FormFieldInput } from '@/ui/common/form';
 import { InputIcon } from '@/ui/common/form/input-icon';
 import { Palette } from '@phosphor-icons/react';
 import { HexColorPicker } from 'react-colorful';
-import { getRandomValue } from '@/lib/utils';
+import { getRandomValue } from '@/lib/utils/common';
 
 const BASIC_COLORS = [
   '#FF5733', // Bright Orange

@@ -1,5 +1,5 @@
 import { Icon, IconProps } from '@/ui/common/icon';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/common';
 
 export const ActivityIcon = ({
   name,
