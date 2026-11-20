@@ -171,29 +171,51 @@ const queryTotalsByDay = async (
   return result.rows;
 };
 
-export type TimeSnapshot = {
-  runningTimer: () => Promise<RunningTimer | null>;
-  totalsByActivity: (range: DayRange) => Promise<TimeTotals>;
-  totalsByDay: (range: DayRange) => Promise<DayTotal[]>;
-};
-
-// Reads the running timer and totals from one snapshot of the database, so
+// The running timer and totals are read from one snapshot of the database, so
 // the live time added on top of the totals can't count a switch twice
-export async function dbReadTimeSnapshot<T>(
-  userId: string,
-  read: (snapshot: TimeSnapshot) => Promise<T>,
+async function readFromSnapshot<T>(
+  read: (client: VercelPoolClient) => Promise<T>,
 ): Promise<T> {
   try {
-    return await withSnapshot((client) =>
-      read({
-        runningTimer: () => queryRunningTimer(client, userId),
-        totalsByActivity: (range) =>
-          queryTotalsByActivity(client, userId, range),
-        totalsByDay: (range) => queryTotalsByDay(client, userId, range),
-      }),
-    );
+    return await withSnapshot(read);
   } catch (error) {
     console.error('DB: Failed to read time snapshot:', error);
     throw new Error('Failed to read time snapshot.');
   }
 }
+
+export const dbReadTimerAndTotals = (
+  userId: string,
+  range: DayRange,
+): Promise<{ timer: RunningTimer | null; totals: TimeTotals }> =>
+  readFromSnapshot(async (client) => ({
+    timer: await queryRunningTimer(client, userId),
+    totals: await queryTotalsByActivity(client, userId, range),
+  }));
+
+export type StatisticsRanges = {
+  days: DayRange;
+  today: DayRange;
+  week: DayRange;
+  month: DayRange;
+};
+
+export type Statistics = {
+  timer: RunningTimer | null;
+  days: DayTotal[];
+  todayTotals: TimeTotals;
+  weekTotals: TimeTotals;
+  monthTotals: TimeTotals;
+};
+
+export const dbReadTimerAndStatistics = (
+  userId: string,
+  ranges: StatisticsRanges,
+): Promise<Statistics> =>
+  readFromSnapshot(async (client) => ({
+    timer: await queryRunningTimer(client, userId),
+    days: await queryTotalsByDay(client, userId, ranges.days),
+    todayTotals: await queryTotalsByActivity(client, userId, ranges.today),
+    weekTotals: await queryTotalsByActivity(client, userId, ranges.week),
+    monthTotals: await queryTotalsByActivity(client, userId, ranges.month),
+  }));

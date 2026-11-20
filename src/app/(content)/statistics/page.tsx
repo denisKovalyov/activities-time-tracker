@@ -5,7 +5,7 @@ import {
   sumValues,
 } from '@/ui/statistics/chart-data';
 import { dbListActivities } from '@/lib/db/activities';
-import { dbReadTimeSnapshot } from '@/lib/db/time-entries';
+import { dbReadTimerAndStatistics } from '@/lib/db/time-entries';
 import {
   type Day,
   addDays,
@@ -27,15 +27,12 @@ export default async function Statistics() {
     await Promise.all([
       dbListActivities(userId),
       // The charts add live time of the running timer on top of the totals
-      dbReadTimeSnapshot(userId, async (snapshot) => ({
-        timer: await snapshot.runningTimer(),
-        days: await snapshot.totalsByDay(since(addDays(today, -6))),
-        todayTotals: await snapshot.totalsByActivity(since(today)),
-        weekTotals: await snapshot.totalsByActivity(since(getWeekStart(today))),
-        monthTotals: await snapshot.totalsByActivity(
-          since(getMonthStart(today)),
-        ),
-      })),
+      dbReadTimerAndStatistics(userId, {
+        days: since(addDays(today, -6)),
+        today: since(today),
+        week: since(getWeekStart(today)),
+        month: since(getMonthStart(today)),
+      }),
     ]);
 
   const runningActivity =
