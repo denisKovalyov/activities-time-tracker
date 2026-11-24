@@ -121,10 +121,12 @@ describe('dbStartTimer / dbStopTimer', () => {
 
     await dbStartTimer(userId, b.id);
 
-    const [first, second] = await getEntries();
-    expect(first.ended_at).toEqual(at(future));
-    expect(second.started_at).toEqual(at(future));
-    expect(second.activity_id).toBe(b.id);
+    // Both entries start at `future`, so they're found by activity, not order
+    const entries = await getEntries();
+    const entryOf = (id: string) => entries.find((e) => e.activity_id === id);
+    expect(entries).toHaveLength(2);
+    expect(entryOf(a.id)?.ended_at).toEqual(at(future));
+    expect(entryOf(b.id)?.started_at).toEqual(at(future));
   });
 
   it('rejects an activity of another user', async () => {
