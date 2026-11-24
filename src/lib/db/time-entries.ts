@@ -92,16 +92,12 @@ export async function dbStopTimer(
   }
 }
 
-// Seconds of entry `e` that fall within [range_start, range_end). E.g. an
-// entry from 23:00 to 01:00 gives 3600 for the second day.
-const SECONDS_IN_RANGE_SQL = `
-  -- 0 if the entry and the range don't overlap
-  GREATEST(0, EXTRACT(EPOCH FROM
-    -- The entry's end, cut to the range. A running entry ends now ($5).
-    LEAST(COALESCE(e.ended_at, $5), range_end)
-    -- minus the entry's start, cut to the range
-    - GREATEST(e.started_at, range_start)
-  ))`;
+// Seconds of entry `e` within [range_start, range_end):
+// min(end, range_end) - max(start, range_start), but not below 0.
+// A running entry ends now ($5). E.g. 23:00-01:00 gives 3600 for the second day.
+const SECONDS_IN_RANGE_SQL = `GREATEST(0, EXTRACT(EPOCH FROM
+  LEAST(COALESCE(e.ended_at, $5), range_end) - GREATEST(e.started_at, range_start)
+))`;
 
 // $1 user id, $2 first day, $3 last day, $4 time zone, $5 now
 const rangeParams = (userId: string, range: DayRange) => [
