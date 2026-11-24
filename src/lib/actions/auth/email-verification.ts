@@ -15,7 +15,7 @@ import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 
 const INVALID_LINK_MESSAGE = 'The link is invalid or has expired.';
 
-export async function restartEmailVerification(email: string) {
+export async function restartEmailVerification(email: string | null) {
   const validatedFields = EmailSchema.safeParse({ email });
   if (!validatedFields.success) return { message: 'Invalid data.' };
 

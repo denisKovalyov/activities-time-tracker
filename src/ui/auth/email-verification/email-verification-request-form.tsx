@@ -16,7 +16,7 @@ export function EmailVerificationRequestForm() {
   const verificationSent = Boolean(searchParams.get('verification_sent'));
 
   const [formState, action] = useActionState(
-    () => restartEmailVerification(email!),
+    () => restartEmailVerification(email),
     undefined,
   );
 
