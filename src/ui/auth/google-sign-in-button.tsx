@@ -2,7 +2,7 @@ import { useFormStatus } from 'react-dom';
 import { GoogleLogo } from '@/ui/common/google-logo';
 import { Button } from '@/ui/common/button';
 
-export function GoogleSignIn() {
+export function GoogleSignInButton() {
   const { pending } = useFormStatus();
 
   return (

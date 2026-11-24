@@ -1,22 +1,21 @@
 'use client';
 
-import { useState, useActionState } from 'react';
+import { useState, useActionState, useTransition } from 'react';
 import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Credentials } from '@/lib/definitions';
 import { SignInSchema } from '@/lib/validation';
-import { useAction } from '@/ui/hooks/use-action';
 import { authenticate, googleAuthenticate } from '@/lib/actions/auth/sign-in';
 import { Button, buttonVariants } from '@/ui/common/button';
 import { Form, FormFieldInput, FormMessage } from '@/ui/common/form';
 import { InputPassword } from '@/ui/common/form/input-password';
 import { Logo } from '@/ui/common/logo';
 import { TextSeparator } from '@/ui/common/separator';
-import { GoogleSignIn } from './google-sign-in';
+import { GoogleSignInButton } from './google-sign-in-button';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
-import { SetCookies } from '@/ui/auth/set-cookies';
+import { SyncTimeZoneCookie } from './sync-time-zone-cookie';
 import { cn } from '@/lib/utils/common';
 import { matchFieldErrors } from '@/lib/utils/ui';
 
@@ -26,7 +25,7 @@ export function SignInForm() {
     googleAuthenticate,
     undefined,
   );
-  const { action: auth, isLoading } = useAction(authenticate);
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
@@ -36,23 +35,25 @@ export function SignInForm() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof SignInSchema>) => {
+  const onSubmit = (values: z.infer<typeof SignInSchema>) => {
     setLoginError(null);
 
-    const result = await auth(values);
+    startTransition(async () => {
+      const result = await authenticate(values);
 
-    if (result?.message) setLoginError(result.message);
-    if (result?.errors) {
-      matchFieldErrors<Credentials>(result.errors, form.setError);
-    }
+      if (result?.message) setLoginError(result.message);
+      if (result?.errors) {
+        matchFieldErrors<Credentials>(result.errors, form.setError);
+      }
+    });
   };
 
   const hasErrors = loginError || errorMsgGoogle;
 
   return (
     <div className="relative w-80 rounded-md bg-white p-6 text-secondary">
-      <SetCookies />
-      <LoadingOverlay show={isLoading} className="rounded-md" />
+      <SyncTimeZoneCookie />
+      <LoadingOverlay show={isPending} className="rounded-md" />
 
       <div className="mb-2 flex h-14 justify-center">
         <Logo />
@@ -98,7 +99,7 @@ export function SignInForm() {
       <TextSeparator className="my-3" text="or" />
 
       <form action={dispatchGoogle}>
-        <GoogleSignIn />
+        <GoogleSignInButton />
       </form>
 
       <div className="mt-4 flex items-center justify-center">
