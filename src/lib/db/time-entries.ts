@@ -14,13 +14,12 @@ type RunningTimerRow = { activity_id: string; started_at: Date };
 const toRunningTimer = (row?: RunningTimerRow): RunningTimer | null =>
   row ? { activityId: row.activity_id, startedAt: row.started_at } : null;
 
-// The moment of a timer switch: the running entry ends and the next one starts
-// at it. It's the current time, but never before the user's latest entry, so
-// entries can't overlap even if the clock goes back.
-async function getSwitchTime(
+// The current time, but never before the user's latest entry, so entries can't
+// overlap even if the clock goes back
+const getSwitchTime = async (
   client: VercelPoolClient,
   userId: string,
-): Promise<Date> {
+): Promise<Date> => {
   const result = await client.query<{ at: Date }>(
     `SELECT GREATEST(
       clock_timestamp(),
@@ -30,12 +29,20 @@ async function getSwitchTime(
     [userId],
   );
   return result.rows[0].at;
-}
+};
 
-const STOP_RUNNING_SQL = `
-  UPDATE time_entry SET ended_at=$2
-  WHERE user_id=$1 AND ended_at IS NULL
-  RETURNING activity_id, started_at`;
+// Ends the running entry, if there is one. Returns the stop time, so the next
+// entry can start at it, and the stopped timer (null if nothing was running).
+const stopRunningEntry = async (client: VercelPoolClient, userId: string) => {
+  const stoppedAt = await getSwitchTime(client, userId);
+  const result = await client.query<RunningTimerRow>(
+    `UPDATE time_entry SET ended_at=$2
+    WHERE user_id=$1 AND ended_at IS NULL
+    RETURNING activity_id, started_at`,
+    [userId, stoppedAt],
+  );
+  return { stoppedAt, stopped: toRunningTimer(result.rows[0]) };
+};
 
 const queryRunningTimer = async (client: VercelPoolClient, userId: string) => {
   const result = await client.query<RunningTimerRow>(
@@ -56,14 +63,13 @@ export async function dbStartTimer(
       const running = await queryRunningTimer(client, userId);
       if (running?.activityId === activityId) return running;
 
-      const switchTime = await getSwitchTime(client, userId);
-      await client.query(STOP_RUNNING_SQL, [userId, switchTime]);
+      const { stoppedAt } = await stopRunningEntry(client, userId);
       // The foreign key rejects an activity of another user
       const started = await client.query<RunningTimerRow>(
         `INSERT INTO time_entry(user_id, activity_id, started_at)
         VALUES ($1, $2, $3)
         RETURNING activity_id, started_at`,
-        [userId, activityId, switchTime],
+        [userId, activityId, stoppedAt],
       );
       return toRunningTimer(started.rows[0])!;
     });
@@ -78,14 +84,10 @@ export async function dbStopTimer(
   userId: string,
 ): Promise<RunningTimer | null> {
   try {
-    return await withUserLock(userId, async (client) => {
-      const switchTime = await getSwitchTime(client, userId);
-      const stopped = await client.query<RunningTimerRow>(STOP_RUNNING_SQL, [
-        userId,
-        switchTime,
-      ]);
-      return toRunningTimer(stopped.rows[0]);
-    });
+    return await withUserLock(
+      userId,
+      async (client) => (await stopRunningEntry(client, userId)).stopped,
+    );
   } catch (error) {
     console.error('DB: Failed to stop timer:', error);
     throw new Error('Failed to stop timer.');
