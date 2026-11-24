@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -16,6 +16,7 @@ import {
 } from '@/lib/actions/auth/reset-password';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
 import { Skeleton } from '@/ui/common/skeleton';
+import { SyncTimeZoneCookie } from '@/ui/auth/sync-time-zone-cookie';
 
 const TITLE = 'Save New Password';
 const TEXT = 'Please enter your new password below.';
@@ -26,7 +27,7 @@ export function PasswordSaveForm() {
   const token = searchParams.get('token');
 
   const [isPageLoading, setIsPageLoading] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>();
 
   const form = useForm<z.infer<typeof SaveNewPasswordSchema>>({
@@ -43,30 +44,26 @@ export function PasswordSaveForm() {
     });
   }, [email, token]);
 
-  const onSubmit = async (values: z.infer<typeof SaveNewPasswordSchema>) => {
+  const onSubmit = (values: z.infer<typeof SaveNewPasswordSchema>) => {
     setError(null);
-    setIsLoading(true);
 
-    const result = await saveNewPassword(
-      email as string,
-      token as string,
-      values.password,
-    );
+    startTransition(async () => {
+      const result = await saveNewPassword(email, token, values.password);
 
-    if (result?.message) {
-      setError(result.message);
-      setIsLoading(false);
-      return;
-    }
+      if (result?.message) {
+        setError(result.message);
+        return;
+      }
 
-    const loginResult = await authenticate({
-      email: email as string,
-      password: values.password,
+      const loginResult = await authenticate({
+        email: email ?? '',
+        password: values.password,
+      });
+
+      if (loginResult?.message) {
+        setError('Something went wrong');
+      }
     });
-
-    if (loginResult?.message) {
-      setError('Something went wrong');
-    }
   };
 
   if (isPageLoading) {
@@ -75,7 +72,8 @@ export function PasswordSaveForm() {
 
   return (
     <div className="relative w-80 rounded-md bg-white p-6 text-secondary">
-      <LoadingOverlay show={isLoading} className="rounded-md" />
+      <SyncTimeZoneCookie />
+      <LoadingOverlay show={isPending} className="rounded-md" />
 
       <div className="prose-lg mb-4 text-center text-primary">{TITLE}</div>
       <div className="prose-sm mb-4">{TEXT}</div>

@@ -63,8 +63,8 @@ export async function checkResetPasswordLink(
 // A public endpoint: the token from the link is checked here, not only when
 // the page is opened
 export async function saveNewPassword(
-  email: string,
-  token: string,
+  email: string | null,
+  token: string | null,
   password: string,
 ) {
   const validatedFields = ResetPasswordSchema.safeParse({
