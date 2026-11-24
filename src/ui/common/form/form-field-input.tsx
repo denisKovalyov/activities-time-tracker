@@ -1,6 +1,12 @@
 'use client';
 
-import { FC, HTMLInputTypeAttribute, ReactNode, ElementType } from 'react';
+import {
+  HTMLInputTypeAttribute,
+  ReactNode,
+  ElementType,
+  KeyboardEvent,
+  FocusEvent,
+} from 'react';
 import { clsx } from 'clsx';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import {
@@ -21,7 +27,7 @@ export interface FormFieldInputProps extends InputProps {
   placeholder?: string;
   description?: ReactNode;
   showTooltip?: boolean;
-  inputComponent?: ElementType | FC<InputProps>;
+  inputComponent?: ElementType;
   renderCustomInput?: (className: string) => ReactNode;
   inputProps?: { [key: string]: unknown };
   tooltipContent?: ReactNode;
@@ -40,6 +46,7 @@ export const FormFieldInput = ({
   tooltipContent,
   allowedSymbols,
   inputProps = {},
+  onBlur,
   ...props
 }: FormFieldInputProps) => {
   const {
@@ -64,13 +71,18 @@ export const FormFieldInput = ({
         type={type}
         onKeyDown={
           allowedSymbols
-            ? (e: KeyboardEvent) => {
-                if (e.key.length > 1 || e.metaKey) return;
+            ? (e: KeyboardEvent<HTMLInputElement>) => {
+                if (e.key.length > 1 || e.metaKey || e.ctrlKey || e.altKey)
+                  return;
                 if (!allowedSymbols.test(e.key)) e.preventDefault();
               }
             : undefined
         }
         {...field}
+        onBlur={(e: FocusEvent<HTMLInputElement>) => {
+          field.onBlur();
+          onBlur?.(e);
+        }}
         {...props}
         {...inputProps}
       />
