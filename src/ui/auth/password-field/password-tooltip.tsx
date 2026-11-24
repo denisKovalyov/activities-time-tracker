@@ -20,13 +20,17 @@ const RULES: Requirement[] = [
   SPECIAL_CHAR_REQUIREMENT,
 ];
 
-export function PasswordTooltipContent({
-  requirements = [],
+export function PasswordTooltip({
+  requirements,
   markAsError,
 }: PasswordTooltipProps) {
   const renderItem = (requirement: Requirement) => {
     const isFulfilled = !requirements.includes(requirement);
-    let Icon = isFulfilled ? CheckCircle : markAsError ? WarningCircle : Minus;
+    const Icon = isFulfilled
+      ? CheckCircle
+      : markAsError
+        ? WarningCircle
+        : Minus;
 
     return (
       <li

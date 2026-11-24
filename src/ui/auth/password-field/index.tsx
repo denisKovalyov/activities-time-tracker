@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { FormFieldInput } from '@/ui/common/form';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { PasswordTooltipContent } from '@/ui/auth/password-field/password-tooltip';
+import { PasswordTooltip } from './password-tooltip';
 import { InputPassword } from '@/ui/common/form/input-password';
 import { validatePassword } from '@/lib/validation';
 
@@ -15,10 +15,10 @@ export function PasswordField() {
     formState: { errors },
   } = useFormContext();
 
-  const password = useWatch({ control: control, name: 'password' });
+  const password = useWatch({ control, name: 'password' });
 
   const passwordRequirements = (
-    <PasswordTooltipContent
+    <PasswordTooltip
       requirements={validatePassword(password) || []}
       markAsError={Boolean(errors.password)}
     />

@@ -10,7 +10,7 @@ import { buttonVariants } from '@/ui/common/button';
 import { Logo } from '@/ui/common/logo';
 import { Skeleton } from '@/ui/common/skeleton';
 
-export default function VerifyEmail() {
+export function VerifyEmail() {
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
   const token = searchParams.get('token');

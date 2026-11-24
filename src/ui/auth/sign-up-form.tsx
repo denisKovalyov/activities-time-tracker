@@ -104,7 +104,7 @@ export function SignUpForm() {
       </div>
 
       <div className="flex items-center justify-center">
-        <span className="mr-2 text-sm">Already an have account?</span>
+        <span className="mr-2 text-sm">Already have an account?</span>
         <Link
           className={cn(
             buttonVariants({
