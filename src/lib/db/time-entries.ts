@@ -16,19 +16,18 @@ const toRunningTimer = (row?: RunningTimerRow): RunningTimer | null =>
 
 // The moment of a timer switch: the running entry ends and the next one starts
 // at it. It's the current time, but never before the user's latest entry, so
-// entries can't overlap even if the clock goes back. Tests pass a fixed `now`.
+// entries can't overlap even if the clock goes back.
 async function getSwitchTime(
   client: VercelPoolClient,
   userId: string,
-  now?: Date,
 ): Promise<Date> {
   const result = await client.query<{ at: Date }>(
     `SELECT GREATEST(
-      COALESCE($2::timestamptz, clock_timestamp()),
+      clock_timestamp(),
       (SELECT COALESCE(ended_at, started_at) FROM time_entry
         WHERE user_id=$1 ORDER BY started_at DESC LIMIT 1)
     ) AS at`,
-    [userId, now ?? null],
+    [userId],
   );
   return result.rows[0].at;
 }
@@ -51,14 +50,13 @@ const queryRunningTimer = async (client: VercelPoolClient, userId: string) => {
 export async function dbStartTimer(
   userId: string,
   activityId: string,
-  now?: Date,
 ): Promise<RunningTimer> {
   try {
     return await withUserLock(userId, async (client) => {
       const running = await queryRunningTimer(client, userId);
       if (running?.activityId === activityId) return running;
 
-      const switchTime = await getSwitchTime(client, userId, now);
+      const switchTime = await getSwitchTime(client, userId);
       await client.query(STOP_RUNNING_SQL, [userId, switchTime]);
       // The foreign key rejects an activity of another user
       const started = await client.query<RunningTimerRow>(
@@ -78,11 +76,10 @@ export async function dbStartTimer(
 // Returns the stopped timer, or null if nothing was running
 export async function dbStopTimer(
   userId: string,
-  now?: Date,
 ): Promise<RunningTimer | null> {
   try {
     return await withUserLock(userId, async (client) => {
-      const switchTime = await getSwitchTime(client, userId, now);
+      const switchTime = await getSwitchTime(client, userId);
       const stopped = await client.query<RunningTimerRow>(STOP_RUNNING_SQL, [
         userId,
         switchTime,

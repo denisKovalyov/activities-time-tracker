@@ -18,6 +18,24 @@ const at = (iso: string) => new Date(iso);
 const create = (name: string, user = userId) =>
   dbCreateActivity(user, { name, color: 'ffffff', icon: 'circle' });
 
+// Entries at fixed times for the totals tests. A null end means it's running.
+const addEntry = (
+  activityId: string,
+  startedAt: string,
+  endedAt: string | null = null,
+  user = userId,
+) =>
+  query(
+    `INSERT INTO time_entry(user_id, activity_id, started_at, ended_at)
+    VALUES ($1, $2, $3, $4)`,
+    [user, activityId, startedAt, endedAt],
+  );
+
+const getEntries = () =>
+  query<{ activity_id: string; started_at: Date; ended_at: Date | null }>(
+    'SELECT activity_id, started_at, ended_at FROM time_entry ORDER BY started_at',
+  );
+
 // The app reads time only through these two snapshot reads
 const getRunningTimer = async (user: string) =>
   (await dbReadTimerAndTotals(user, range({}))).timer;
@@ -47,33 +65,35 @@ beforeEach(async () => {
   otherUserId = await createUser('other@test.com');
 });
 
-describe('startTimer / dbStopTimer', () => {
+describe('dbStartTimer / dbStopTimer', () => {
   it('starts, switches and stops the timer', async () => {
     const a = await create('A');
     const b = await create('B');
 
-    await dbStartTimer(userId, a.id, at('2026-11-15T10:00:00Z'));
-    await dbStartTimer(userId, b.id, at('2026-11-15T10:10:00Z'));
+    await dbStartTimer(userId, a.id);
+    await dbStartTimer(userId, b.id);
     expect((await getRunningTimer(userId))?.activityId).toBe(b.id);
 
-    const stopped = await dbStopTimer(userId, at('2026-11-15T10:30:00Z'));
+    const stopped = await dbStopTimer(userId);
 
     expect(stopped?.activityId).toBe(b.id);
     expect(await getRunningTimer(userId)).toBeNull();
-    expect(await getTotalsByActivity(userId, range({}))).toEqual({
-      [a.id]: 600,
-      [b.id]: 1200,
-    });
+    const [first, second] = await getEntries();
+    expect(first.activity_id).toBe(a.id);
+    expect(second.activity_id).toBe(b.id);
+    // B starts exactly when A ends
+    expect(second.started_at).toEqual(first.ended_at);
+    expect(second.ended_at! >= second.started_at).toBe(true);
   });
 
   it('keeps the timer when the running activity is started again', async () => {
     const a = await create('A');
 
-    await dbStartTimer(userId, a.id, at('2026-11-15T10:00:00Z'));
-    const timer = await dbStartTimer(userId, a.id, at('2026-11-15T10:05:00Z'));
+    const started = await dbStartTimer(userId, a.id);
+    const timer = await dbStartTimer(userId, a.id);
 
-    expect(timer.startedAt).toEqual(at('2026-11-15T10:00:00Z'));
-    expect(await query('SELECT * FROM time_entry')).toHaveLength(1);
+    expect(timer.startedAt).toEqual(started.startedAt);
+    expect(await getEntries()).toHaveLength(1);
   });
 
   it('returns null when stopping without a running timer', async () => {
@@ -93,23 +113,18 @@ describe('startTimer / dbStopTimer', () => {
     expect(await query('SELECT * FROM time_entry')).toHaveLength(5);
   });
 
-  it("doesn't create overlapping entries when a request comes late", async () => {
+  it("doesn't start before the latest entry when the clock is behind", async () => {
     const a = await create('A');
     const b = await create('B');
-    const c = await create('C');
+    const future = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    await addEntry(a.id, future);
 
-    await dbStartTimer(userId, a.id, at('2026-11-15T09:00:00Z'));
-    await dbStartTimer(userId, c.id, at('2026-11-15T10:00:01Z'));
-    // Captured its time before the previous request, but handled after it
-    await dbStartTimer(userId, b.id, at('2026-11-15T10:00:00Z'));
+    await dbStartTimer(userId, b.id);
 
-    const entries = await query<{ started_at: Date; ended_at: Date | null }>(
-      'SELECT started_at, ended_at FROM time_entry ORDER BY started_at',
-    );
-    entries.slice(1).forEach((entry, i) => {
-      expect(entry.started_at >= entries[i].ended_at!).toBe(true);
-    });
-    expect((await getRunningTimer(userId))?.activityId).toBe(b.id);
+    const [first, second] = await getEntries();
+    expect(first.ended_at).toEqual(at(future));
+    expect(second.started_at).toEqual(at(future));
+    expect(second.activity_id).toBe(b.id);
   });
 
   it('rejects an activity of another user', async () => {
@@ -124,8 +139,7 @@ describe('getTotalsByActivity', () => {
   it('splits an entry at midnight in the user time zone', async () => {
     const a = await create('A');
     // Kyiv is UTC+2 in November: 23:00 - 01:30 local time
-    await dbStartTimer(userId, a.id, at('2026-11-14T21:00:00Z'));
-    await dbStopTimer(userId, at('2026-11-14T23:30:00Z'));
+    await addEntry(a.id, '2026-11-14T21:00:00Z', '2026-11-14T23:30:00Z');
     const kyiv = (from: string, to = from) =>
       range({ from, to, timeZone: 'Europe/Kyiv' });
 
@@ -149,7 +163,7 @@ describe('getTotalsByActivity', () => {
 
   it('counts a running timer up to now, also when started yesterday', async () => {
     const a = await create('A');
-    await dbStartTimer(userId, a.id, at('2026-11-14T23:00:00Z'));
+    await addEntry(a.id, '2026-11-14T23:00:00Z');
 
     expect(
       await getTotalsByActivity(
@@ -161,7 +175,7 @@ describe('getTotalsByActivity', () => {
 
   it("doesn't count entries of other users", async () => {
     const other = await create('X', otherUserId);
-    await dbStartTimer(otherUserId, other.id, at('2026-11-15T10:00:00Z'));
+    await addEntry(other.id, '2026-11-15T10:00:00Z', null, otherUserId);
 
     expect(await getTotalsByActivity(userId, range({}))).toEqual({});
   });
@@ -170,7 +184,7 @@ describe('getTotalsByActivity', () => {
 describe('getTotalsByDay', () => {
   it('returns every day of the range, including days without time', async () => {
     const a = await create('A');
-    await dbStartTimer(userId, a.id, at('2026-11-14T23:00:00Z'));
+    await addEntry(a.id, '2026-11-14T23:00:00Z');
 
     const days = await getTotalsByDay(
       userId,
@@ -192,8 +206,7 @@ describe('getTotalsByDay', () => {
   it('handles the 25-hour day when DST ends', async () => {
     const a = await create('A');
     // Kyiv, 2026-10-25: from 2026-10-24T21:00Z to 2026-10-25T22:00Z
-    await dbStartTimer(userId, a.id, at('2026-10-24T20:00:00Z'));
-    await dbStopTimer(userId, at('2026-10-25T23:00:00Z'));
+    await addEntry(a.id, '2026-10-24T20:00:00Z', '2026-10-25T23:00:00Z');
 
     const days = await getTotalsByDay(
       userId,
@@ -209,7 +222,7 @@ describe('getTotalsByDay', () => {
 
   it("doesn't count entries of other users", async () => {
     const other = await create('X', otherUserId);
-    await dbStartTimer(otherUserId, other.id, at('2026-11-15T10:00:00Z'));
+    await addEntry(other.id, '2026-11-15T10:00:00Z', null, otherUserId);
 
     const [day] = await getTotalsByDay(userId, range({}));
 
@@ -220,7 +233,7 @@ describe('getTotalsByDay', () => {
 describe('dbReadTimerAndTotals', () => {
   it('reads the running timer and totals together', async () => {
     const a = await create('A');
-    await dbStartTimer(userId, a.id, at('2026-11-15T10:00:00Z'));
+    await addEntry(a.id, '2026-11-15T10:00:00Z');
 
     const { timer, totals } = await dbReadTimerAndTotals(
       userId,
@@ -239,11 +252,9 @@ describe('dbReadTimerAndStatistics', () => {
   it('reads the running timer, days and each range together', async () => {
     const a = await create('A');
     const b = await create('B');
-    await dbStartTimer(userId, b.id, at('2026-11-03T10:00:00Z'));
-    await dbStopTimer(userId, at('2026-11-03T11:00:00Z'));
-    await dbStartTimer(userId, a.id, at('2026-11-10T10:00:00Z'));
-    await dbStopTimer(userId, at('2026-11-10T11:00:00Z'));
-    await dbStartTimer(userId, a.id, at('2026-11-15T10:00:00Z'));
+    await addEntry(b.id, '2026-11-03T10:00:00Z', '2026-11-03T11:00:00Z');
+    await addEntry(a.id, '2026-11-10T10:00:00Z', '2026-11-10T11:00:00Z');
+    await addEntry(a.id, '2026-11-15T10:00:00Z');
 
     const now = at('2026-11-15T10:30:00Z');
     const since = (from: string) => range({ from, now });
