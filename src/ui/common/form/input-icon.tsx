@@ -5,12 +5,12 @@ import { Input, InputProps } from './input';
 import { Button } from '@/ui/common/button';
 import { cn } from '@/lib/utils/common';
 
-export type InputButtonProps = InputProps & {
+export type InputIconProps = InputProps & {
   icon: ReactNode;
   onButtonClick?: () => void;
 };
 
-const InputIcon = React.forwardRef<HTMLInputElement, InputButtonProps>(
+const InputIcon = React.forwardRef<HTMLInputElement, InputIconProps>(
   ({ className, icon, onButtonClick, ...props }, ref) => {
     return (
       <div className="relative">
@@ -36,6 +36,6 @@ const InputIcon = React.forwardRef<HTMLInputElement, InputButtonProps>(
   },
 );
 
-InputIcon.displayName = 'InputButton';
+InputIcon.displayName = 'InputIcon';
 
 export { InputIcon };
