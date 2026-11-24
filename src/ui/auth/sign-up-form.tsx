@@ -17,6 +17,7 @@ import { Logo } from '@/ui/common/logo';
 import { PasswordField } from './password-field';
 import { GoogleSignInButton } from './google-sign-in-button';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
+import { SyncTimeZoneCookie } from './sync-time-zone-cookie';
 import { cn } from '@/lib/utils/common';
 import { matchFieldErrors } from '@/lib/utils/ui';
 
@@ -52,6 +53,7 @@ export function SignUpForm() {
 
   return (
     <div className="relative w-80 rounded-md bg-white p-6 text-secondary">
+      <SyncTimeZoneCookie />
       <LoadingOverlay show={isPending} className="rounded-md" />
 
       <div className="mb-2 flex h-14 justify-center">
