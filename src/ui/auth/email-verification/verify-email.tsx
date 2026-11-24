@@ -21,11 +21,8 @@ export default function VerifyEmail() {
 
   useEffect(() => {
     if (!isPageLoading) return;
-    const verify = async (
-      emailDecoded: string | null,
-      token: string | null,
-    ) => {
-      const result = await verifyEmail(emailDecoded, token);
+    const verify = async () => {
+      const result = await verifyEmail(email, token);
       setIsPageLoading(false);
 
       if (result.success) {
@@ -36,8 +33,7 @@ export default function VerifyEmail() {
       setError(result.message);
     };
 
-    let emailDecoded = email ? decodeURIComponent(email) : email;
-    void verify(emailDecoded, token);
+    void verify();
   }, [email, token, isPageLoading]);
 
   if (isPageLoading) {
