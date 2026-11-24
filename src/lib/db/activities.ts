@@ -65,6 +65,8 @@ export async function dbUpdateActivity(
       .join(', ');
     const values = [...names.map((name) => fields[name]), id, userId];
 
+    // The id comes from the client, while user_id is taken from the session on
+    // the server, so users can edit and delete only their own activities
     const result = await sql.query<Activity>(
       `UPDATE activity SET ${setString}
       WHERE id=$${values.length - 1} AND user_id=$${values.length}
@@ -78,34 +80,55 @@ export async function dbUpdateActivity(
   }
 }
 
-// The next neighbour is read from the database, not taken from the client,
-// so a stale list can't produce equal positions.
-async function applyMove(
+const queryPosition = async (
   client: VercelPoolClient,
   userId: string,
-  { id, previousId }: Move,
-): Promise<Activity | undefined> {
-  let previousPosition: string | null = null;
-  if (previousId) {
-    const previous = await client.query<Pick<Activity, 'position'>>(
-      'SELECT position FROM activity WHERE id=$1 AND user_id=$2',
-      [previousId, userId],
-    );
-    if (!previous.rows[0]) throw new Error('Previous activity not found.');
-    previousPosition = previous.rows[0].position;
-  }
+  id: string,
+): Promise<string> => {
+  const result = await client.query<Pick<Activity, 'position'>>(
+    'SELECT position FROM activity WHERE id=$1 AND user_id=$2',
+    [id, userId],
+  );
+  if (!result.rows[0]) throw new Error('Previous activity not found.');
+  return result.rows[0].position;
+};
 
-  const next = await client.query<Pick<Activity, 'position'>>(
+// The next neighbor: the first activity after the previous one (or the first
+// one if there's no previous), skipping the moved activity
+const queryNextPosition = async (
+  client: VercelPoolClient,
+  userId: string,
+  after: string | null,
+  movingId: string,
+): Promise<string | null> => {
+  const result = await client.query<Pick<Activity, 'position'>>(
     `SELECT position FROM activity
     WHERE user_id=$1 AND id<>$2 AND ($3::text IS NULL OR position > $3)
     ORDER BY position
     LIMIT 1`,
-    [userId, id, previousPosition],
+    [userId, movingId, after],
   );
-  const position = generateKeyBetween(
+  return result.rows[0]?.position ?? null;
+};
+
+// Puts the activity between `previousId` and the activity after it. The next
+// neighbor is read from the database, not taken from the client, so a stale
+// list can't produce equal positions.
+const applyMove = async (
+  client: VercelPoolClient,
+  userId: string,
+  { id, previousId }: Move,
+): Promise<Activity | undefined> => {
+  const previousPosition = previousId
+    ? await queryPosition(client, userId, previousId)
+    : null;
+  const nextPosition = await queryNextPosition(
+    client,
+    userId,
     previousPosition,
-    next.rows[0]?.position ?? null,
+    id,
   );
+  const position = generateKeyBetween(previousPosition, nextPosition);
 
   const result = await client.query<Activity>(
     `UPDATE activity SET position=$1, updated_at=now()
@@ -114,7 +137,7 @@ async function applyMove(
     [position, id, userId],
   );
   return result.rows[0];
-}
+};
 
 // All or none: a move of a missing activity (e.g. deleted in another tab) or
 // of another user's activity fails the whole batch.
