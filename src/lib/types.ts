@@ -46,12 +46,3 @@ export type DayTotal = {
   day: string;
   seconds: number;
 };
-
-// Calendar days (inclusive) in the user's time zone. A running timer is
-// counted up to `now`.
-export type DayRange = {
-  from: string;
-  to: string;
-  timeZone: string;
-  now: Date;
-};

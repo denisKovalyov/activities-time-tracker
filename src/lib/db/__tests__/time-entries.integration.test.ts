@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { dbCreateActivity } from '@/lib/db/activities';
 import {
+  type DayRange,
   dbReadTimerAndStatistics,
   dbReadTimerAndTotals,
   dbStartTimer,
   dbStopTimer,
 } from '@/lib/db/time-entries';
-import type { DayRange } from '@/lib/types';
 import { clearDatabase, createUser, query } from '@/test/integration/helpers';
 
 let userId: string;

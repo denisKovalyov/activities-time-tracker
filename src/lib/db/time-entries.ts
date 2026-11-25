@@ -2,7 +2,16 @@ import 'server-only';
 import type { VercelPoolClient } from '@vercel/postgres';
 
 import { withSnapshot, withUserLock } from '@/lib/db/transaction';
-import type { DayRange, DayTotal, RunningTimer, TimeTotals } from '@/lib/types';
+import type { DayTotal, RunningTimer, TimeTotals } from '@/lib/types';
+
+// Calendar days (inclusive) in the user's time zone. A running timer is
+// counted up to `now`.
+export type DayRange = {
+  from: string;
+  to: string;
+  timeZone: string;
+  now: Date;
+};
 
 type RunningTimerRow = { activity_id: string; started_at: Date };
 
