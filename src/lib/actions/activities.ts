@@ -8,7 +8,7 @@ import {
   dbMoveActivities,
   dbUpdateActivity,
 } from '@/lib/db/activities';
-import type { Activity, ActivityFields, Move } from '@/lib/db/types';
+import type { Activity, ActivityFields, Move } from '@/lib/types';
 import { ActivitySchema, EditActivitySchema } from '@/lib/validation';
 import { getUserId } from '@/lib/actions/utils/get-user-id';
 import { revalidateUserData } from '@/lib/actions/utils/revalidate';

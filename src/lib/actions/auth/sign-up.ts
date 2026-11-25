@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 
-import { Credentials } from '@/lib/definitions';
+import { Credentials } from '@/lib/types';
 import { SignUpSchema } from '@/lib/validation';
 import { dbCreateUser, dbGetUser } from '@/lib/db/users';
 import { sendVerificationEmail } from '@/lib/actions/auth/utils/email-send';

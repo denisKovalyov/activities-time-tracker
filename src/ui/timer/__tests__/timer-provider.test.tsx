@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startTimer, stopTimer } from '@/lib/actions/timer';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 import type { ActionResult } from '@/lib/actions/utils/result';
-import type { RunningTimer, TimeTotals } from '@/lib/db/types';
+import type { RunningTimer, TimeTotals } from '@/lib/types';
 import {
   TimerProvider,
   useActivitySeconds,

@@ -1,4 +1,4 @@
-import type { Activity, ActivityFields } from '@/lib/db/types';
+import type { Activity, ActivityFields } from '@/lib/types';
 
 type ActivityForm = ActivityFields;
 type ActivityKey = keyof ActivityForm;

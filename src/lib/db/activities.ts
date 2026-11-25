@@ -3,7 +3,7 @@ import { sql, type VercelPoolClient } from '@vercel/postgres';
 import { generateKeyBetween } from 'fractional-indexing';
 
 import { withUserLock } from '@/lib/db/transaction';
-import type { Activity, ActivityFields, Move } from '@/lib/db/types';
+import type { Activity, ActivityFields, Move } from '@/lib/types';
 
 export async function dbListActivities(userId: string): Promise<Activity[]> {
   try {

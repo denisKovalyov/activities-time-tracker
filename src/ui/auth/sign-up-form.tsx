@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Credentials } from '@/lib/definitions';
+import { Credentials } from '@/lib/types';
 import { SignUpSchema } from '@/lib/validation';
 import { googleAuthenticate } from '@/lib/actions/auth/sign-in';
 import { signUp } from '@/lib/actions/auth/sign-up';

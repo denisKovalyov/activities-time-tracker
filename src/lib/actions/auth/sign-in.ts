@@ -3,7 +3,7 @@
 import { AuthError, CredentialsSignin } from 'next-auth';
 import { redirect, unstable_rethrow } from 'next/navigation';
 
-import { Credentials } from '@/lib/definitions';
+import { Credentials } from '@/lib/types';
 import { SignInSchema } from '@/lib/validation';
 import { EMAIL_NOT_VERIFIED, signIn } from '@/auth';
 import { PROTECTED_PAGES } from '@/auth.config';

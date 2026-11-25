@@ -1,7 +1,7 @@
 import 'server-only';
 import { sql } from '@vercel/postgres';
 
-import type { Credentials, User } from '@/lib/definitions';
+import type { Credentials, User } from '@/lib/types';
 import {
   EMAIL_RESEND_COOLDOWN,
   EMAIL_VERIFICATION_TTL,

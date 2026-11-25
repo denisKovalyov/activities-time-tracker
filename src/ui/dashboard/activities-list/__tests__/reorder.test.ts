@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { Move } from '@/lib/db/types';
+import type { Move } from '@/lib/types';
 
 import { getMoves, mergeVisibleOrder } from '../reorder';
 

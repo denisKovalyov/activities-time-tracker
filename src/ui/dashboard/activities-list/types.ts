@@ -1,4 +1,4 @@
-import type { Activity } from '@/lib/db/types';
+import type { Activity } from '@/lib/types';
 
 export type ActivitiesListItemProps = {
   activity: Activity;

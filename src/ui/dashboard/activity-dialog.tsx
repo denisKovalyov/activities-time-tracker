@@ -3,7 +3,7 @@
 import { DialogWrapper } from '@/ui/common/dialog';
 import { ActivityForm } from '@/ui/dashboard/activity-form/activity-form';
 import { useRouter } from '@/ui/hooks/use-router';
-import type { Activity } from '@/lib/db/types';
+import type { Activity } from '@/lib/types';
 
 const ADD_ACTIVITY_SUBHEADER =
   'Create an Activity to Monitor and Optimize Your Time';

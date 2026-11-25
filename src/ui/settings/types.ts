@@ -1,4 +1,4 @@
-import { User } from '@/lib/definitions';
+import { User } from '@/lib/types';
 import type { Day } from '@/lib/utils/day';
 
 export type AccountDetails = Pick<User, 'email' | 'email_verified'> & {
