@@ -32,6 +32,7 @@ export function PasswordField() {
       name="password"
       label="Password"
       inputComponent={InputPassword}
+      autoComplete="new-password"
       onFocus={handlePasswordFocus}
       onBlur={handlePasswordBlur}
       showTooltip={showTooltip}

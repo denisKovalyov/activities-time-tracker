@@ -75,6 +75,7 @@ export function SignInForm() {
             name="password"
             label="Password"
             inputComponent={InputPassword}
+            autoComplete="current-password"
             description={
               <Link
                 className={cn(

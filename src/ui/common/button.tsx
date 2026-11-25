@@ -1,18 +1,17 @@
 import * as React from 'react';
-import { Slot } from '@radix-ui/react-slot';
 import { Spinner } from '@/ui/common/spinner';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils/common';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 transition-colors',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground shadow hover:bg-primary/90 bg-opacity-10',
-        accent: 'bg-accent text-white shadow hover:bg-accent/80 bg-opacity-10',
-        warning: 'bg-warning text-white hover:bg-warning/80 bg-opacity-10',
+          'bg-primary text-primary-foreground shadow hover:bg-primary/90',
+        accent: 'bg-accent text-white shadow hover:bg-accent/80',
+        warning: 'bg-warning text-white hover:bg-warning/80',
         destructive:
           'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
         outline:
@@ -40,24 +39,23 @@ const buttonVariants = cva(
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
   loading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant, loading, size, asChild = false, children, ...props },
+    { className, variant, loading, size, disabled, children, ...props },
     ref,
   ) => {
-    const Comp = asChild ? Slot : 'button';
-
     return (
-      <Comp
+      <button
         className={cn(buttonVariants({ variant, size, className }), {
           relative: loading,
         })}
         ref={ref}
         {...props}
+        disabled={disabled || loading}
+        aria-busy={loading || props['aria-busy']}
       >
         {loading ? (
           <>
@@ -69,7 +67,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ) : (
           children
         )}
-      </Comp>
+      </button>
     );
   },
 );
