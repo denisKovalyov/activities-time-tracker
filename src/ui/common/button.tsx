@@ -66,9 +66,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           relative: loading,
         })}
         ref={ref}
-        disabled={disabled || loading}
-        aria-busy={loading}
         {...props}
+        disabled={disabled || loading}
+        aria-busy={loading || props['aria-busy']}
       >
         {loading ? (
           <>
