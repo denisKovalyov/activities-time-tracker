@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import { startTimer, stopTimer } from '@/lib/actions/timer';
 import type { ActionResult } from '@/lib/actions/utils/result';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
-import type { RunningTimer, TimeTotals } from '@/lib/db/types';
+import type { RunningTimer, TimeTotals } from '@/lib/types';
 import { useToast } from '@/ui/hooks/use-toast';
 import { useNow } from '@/ui/timer/use-now';
 import {

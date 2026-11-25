@@ -1,7 +1,7 @@
 import { useOptimistic, useState, useTransition } from 'react';
 
 import { reorderActivities } from '@/lib/actions/activities';
-import type { Activity } from '@/lib/db/types';
+import type { Activity } from '@/lib/types';
 import {
   getMoves,
   mergeVisibleOrder,

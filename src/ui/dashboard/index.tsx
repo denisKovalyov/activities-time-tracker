@@ -5,7 +5,7 @@ import { FolderOpen } from '@phosphor-icons/react';
 import { ActivitiesHeader } from '@/ui/dashboard/activities-header';
 import { ActivitiesList } from '@/ui/dashboard/activities-list';
 import { EmptyState } from '@/ui/common/empty-state';
-import type { Activity } from '@/lib/db/types';
+import type { Activity } from '@/lib/types';
 
 export const DashboardWrapper = ({
   activities,

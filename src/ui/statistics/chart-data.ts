@@ -1,4 +1,4 @@
-import type { Activity, DayTotal, TimeTotals } from '@/lib/db/types';
+import type { Activity, DayTotal, TimeTotals } from '@/lib/types';
 import { formatReadableDate } from '@/lib/utils/day';
 
 export type DataItem = {

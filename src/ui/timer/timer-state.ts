@@ -1,4 +1,4 @@
-import type { TimeTotals } from '@/lib/db/types';
+import type { TimeTotals } from '@/lib/types';
 
 export type TimerState = {
   activeId: string | null;

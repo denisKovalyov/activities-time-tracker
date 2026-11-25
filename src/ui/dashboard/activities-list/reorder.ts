@@ -1,4 +1,4 @@
-import type { Move } from '@/lib/db/types';
+import type { Move } from '@/lib/types';
 
 // Indexes of the items that kept their relative order. O(n²) is fine for a
 // list of activities.

@@ -11,7 +11,7 @@ import {
   useTimer,
   useTotalSeconds,
 } from '@/ui/timer/timer-provider';
-import type { Activity } from '@/lib/db/types';
+import type { Activity } from '@/lib/types';
 import { cn } from '@/lib/utils/common';
 
 const TitleComponent = ({

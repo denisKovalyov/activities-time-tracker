@@ -8,7 +8,7 @@ import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activ
 import { deleteActivity } from '@/lib/actions/activities';
 import { useRouter } from '@/ui/hooks/use-router';
 import { useToast } from '@/ui/hooks/use-toast';
-import type { Activity } from '@/lib/db/types';
+import type { Activity } from '@/lib/types';
 
 export const RemoveActivityDialog = ({
   activities,

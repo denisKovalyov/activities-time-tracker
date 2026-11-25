@@ -2,12 +2,7 @@ import 'server-only';
 import type { VercelPoolClient } from '@vercel/postgres';
 
 import { withSnapshot, withUserLock } from '@/lib/db/transaction';
-import type {
-  DayRange,
-  DayTotal,
-  RunningTimer,
-  TimeTotals,
-} from '@/lib/db/types';
+import type { DayRange, DayTotal, RunningTimer, TimeTotals } from '@/lib/types';
 
 type RunningTimerRow = { activity_id: string; started_at: Date };
 

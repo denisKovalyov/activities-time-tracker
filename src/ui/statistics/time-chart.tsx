@@ -33,7 +33,7 @@ import {
   useCalculateTimeValues,
 } from '@/ui/hooks/use-calculate-time-values';
 import { useLiveSeconds } from '@/ui/timer/use-live-seconds';
-import type { Activity, RunningTimer } from '@/lib/db/types';
+import type { Activity, RunningTimer } from '@/lib/types';
 import type { DataItem } from '@/ui/statistics/chart-data';
 
 const MAX_BAR_ITEMS = 8;

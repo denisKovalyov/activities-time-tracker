@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { reorderActivities } from '@/lib/actions/activities';
 import type { ActionResult } from '@/lib/actions/utils/result';
-import type { Activity } from '@/lib/db/types';
+import type { Activity } from '@/lib/types';
 import { useActivitiesList } from '@/ui/hooks/use-activities-list';
 
 const toast = vi.hoisted(() => vi.fn());

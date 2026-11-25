@@ -7,7 +7,7 @@ import {
   dbStartTimer,
   dbStopTimer,
 } from '@/lib/db/time-entries';
-import type { DayRange } from '@/lib/db/types';
+import type { DayRange } from '@/lib/types';
 import { clearDatabase, createUser, query } from '@/test/integration/helpers';
 
 let userId: string;

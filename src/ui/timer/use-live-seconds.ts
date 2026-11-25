@@ -1,4 +1,4 @@
-import type { RunningTimer } from '@/lib/db/types';
+import type { RunningTimer } from '@/lib/types';
 import { getLiveSeconds } from '@/ui/timer/timer-state';
 import { useNow } from '@/ui/timer/use-now';
 

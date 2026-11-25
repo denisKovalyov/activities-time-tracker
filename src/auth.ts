@@ -3,7 +3,7 @@ import NextAuth, { CredentialsSignin } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 
-import type { Credentials, User } from '@/lib/definitions';
+import type { Credentials, User } from '@/lib/types';
 import { authConfig } from './auth.config';
 import { dbGetUser, dbCreateUser } from '@/lib/db/users';
 

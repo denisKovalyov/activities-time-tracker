@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useForm, useWatch } from 'react-hook-form';
 
-import type { Activity, ActivityFields } from '@/lib/db/types';
+import type { Activity, ActivityFields } from '@/lib/types';
 import { ActivitySchema } from '@/lib/validation';
 import { Button } from '@/ui/common/button';
 import { Form, FormFieldInput } from '@/ui/common/form';
