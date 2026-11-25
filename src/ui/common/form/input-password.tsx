@@ -7,35 +7,30 @@ import { Button } from '@/ui/common/button';
 import { Eye, EyeSlash } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils/common';
 
-const InputPassword = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, ...props }, ref) => {
-    const [isVisible, setIsVisible] = useState(false);
+const InputPassword = ({ className, ...props }: InputProps) => {
+  const [isVisible, setIsVisible] = useState(false);
 
-    const togglePasswordVisibility = () => setIsVisible((state) => !state);
-    const Icon = isVisible ? EyeSlash : Eye;
+  const togglePasswordVisibility = () => setIsVisible((state) => !state);
+  const Icon = isVisible ? EyeSlash : Eye;
 
-    return (
-      <div className="relative">
-        <Input
-          ref={ref}
-          className={cn('pr-9', className)}
-          {...props}
-          type={isVisible ? 'text' : 'password'}
-        />
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="absolute right-0 top-0"
-          onClick={togglePasswordVisibility}
-        >
-          <Icon weight="duotone" size="16" className="text-primary" />
-        </Button>
-      </div>
-    );
-  },
-);
-
-InputPassword.displayName = 'InputPassword';
+  return (
+    <div className="relative">
+      <Input
+        className={cn('pr-9', className)}
+        {...props}
+        type={isVisible ? 'text' : 'password'}
+      />
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="absolute right-0 top-0"
+        onClick={togglePasswordVisibility}
+      >
+        <Icon weight="duotone" size="16" className="text-primary" />
+      </Button>
+    </div>
+  );
+};
 
 export { InputPassword };

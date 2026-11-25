@@ -37,40 +37,41 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends React.ComponentProps<'button'>,
     VariantProps<typeof buttonVariants> {
   loading?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    { className, variant, loading, size, disabled, children, ...props },
-    ref,
-  ) => {
-    return (
-      <button
-        className={cn(buttonVariants({ variant, size, className }), {
-          relative: loading,
-        })}
-        ref={ref}
-        {...props}
-        disabled={disabled || loading}
-        aria-busy={loading || props['aria-busy']}
-      >
-        {loading ? (
-          <>
-            <span className="invisible contents">{children}</span>
-            <span className="absolute h-full w-full">
-              <Spinner />
-            </span>
-          </>
-        ) : (
-          children
-        )}
-      </button>
-    );
-  },
-);
-Button.displayName = 'Button';
+const Button = ({
+  className,
+  variant,
+  loading,
+  size,
+  disabled,
+  children,
+  ...props
+}: ButtonProps) => {
+  return (
+    <button
+      className={cn(buttonVariants({ variant, size, className }), {
+        relative: loading,
+      })}
+      {...props}
+      disabled={disabled || loading}
+      aria-busy={loading || props['aria-busy']}
+    >
+      {loading ? (
+        <>
+          <span className="invisible contents">{children}</span>
+          <span className="absolute h-full w-full">
+            <Spinner />
+          </span>
+        </>
+      ) : (
+        children
+      )}
+    </button>
+  );
+};
 
 export { Button, buttonVariants };

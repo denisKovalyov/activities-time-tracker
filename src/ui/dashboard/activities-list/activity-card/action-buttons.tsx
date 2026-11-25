@@ -1,4 +1,4 @@
-import { forwardRef, CSSProperties } from 'react';
+import { CSSProperties, Ref } from 'react';
 import { ArrowsDownUp, NotePencil, X } from '@phosphor-icons/react';
 
 import { Button, ButtonProps } from '@/ui/common/button';
@@ -67,16 +67,21 @@ export const DeleteButton = ({
   </Button>
 );
 
-export const ActionButtons = forwardRef<
-  HTMLDivElement,
-  {
-    visibleWidth: number;
-    applyTransition: boolean;
-    onEdit: () => void;
-    onRemove: () => void;
-    onReorder: () => void;
-  }
->(({ visibleWidth, applyTransition, onReorder, onEdit, onRemove }, ref) => {
+export const ActionButtons = ({
+  visibleWidth,
+  applyTransition,
+  onReorder,
+  onEdit,
+  onRemove,
+  ref,
+}: {
+  visibleWidth: number;
+  applyTransition: boolean;
+  onEdit: () => void;
+  onRemove: () => void;
+  onReorder: () => void;
+  ref?: Ref<HTMLDivElement>;
+}) => {
   const shift = (visibleWidth / BUTTONS_WIDTH) * 100;
   return (
     <div ref={ref} className="rounded-r-m absolute bottom-0 right-0 top-0">
@@ -93,6 +98,4 @@ export const ActionButtons = forwardRef<
       />
     </div>
   );
-});
-
-ActionButtons.displayName = 'ActionButtons';
+};
