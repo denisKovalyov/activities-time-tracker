@@ -1,6 +1,6 @@
 import { ActivityDialog } from '@/ui/dashboard/activity-dialog';
 import { RemoveActivityDialog } from '@/ui/dashboard/remove-activity-dialog';
-import { DashboardWrapper } from '@/ui/dashboard';
+import { DashboardWrapper } from '@/ui/dashboard/dashboard-wrapper';
 import { TimerProvider } from '@/ui/timer/timer-provider';
 import { dbListActivities } from '@/lib/db/activities';
 import { dbReadTimerAndTotals } from '@/lib/db/time-entries';
