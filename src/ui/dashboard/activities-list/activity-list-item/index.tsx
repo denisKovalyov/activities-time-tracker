@@ -1,10 +1,4 @@
-import React, {
-  PointerEvent,
-  RefObject,
-  ReactNode,
-  useRef,
-  useState,
-} from 'react';
+import { PointerEvent, RefObject, ReactNode, useRef, useState } from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useSwipeable } from 'react-swipeable';
 import { useLongPress } from 'use-long-press';

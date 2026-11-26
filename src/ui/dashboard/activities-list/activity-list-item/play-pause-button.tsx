@@ -1,5 +1,3 @@
-'use client';
-
 import { PlayPause, Pause } from '@phosphor-icons/react';
 import { Button } from '@/ui/common/button';
 import { cn } from '@/lib/utils/common';

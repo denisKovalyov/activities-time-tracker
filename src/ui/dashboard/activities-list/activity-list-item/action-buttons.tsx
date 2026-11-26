@@ -1,7 +1,7 @@
 import { CSSProperties, Ref } from 'react';
 import { ArrowsDownUp, NotePencil, X } from '@phosphor-icons/react';
 
-import { Button, ButtonProps } from '@/ui/common/button';
+import { Button } from '@/ui/common/button';
 import { cn } from '@/lib/utils/common';
 
 const BUTTON_WIDTH = 55;
@@ -9,15 +9,13 @@ export const BUTTONS_WIDTH = BUTTON_WIDTH * 3;
 const buttonClassNames =
   'absolute h-full px-3 rounded-none shadow-none border-y border-r dark:border-gray-200';
 
-interface ActionButtonProps extends ButtonProps {
+type ActionButtonProps = {
   onClick: () => void;
   applyTransition: boolean;
-  style?: CSSProperties;
-}
+  style: CSSProperties;
+};
 
-export const ReorderButton = ({
-  onClick,
-}: Omit<ActionButtonProps, 'applyTransition'>) => (
+const ReorderButton = ({ onClick }: { onClick: () => void }) => (
   <Button
     className={`${buttonClassNames} border-secondary`}
     variant="secondary"
@@ -27,11 +25,7 @@ export const ReorderButton = ({
   </Button>
 );
 
-export const EditButton = ({
-  applyTransition,
-  onClick,
-  style,
-}: ActionButtonProps) => (
+const EditButton = ({ applyTransition, onClick, style }: ActionButtonProps) => (
   <Button
     className={cn(
       `${buttonClassNames} border-secondary transition-transform duration-0 will-change-transform`,
@@ -47,7 +41,7 @@ export const EditButton = ({
   </Button>
 );
 
-export const DeleteButton = ({
+const DeleteButton = ({
   applyTransition,
   onClick,
   style,
@@ -84,7 +78,7 @@ export const ActionButtons = ({
 }) => {
   const shift = (visibleWidth / BUTTONS_WIDTH) * 100;
   return (
-    <div ref={ref} className="rounded-r-m absolute bottom-0 right-0 top-0">
+    <div ref={ref} className="absolute bottom-0 right-0 top-0">
       <ReorderButton onClick={onReorder} />
       <EditButton
         onClick={onEdit}

@@ -22,7 +22,7 @@ export const ActivityCard = ({
   activity: Activity;
   onEdit: () => void;
   onRemove: () => void;
-  onReorder?: () => void;
+  onReorder: () => void;
   className?: string;
   onRecord: () => void;
 }) => {
