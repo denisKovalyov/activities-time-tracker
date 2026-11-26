@@ -74,7 +74,7 @@ export const ActivitiesHeader = ({
   const [animationClass, setAnimationClass] = useState(FLY_IN);
   const [prevActiveId, setPrevActiveId] = useState(activeId);
 
-  // A started activity flies in
+  // Replay the fly-in animation of the title and stopwatch when another activity starts
   if (activeId !== prevActiveId) {
     setPrevActiveId(activeId);
     if (activeId) setAnimationClass(FLY_IN);
