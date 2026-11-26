@@ -30,10 +30,6 @@ export function IconPicker({
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 640px)');
 
-  const handleIconSelect = (value: string) => {
-    onSelect(value);
-  };
-
   const TriggerButton = (
     <Button
       variant="outline"
@@ -58,8 +54,9 @@ export function IconPicker({
         <PopoverContent className="w-[256px] p-0" align="start" side="top">
           <IconGrid
             setOpen={setOpen}
-            onSelect={handleIconSelect}
+            onSelect={onSelect}
             selectedIcon={selected}
+            iconSize="20"
           />
         </PopoverContent>
       </Popover>
@@ -73,8 +70,9 @@ export function IconPicker({
         <div className="mt-4 border-t">
           <IconGrid
             setOpen={setOpen}
-            onSelect={handleIconSelect}
+            onSelect={onSelect}
             selectedIcon={selected}
+            iconSize="26"
           />
         </div>
       </DrawerContent>
@@ -86,31 +84,27 @@ function IconGrid({
   setOpen,
   onSelect,
   selectedIcon,
+  iconSize,
 }: {
   setOpen: (open: boolean) => void;
-  onSelect: (status: string) => void;
+  onSelect: (icon: string) => void;
   selectedIcon: string;
+  iconSize: string;
 }) {
-  const isDesktop = useMediaQuery('(min-width: 640px)');
-
   return (
     <Command>
       <CommandInput autoFocus placeholder="Search icon..." />
       <CommandList>
         <CommandEmpty>No icons found.</CommandEmpty>
-        <CommandGroup
-          className="[&>div]:flex [&>div]:flex-wrap [&>div]:gap-2 [&>div]:sm:gap-4"
-          onClick={(event) => {
-            onSelect((event.target as HTMLElement).dataset.icon || '');
-            setOpen(false);
-          }}
-        >
+        <CommandGroup className="[&>div]:flex [&>div]:flex-wrap [&>div]:gap-2 [&>div]:sm:gap-4">
           {icons.map((name) => (
             <IconGridItem
               key={name}
               name={name}
               selected={selectedIcon === name}
-              size={isDesktop ? '20' : '26'}
+              size={iconSize}
+              onSelect={onSelect}
+              setOpen={setOpen}
             />
           ))}
         </CommandGroup>
@@ -123,21 +117,27 @@ const IconGridItem = React.memo(function IconGridItem({
   name,
   size,
   selected,
+  onSelect,
+  setOpen,
 }: {
   name: string;
   size: string;
   selected: boolean;
+  onSelect: (icon: string) => void;
+  setOpen: (open: boolean) => void;
 }) {
+  const handleSelect = () => {
+    onSelect(name);
+    setOpen(false);
+  };
+
   return (
     <CommandItem
       value={name}
-      data-icon={name}
-      className={cn(
-        'relative cursor-pointer p-2  after:absolute after:left-0 after:z-10 after:h-full after:w-full',
-        {
-          'bg-grayColored': selected,
-        },
-      )}
+      onSelect={handleSelect}
+      className={cn('cursor-pointer p-2', {
+        'bg-grayColored': selected,
+      })}
     >
       <Icon name={name} size={size} />
     </CommandItem>
