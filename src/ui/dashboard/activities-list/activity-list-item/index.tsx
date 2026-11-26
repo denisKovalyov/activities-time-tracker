@@ -1,10 +1,4 @@
-import React, {
-  PointerEvent,
-  RefObject,
-  ReactNode,
-  useRef,
-  useState,
-} from 'react';
+import { PointerEvent, RefObject, ReactNode, useRef, useState } from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useSwipeable } from 'react-swipeable';
 import { useLongPress } from 'use-long-press';
@@ -13,17 +7,29 @@ import { Reorder, useDragControls } from 'framer-motion';
 import {
   ActionButtons,
   BUTTONS_WIDTH,
-} from '@/ui/dashboard/activities-list/activity-card/action-buttons';
-import { ActivityCard } from '@/ui/dashboard/activities-list/activity-card/activity-card';
-import { DragButton } from '@/ui/dashboard/activities-list/activity-card/drag-button';
-import { ActivityTime } from '@/ui/dashboard/activities-list/activity-card/activity-time';
+} from '@/ui/dashboard/activities-list/activity-list-item/action-buttons';
+import { ActivityCard } from '@/ui/dashboard/activities-list/activity-list-item/activity-card';
+import { DragButton } from '@/ui/dashboard/activities-list/activity-list-item/drag-button';
+import { ActivityTime } from '@/ui/dashboard/activities-list/activity-list-item/activity-time';
 import { useTimer } from '@/ui/timer/timer-provider';
-import { ActivitiesListItemProps } from '@/ui/dashboard/activities-list/types';
 import { cn } from '@/lib/utils/common';
+import type { Activity } from '@/lib/types';
+
+type ActivityListItemProps = {
+  activity: Activity;
+  swiped: boolean;
+  onSwipe: (id: string) => void;
+  onCancelSwipe: () => void;
+  reorderMode: boolean;
+  dragDisabled: boolean;
+  onEdit: (id: string) => void;
+  onRemove: (id: string) => void;
+  onReorder: () => void;
+  onDrop: () => void;
+};
 
 export const ActivityListItem = ({
   activity,
-  hidden,
   swiped,
   onSwipe,
   onCancelSwipe,
@@ -33,7 +39,7 @@ export const ActivityListItem = ({
   onRemove,
   reorderMode,
   dragDisabled,
-}: ActivitiesListItemProps) => {
+}: ActivityListItemProps) => {
   const [shift, setShift] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -89,10 +95,6 @@ export const ActivityListItem = ({
     handleClickOutsideButtons,
     'touchstart',
   );
-
-  // Hidden by search. Rendered as nothing, not removed from the list, so
-  // reordering keeps working with the full list.
-  if (hidden) return null;
 
   const handleEdit = () => onEdit(id);
   const handleRemove = () => onRemove(id);

@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 
 import { Card } from '@/ui/common/card';
-import { PlayPauseButton } from '@/ui/dashboard/activities-list/activity-card/play-pause-button';
-import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activity-icon';
-import { ActivityDropdownMenu } from '@/ui/dashboard/activities-list/activity-card/activity-dropdown-menu';
+import { PlayPauseButton } from '@/ui/dashboard/activities-list/activity-list-item/play-pause-button';
+import { ActivityIcon } from '@/ui/dashboard/activity-icon';
+import { ActivityDropdownMenu } from '@/ui/dashboard/activities-list/activity-list-item/activity-dropdown-menu';
 import { cn } from '@/lib/utils/common';
 import type { Activity } from '@/lib/types';
 
@@ -22,7 +22,7 @@ export const ActivityCard = ({
   activity: Activity;
   onEdit: () => void;
   onRemove: () => void;
-  onReorder?: () => void;
+  onReorder: () => void;
   className?: string;
   onRecord: () => void;
 }) => {

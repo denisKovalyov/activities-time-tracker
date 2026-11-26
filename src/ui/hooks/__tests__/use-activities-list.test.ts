@@ -125,19 +125,4 @@ describe('useActivitiesList', () => {
     expect(reorderActivities).not.toHaveBeenCalled();
     expect(result.current.isSaving).toBe(false);
   });
-
-  it('keeps hidden activities in their places', async () => {
-    const save = deferSave();
-    const { result } = render(list('abcd'));
-
-    // "b" is hidden by a search, "d" was dragged to the top
-    dragAndDrop(result, 'dac');
-
-    expect(ids(result.current.activitiesList)).toBe('dbac');
-    expect(reorderActivities).toHaveBeenCalledWith([
-      { id: 'd', previousId: null },
-      { id: 'a', previousId: 'b' },
-    ]);
-    await save.finish({ ok: true, data: undefined });
-  });
 });

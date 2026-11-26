@@ -3,11 +3,11 @@ import type { Activity, ActivityFields } from '@/lib/types';
 type ActivityForm = ActivityFields;
 type ActivityKey = keyof ActivityForm;
 
-export const checkActivityExists = (
+export const isDuplicate = (
   activity: ActivityForm,
   activitiesList: Activity[],
 ) =>
-  activitiesList.find(
+  activitiesList.some(
     ({ name, color, icon }) =>
       name === activity.name &&
       color === activity.color &&

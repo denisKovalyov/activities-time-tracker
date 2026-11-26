@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { Move } from '@/lib/types';
 
-import { getMoves, mergeVisibleOrder } from '../reorder';
+import { getMoves } from '../reorder';
 
 // Applies moves the same way the server does: put the item right after
 // `previousId`, or at the top
@@ -36,19 +36,5 @@ describe('getMoves', () => {
     expect(applyMoves(original, getMoves(original, reordered))).toEqual(
       reordered,
     );
-  });
-});
-
-describe('mergeVisibleOrder', () => {
-  const items = (ids: string) => ids.split('').map((id) => ({ id }));
-  const ids = (list: { id: string }[]) => list.map(({ id }) => id).join('');
-
-  it('keeps hidden items in their places', () => {
-    // "b" and "d" are hidden, "e" was dragged above "a"
-    expect(ids(mergeVisibleOrder(items('abcde'), items('eac')))).toBe('ebadc');
-  });
-
-  it('returns the reordered list when nothing is hidden', () => {
-    expect(ids(mergeVisibleOrder(items('abc'), items('cab')))).toBe('cab');
   });
 });

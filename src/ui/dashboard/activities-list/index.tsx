@@ -3,18 +3,24 @@ import { useRouter } from '@/ui/hooks/use-router';
 import { Reorder } from 'framer-motion';
 
 import { ActivityListItem } from '@/ui/dashboard/activities-list/activity-list-item';
-import { ActivitiesListProps } from '@/ui/dashboard/activities-list/types';
 import { useActivitiesList } from '@/ui/hooks/use-activities-list';
+import type { Activity } from '@/lib/types';
 
-export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
+export const ActivitiesList = ({ activities }: { activities: Activity[] }) => {
   const [swiped, setSwiped] = useState<string | null>(null);
 
   const { router, pathname, searchParams, stringifyQueryParams } = useRouter();
   const reorderMode = Boolean(searchParams.get('reorder'));
-  const search = searchParams.get('search')?.toLowerCase();
+  const search = reorderMode
+    ? undefined
+    : searchParams.get('search')?.toLowerCase();
 
   const { activitiesList, isSaving, handleReorder, handleDrop } =
     useActivitiesList(activities);
+
+  const visibleActivities = search
+    ? activitiesList.filter(({ name }) => name.toLowerCase().includes(search))
+    : activitiesList;
 
   const handleSwipe = (id: string) => setSwiped(id);
   const handleSwipeCancel = () => setSwiped(() => null);
@@ -40,13 +46,10 @@ export const ActivitiesList = ({ activities }: ActivitiesListProps) => {
         values={activitiesList}
         layoutScroll
       >
-        {activitiesList.map((activity) => (
+        {visibleActivities.map((activity) => (
           <ActivityListItem
             key={activity.id}
             activity={activity}
-            hidden={
-              search ? !activity.name.toLowerCase().includes(search) : false
-            }
             swiped={swiped === activity.id}
             reorderMode={reorderMode}
             dragDisabled={isSaving}

@@ -16,14 +16,12 @@ export const ActivityDialog = ({ activities }: { activities: Activity[] }) => {
   const editActivityId = searchParams.get('editActivity');
   const redirect = () => router.push(pathname);
 
-  const showDialog = Boolean(addActivity || editActivityId);
+  const editable = activities.find(({ id }) => id === editActivityId);
+  const showDialog = Boolean(addActivity || editable);
   const header = addActivity ? 'Add Activity' : 'Edit Activity';
   const subheader = addActivity
     ? ADD_ACTIVITY_SUBHEADER
     : EDIT_ACTIVITY_SUBHEADER;
-
-  // The action has already refreshed the data, only the dialog is closed
-  const handleSubmit = redirect;
 
   return (
     <DialogWrapper
@@ -37,7 +35,7 @@ export const ActivityDialog = ({ activities }: { activities: Activity[] }) => {
         <ActivityForm
           activityId={editActivityId}
           activities={activities}
-          onSubmit={handleSubmit}
+          onSubmit={redirect}
         />
       }
     />

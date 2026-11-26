@@ -15,7 +15,7 @@ const BASIC_COLORS = [
   '#33FF83', // Light Green
   '#FF3333', // Red
   '#33A1FF', // Sky Blue
-  '#FF5733', // Coral
+  '#FF7F50', // Coral
   '#A833FF', // Violet
   '#FFD633', // Sunflower Yellow
   '#FF33B8', // Pink
@@ -52,7 +52,7 @@ export function ColorPicker({
               size="16"
               weight="fill"
               style={{
-                color: value.length === 6 ? value : '000000',
+                color: value.length === 6 ? `#${value}` : '#000000',
               }}
             />
           ),

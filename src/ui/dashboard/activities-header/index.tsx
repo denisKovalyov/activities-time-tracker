@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { AddActivityButton } from '@/ui/dashboard/activities-header/add-activity-button';
-import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activity-icon';
+import { ActivityIcon } from '@/ui/dashboard/activity-icon';
 import { ConfirmReorderingButton } from '@/ui/dashboard/activities-header/confirm-reordering-button';
 import { StopRecordButton } from '@/ui/dashboard/activities-header/stop-record-button';
 import { useRouter } from '@/ui/hooks/use-router';
@@ -74,7 +74,7 @@ export const ActivitiesHeader = ({
   const [animationClass, setAnimationClass] = useState(FLY_IN);
   const [prevActiveId, setPrevActiveId] = useState(activeId);
 
-  // A started activity flies in
+  // Replay the fly-in animation of the title and stopwatch when another activity starts
   if (activeId !== prevActiveId) {
     setPrevActiveId(activeId);
     if (activeId) setAnimationClass(FLY_IN);
@@ -115,14 +115,12 @@ export const ActivitiesHeader = ({
     </span>
   );
 
-  const handleStopRecord = () => stop();
-
   const reorderMode = Boolean(searchParams.get('reorder'));
 
   const Button = reorderMode ? (
     <ConfirmReorderingButton />
   ) : activeId ? (
-    <StopRecordButton onClick={handleStopRecord} />
+    <StopRecordButton onClick={stop} />
   ) : (
     <AddActivityButton />
   );

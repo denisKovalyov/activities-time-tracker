@@ -36,14 +36,3 @@ export const getMoves = (original: string[], reordered: string[]): Move[] => {
     .map((id, i) => ({ id, previousId: reordered[i - 1] ?? null }))
     .filter((_, i) => !staying.has(i));
 };
-
-// Reorder.Group reports only rendered items, so while a search hides some
-// activities, the hidden ones keep their places.
-export const mergeVisibleOrder = <T extends { id: string }>(
-  list: T[],
-  visibleReordered: T[],
-): T[] => {
-  const visibleIds = new Set(visibleReordered.map(({ id }) => id));
-  const queue = [...visibleReordered];
-  return list.map((item) => (visibleIds.has(item.id) ? queue.shift()! : item));
-};

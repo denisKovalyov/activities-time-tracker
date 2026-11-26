@@ -1,5 +1,3 @@
-'use client';
-
 import {
   ArrowsDownUp,
   CaretCircleDown,
@@ -16,24 +14,22 @@ import {
   DropdownMenuItem,
 } from '@/ui/common/dropdown-menu';
 
-const ITEMS = [
-  { label: 'Edit', icon: PencilSimple },
-  { label: 'Reorder', icon: ArrowsDownUp },
-  { label: 'Remove', icon: Trash },
-];
-
 export const ActivityDropdownMenu = ({
   className,
-  ...handlers
+  onEdit,
+  onReorder,
+  onRemove,
 }: {
   className: string;
   onEdit: () => void;
   onRemove: () => void;
-  onReorder?: () => void;
+  onReorder: () => void;
 }) => {
-  const menuItems = handlers.onReorder
-    ? ITEMS
-    : ITEMS.filter(({ label }) => label !== 'Reorder');
+  const menuItems = [
+    { label: 'Edit', icon: PencilSimple, onClick: onEdit },
+    { label: 'Reorder', icon: ArrowsDownUp, onClick: onReorder },
+    { label: 'Remove', icon: Trash, onClick: onRemove },
+  ];
 
   return (
     <DropdownMenu>
@@ -47,10 +43,10 @@ export const ActivityDropdownMenu = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {menuItems.map(({ label, icon: Icon }) => (
+        {menuItems.map(({ label, icon: Icon, onClick }) => (
           <DropdownMenuItem
             key={label}
-            onClick={handlers[`on${label}` as keyof typeof handlers]}
+            onClick={onClick}
             className="flex cursor-pointer items-center"
           >
             <span className="mr-1">{label}</span>
