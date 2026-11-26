@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+const APP_NAME = process.env.APP_NAME;
 
 type EmailVerificationTemplateProps = {
   email: string;
@@ -10,10 +10,10 @@ export const EmailVerificationTemplate = ({
   email,
   token,
   origin,
-}: EmailVerificationTemplateProps): ReactElement => {
+}: EmailVerificationTemplateProps) => {
   return (
     <div>
-      <h1>{`Welcome to ${process.env.APP_NAME} app!`}</h1>
+      <h1>{`Welcome to ${APP_NAME} app!`}</h1>
       <p>Click the link below to verify your email:</p>
       <a
         href={`${origin}/email/verify?email=${encodeURIComponent(email)}&token=${token}`}
