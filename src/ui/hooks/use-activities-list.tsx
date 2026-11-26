@@ -2,10 +2,7 @@ import { useOptimistic, useState, useTransition } from 'react';
 
 import { reorderActivities } from '@/lib/actions/activities';
 import type { Activity } from '@/lib/types';
-import {
-  getMoves,
-  mergeVisibleOrder,
-} from '@/ui/dashboard/activities-list/reorder';
+import { getMoves } from '@/ui/dashboard/activities-list/reorder';
 import { useToast } from '@/ui/hooks/use-toast';
 
 // While dragging, the list has the dragged order; after a drop, the new order
@@ -19,8 +16,7 @@ export const useActivitiesList = (activities: Activity[]) => {
 
   const activitiesList = draggedList ?? savingList;
 
-  const handleReorder = (visibleReordered: Activity[]) =>
-    setDraggedList(mergeVisibleOrder(activitiesList, visibleReordered));
+  const handleReorder = (reordered: Activity[]) => setDraggedList(reordered);
 
   const handleDrop = () => {
     if (!draggedList) return;

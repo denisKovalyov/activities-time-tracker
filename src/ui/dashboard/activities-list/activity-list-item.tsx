@@ -18,12 +18,24 @@ import { ActivityCard } from '@/ui/dashboard/activities-list/activity-card/activ
 import { DragButton } from '@/ui/dashboard/activities-list/activity-card/drag-button';
 import { ActivityTime } from '@/ui/dashboard/activities-list/activity-card/activity-time';
 import { useTimer } from '@/ui/timer/timer-provider';
-import { ActivitiesListItemProps } from '@/ui/dashboard/activities-list/types';
 import { cn } from '@/lib/utils/common';
+import type { Activity } from '@/lib/types';
+
+type ActivityListItemProps = {
+  activity: Activity;
+  swiped: boolean;
+  onSwipe: (id: string) => void;
+  onCancelSwipe: () => void;
+  reorderMode: boolean;
+  dragDisabled: boolean;
+  onEdit: (id: string) => void;
+  onRemove: (id: string) => void;
+  onReorder: () => void;
+  onDrop: () => void;
+};
 
 export const ActivityListItem = ({
   activity,
-  hidden,
   swiped,
   onSwipe,
   onCancelSwipe,
@@ -33,7 +45,7 @@ export const ActivityListItem = ({
   onRemove,
   reorderMode,
   dragDisabled,
-}: ActivitiesListItemProps) => {
+}: ActivityListItemProps) => {
   const [shift, setShift] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -89,10 +101,6 @@ export const ActivityListItem = ({
     handleClickOutsideButtons,
     'touchstart',
   );
-
-  // Hidden by search. Rendered as nothing, not removed from the list, so
-  // reordering keeps working with the full list.
-  if (hidden) return null;
 
   const handleEdit = () => onEdit(id);
   const handleRemove = () => onRemove(id);
