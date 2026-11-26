@@ -16,7 +16,8 @@ export const ActivityDialog = ({ activities }: { activities: Activity[] }) => {
   const editActivityId = searchParams.get('editActivity');
   const redirect = () => router.push(pathname);
 
-  const showDialog = Boolean(addActivity || editActivityId);
+  const editable = activities.find(({ id }) => id === editActivityId);
+  const showDialog = Boolean(addActivity || editable);
   const header = addActivity ? 'Add Activity' : 'Edit Activity';
   const subheader = addActivity
     ? ADD_ACTIVITY_SUBHEADER
