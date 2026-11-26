@@ -13,10 +13,10 @@ import { Reorder, useDragControls } from 'framer-motion';
 import {
   ActionButtons,
   BUTTONS_WIDTH,
-} from '@/ui/dashboard/activities-list/activity-card/action-buttons';
-import { ActivityCard } from '@/ui/dashboard/activities-list/activity-card/activity-card';
-import { DragButton } from '@/ui/dashboard/activities-list/activity-card/drag-button';
-import { ActivityTime } from '@/ui/dashboard/activities-list/activity-card/activity-time';
+} from '@/ui/dashboard/activities-list/activity-list-item/action-buttons';
+import { ActivityCard } from '@/ui/dashboard/activities-list/activity-list-item/activity-card';
+import { DragButton } from '@/ui/dashboard/activities-list/activity-list-item/drag-button';
+import { ActivityTime } from '@/ui/dashboard/activities-list/activity-list-item/activity-time';
 import { useTimer } from '@/ui/timer/timer-provider';
 import { cn } from '@/lib/utils/common';
 import type { Activity } from '@/lib/types';

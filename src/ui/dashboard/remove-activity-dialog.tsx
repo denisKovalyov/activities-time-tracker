@@ -4,7 +4,7 @@ import { useTransition } from 'react';
 
 import { DialogWrapper } from '@/ui/common/dialog';
 import { Button } from '@/ui/common/button';
-import { ActivityIcon } from '@/ui/dashboard/activities-list/activity-card/activity-icon';
+import { ActivityIcon } from '@/ui/dashboard/activity-icon';
 import { deleteActivity } from '@/lib/actions/activities';
 import { useRouter } from '@/ui/hooks/use-router';
 import { useToast } from '@/ui/hooks/use-toast';
