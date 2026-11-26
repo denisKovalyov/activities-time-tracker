@@ -16,7 +16,7 @@ export const RemoveActivityDialog = ({
   activities: Activity[];
 }) => {
   // Pending until the dialog is closed
-  const [isLoading, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
 
   const { toast } = useToast();
   const { router, pathname, searchParams } = useRouter();
@@ -70,7 +70,7 @@ export const RemoveActivityDialog = ({
           <Button variant="outline" onClick={redirect}>
             Cancel
           </Button>
-          <Button onClick={handleConfirm} className="ml-2" loading={isLoading}>
+          <Button onClick={handleConfirm} className="ml-2" loading={isPending}>
             Ok
           </Button>
         </div>

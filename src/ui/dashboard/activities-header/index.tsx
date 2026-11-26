@@ -115,14 +115,12 @@ export const ActivitiesHeader = ({
     </span>
   );
 
-  const handleStopRecord = () => stop();
-
   const reorderMode = Boolean(searchParams.get('reorder'));
 
   const Button = reorderMode ? (
     <ConfirmReorderingButton />
   ) : activeId ? (
-    <StopRecordButton onClick={handleStopRecord} />
+    <StopRecordButton onClick={stop} />
   ) : (
     <AddActivityButton />
   );
