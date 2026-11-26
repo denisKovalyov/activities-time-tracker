@@ -1,6 +1,4 @@
-'use client';
-
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useTransition } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useForm, useWatch } from 'react-hook-form';
@@ -19,7 +17,7 @@ import { createActivity, updateActivity } from '@/lib/actions/activities';
 import { useToast } from '@/ui/hooks/use-toast';
 import { matchFieldErrors } from '@/lib/utils/ui';
 import {
-  checkActivityExists,
+  isDuplicate,
   retrieveUpdatedValues,
 } from '@/ui/dashboard/activity-form/utils';
 import './hex-color-picker.css';
@@ -38,7 +36,7 @@ export function ActivityForm({
 }) {
   const { toast } = useToast();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const editable = activityId
     ? activities.find(({ id }) => id === activityId)
@@ -82,10 +80,8 @@ export function ActivityForm({
     [setValue, trigger],
   );
 
-  const handleSubmit = async (values: z.infer<typeof ActivitySchema>) => {
-    const isExist = checkActivityExists(values, activities);
-
-    if (isExist) {
+  const handleSubmit = (values: z.infer<typeof ActivitySchema>) => {
+    if (isDuplicate(values, activities)) {
       toast({
         title: 'Activity already exists!',
         variant: 'destructive',
@@ -93,28 +89,27 @@ export function ActivityForm({
       return;
     }
 
-    setIsLoading(true);
+    startTransition(async () => {
+      const result =
+        activityId && changedValues
+          ? await updateActivity(activityId, changedValues)
+          : await createActivity(values);
 
-    const result =
-      activityId && changedValues
-        ? await updateActivity(activityId, changedValues)
-        : await createActivity(values);
-
-    if (!result.ok) {
-      if (result.fieldErrors) {
-        matchFieldErrors<ActivityFields>(result.fieldErrors, setError);
-      } else {
-        toast({ title: result.message, variant: 'destructive' });
+      if (!result.ok) {
+        if (result.fieldErrors) {
+          matchFieldErrors<ActivityFields>(result.fieldErrors, setError);
+        } else {
+          toast({ title: result.message, variant: 'destructive' });
+        }
+        return;
       }
-      setIsLoading(false);
-      return;
-    }
 
-    onSubmit();
+      onSubmit();
 
-    toast({
-      title: activityId ? ACTIVITY_EDIT_SUCCESS : ACTIVITY_ADD_SUCCESS,
-      variant: 'success',
+      toast({
+        title: activityId ? ACTIVITY_EDIT_SUCCESS : ACTIVITY_ADD_SUCCESS,
+        variant: 'success',
+      });
     });
   };
 
@@ -124,7 +119,7 @@ export function ActivityForm({
 
   return (
     <div className="mx-auto w-2/3 min-w-64">
-      <LoadingOverlay show={isLoading} />
+      <LoadingOverlay show={isPending} />
 
       <Form {...form}>
         <form

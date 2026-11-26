@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState } from 'react';
 import { useMediaQuery } from 'usehooks-ts';
 import { CaretUpDown } from '@phosphor-icons/react';
@@ -121,16 +119,16 @@ function IconGrid({
   );
 }
 
-const IconGridItem = React.memo(
-  ({
-    name,
-    size,
-    selected,
-  }: {
-    name: string;
-    size: string;
-    selected: boolean;
-  }) => (
+const IconGridItem = React.memo(function IconGridItem({
+  name,
+  size,
+  selected,
+}: {
+  name: string;
+  size: string;
+  selected: boolean;
+}) {
+  return (
     <CommandItem
       value={name}
       data-icon={name}
@@ -143,7 +141,5 @@ const IconGridItem = React.memo(
     >
       <Icon name={name} size={size} />
     </CommandItem>
-  ),
-);
-
-IconGridItem.displayName = 'IconGridItem';
+  );
+});
