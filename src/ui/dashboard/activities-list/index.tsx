@@ -11,7 +11,9 @@ export const ActivitiesList = ({ activities }: { activities: Activity[] }) => {
 
   const { router, pathname, searchParams, stringifyQueryParams } = useRouter();
   const reorderMode = Boolean(searchParams.get('reorder'));
-  const search = searchParams.get('search')?.toLowerCase();
+  const search = reorderMode
+    ? undefined
+    : searchParams.get('search')?.toLowerCase();
 
   const { activitiesList, isSaving, handleReorder, handleDrop } =
     useActivitiesList(activities);
