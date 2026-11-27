@@ -4,7 +4,7 @@ import { ChangeEvent, useState } from 'react';
 import { MagnifyingGlass, X } from '@phosphor-icons/react';
 
 import { Input } from '@/ui/common/form/input';
-import { useRouter } from '@/ui/hooks/use-router';
+import { useNavigation } from '@/ui/hooks/use-navigation';
 
 const DASHBOARD_PATH = '/dashboard';
 
@@ -12,7 +12,7 @@ const DASHBOARD_PATH = '/dashboard';
 // is updated without a request to the server. On other pages the search
 // opens the dashboard.
 export const InputSearch = () => {
-  const { router, searchParams, pathname } = useRouter();
+  const { router, searchParams, pathname } = useNavigation();
   const search = searchParams.get('search') ?? '';
 
   const [value, setValue] = useState(search);

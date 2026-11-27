@@ -9,6 +9,9 @@ export const useRefresh = () => {
   const router = useRouter();
 
   return useCallback(() => {
+    // Don't refresh while offline. RefreshWhenVisible refreshes once the
+    // connection comes back.
+    if (!navigator.onLine) return;
     syncTimeZoneCookie();
     router.refresh();
   }, [router]);

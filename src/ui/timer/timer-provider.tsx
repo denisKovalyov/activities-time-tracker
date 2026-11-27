@@ -15,7 +15,7 @@ import { startTimer, stopTimer } from '@/lib/actions/timer';
 import type { ActionResult } from '@/lib/actions/utils/result';
 import { DEFAULT_ERROR_MESSAGE } from '@/lib/actions/constants';
 import type { RunningTimer, TimeTotals } from '@/lib/types';
-import { useToast } from '@/ui/hooks/use-toast';
+import { toast } from '@/ui/hooks/use-toast';
 import { useNow } from '@/ui/timer/use-now';
 import {
   type TimerAction,
@@ -60,7 +60,6 @@ export const TimerProvider = ({
     timerReducer,
   );
   const [, startTransition] = useTransition();
-  const { toast } = useToast();
   const router = useRouter();
 
   const run = useCallback(
@@ -74,13 +73,13 @@ export const TimerProvider = ({
           const result = await request();
           if (!result.ok) showError(result.message);
         } catch {
-          // E.g. a network error: it's unknown whether the change was saved
-          router.refresh();
+          // E.g. a network error: it's unknown whether the change was saved.
+          if (navigator.onLine) router.refresh();
           showError(DEFAULT_ERROR_MESSAGE);
         }
       });
     },
-    [updateOptimistically, toast, router],
+    [updateOptimistically, router],
   );
 
   const start = useCallback(

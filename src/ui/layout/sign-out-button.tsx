@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { signOut } from '@/lib/actions/auth/sign-out';
-import { useToast } from '@/ui/hooks/use-toast';
+import { toast } from '@/ui/hooks/use-toast';
 
 export const SignOutButton = ({
   children,
@@ -11,8 +11,6 @@ export const SignOutButton = ({
   children: ReactNode;
   className: string;
 }) => {
-  const { toast } = useToast();
-
   const handleSignOut = async () => {
     const result = await signOut();
 

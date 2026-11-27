@@ -1,22 +1,23 @@
 import { useState } from 'react';
-import { useRouter } from '@/ui/hooks/use-router';
+import { useNavigation } from '@/ui/hooks/use-navigation';
 import { Reorder } from 'framer-motion';
 
 import { ActivityListItem } from '@/ui/dashboard/activities-list/activity-list-item';
-import { useActivitiesList } from '@/ui/hooks/use-activities-list';
+import { useActivitiesOrder } from '@/ui/dashboard/activities-list/use-activities-order';
 import type { Activity } from '@/lib/types';
 
 export const ActivitiesList = ({ activities }: { activities: Activity[] }) => {
   const [swiped, setSwiped] = useState<string | null>(null);
 
-  const { router, pathname, searchParams, stringifyQueryParams } = useRouter();
+  const { router, pathname, searchParams, stringifyQueryParams } =
+    useNavigation();
   const reorderMode = Boolean(searchParams.get('reorder'));
   const search = reorderMode
     ? undefined
     : searchParams.get('search')?.toLowerCase();
 
   const { activitiesList, isSaving, handleReorder, handleDrop } =
-    useActivitiesList(activities);
+    useActivitiesOrder(activities);
 
   const visibleActivities = search
     ? activitiesList.filter(({ name }) => name.toLowerCase().includes(search))

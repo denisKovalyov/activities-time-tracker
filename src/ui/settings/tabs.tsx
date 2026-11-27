@@ -1,7 +1,7 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/common/tabs';
-import { useRouter } from '@/ui/hooks/use-router';
+import { useNavigation } from '@/ui/hooks/use-navigation';
 import { Account } from '@/ui/settings/account';
 import { AccountDetails, TabsProps } from '@/ui/settings/types';
 
@@ -24,7 +24,7 @@ const TABS = [
 ];
 
 export function SettingsTabs({ activeTab = TABS[0].key, account }: TabsProps) {
-  const { router } = useRouter();
+  const { router } = useNavigation();
 
   const handleTabChange = (tabId: string) => {
     router.push(`?tab=${tabId}`);

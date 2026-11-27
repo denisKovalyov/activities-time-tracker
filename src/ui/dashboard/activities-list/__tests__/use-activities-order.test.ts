@@ -5,12 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { reorderActivities } from '@/lib/actions/activities';
 import type { ActionResult } from '@/lib/actions/utils/result';
 import type { Activity } from '@/lib/types';
-import { useActivitiesList } from '@/ui/hooks/use-activities-list';
+import { useActivitiesOrder } from '../use-activities-order';
 
 const toast = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/actions/activities', () => ({ reorderActivities: vi.fn() }));
-vi.mock('@/ui/hooks/use-toast', () => ({ useToast: () => ({ toast }) }));
+vi.mock('@/ui/hooks/use-toast', () => ({ toast }));
 
 const activity = (id: string) => ({ id, name: id }) as Activity;
 const list = (ids: string) => ids.split('').map(activity);
@@ -33,7 +33,7 @@ const deferSave = () => {
 };
 
 const render = (activities = list('abc')) =>
-  renderHook(({ activities }) => useActivitiesList(activities), {
+  renderHook(({ activities }) => useActivitiesOrder(activities), {
     initialProps: { activities },
   });
 
@@ -52,7 +52,7 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-describe('useActivitiesList', () => {
+describe('useActivitiesOrder', () => {
   it('shows the new order while it is being saved', async () => {
     const save = deferSave();
     const { result, rerender } = render();

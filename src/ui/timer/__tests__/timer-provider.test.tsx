@@ -23,7 +23,7 @@ vi.mock('@/lib/actions/timer', () => ({
   startTimer: vi.fn(),
   stopTimer: vi.fn(),
 }));
-vi.mock('@/ui/hooks/use-toast', () => ({ useToast: () => ({ toast }) }));
+vi.mock('@/ui/hooks/use-toast', () => ({ toast }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
 
 const SECOND = 1000;

@@ -4,7 +4,7 @@ import { AddActivityButton } from '@/ui/dashboard/activities-header/add-activity
 import { ActivityIcon } from '@/ui/dashboard/activity-icon';
 import { ConfirmReorderingButton } from '@/ui/dashboard/activities-header/confirm-reordering-button';
 import { StopRecordButton } from '@/ui/dashboard/activities-header/stop-record-button';
-import { useRouter } from '@/ui/hooks/use-router';
+import { useNavigation } from '@/ui/hooks/use-navigation';
 import { useCalculateTimeValues } from '@/ui/hooks/use-calculate-time-values';
 import {
   useRunSeconds,
@@ -69,7 +69,7 @@ export const ActivitiesHeader = ({
 }: {
   activities: Activity[];
 }) => {
-  const { searchParams } = useRouter();
+  const { searchParams } = useNavigation();
   const { activeId, stop } = useTimer();
   const [animationClass, setAnimationClass] = useState(FLY_IN);
   const [prevActiveId, setPrevActiveId] = useState(activeId);

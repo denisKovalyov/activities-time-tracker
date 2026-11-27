@@ -14,7 +14,7 @@ import {
 } from '@/ui/dashboard/activity-form/color-picker';
 import { LoadingOverlay } from '@/ui/common/loading-overlay';
 import { createActivity, updateActivity } from '@/lib/actions/activities';
-import { useToast } from '@/ui/hooks/use-toast';
+import { toast } from '@/ui/hooks/use-toast';
 import { matchFieldErrors } from '@/lib/utils/ui';
 import {
   isDuplicate,
@@ -34,8 +34,6 @@ export function ActivityForm({
   activities: Activity[];
   activityId?: string | null;
 }) {
-  const { toast } = useToast();
-
   const [isPending, startTransition] = useTransition();
 
   const editable = activityId

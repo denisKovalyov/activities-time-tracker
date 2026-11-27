@@ -1,10 +1,10 @@
 import { Plus } from '@phosphor-icons/react';
 
 import { Button } from '@/ui/common/button';
-import { useRouter } from '@/ui/hooks/use-router';
+import { useNavigation } from '@/ui/hooks/use-navigation';
 
 export const AddActivityButton = () => {
-  const { router, pathname, stringifyQueryParams } = useRouter();
+  const { router, pathname, stringifyQueryParams } = useNavigation();
 
   const handleClick = () =>
     router.push(`${pathname}?${stringifyQueryParams({ addActivity: 'true' })}`);

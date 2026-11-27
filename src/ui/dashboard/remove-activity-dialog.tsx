@@ -6,8 +6,8 @@ import { DialogWrapper } from '@/ui/common/dialog';
 import { Button } from '@/ui/common/button';
 import { ActivityIcon } from '@/ui/dashboard/activity-icon';
 import { deleteActivity } from '@/lib/actions/activities';
-import { useRouter } from '@/ui/hooks/use-router';
-import { useToast } from '@/ui/hooks/use-toast';
+import { useNavigation } from '@/ui/hooks/use-navigation';
+import { toast } from '@/ui/hooks/use-toast';
 import type { Activity } from '@/lib/types';
 
 export const RemoveActivityDialog = ({
@@ -17,9 +17,7 @@ export const RemoveActivityDialog = ({
 }) => {
   // Pending until the dialog is closed
   const [isPending, startTransition] = useTransition();
-
-  const { toast } = useToast();
-  const { router, pathname, searchParams } = useRouter();
+  const { router, pathname, searchParams } = useNavigation();
 
   const activityId = searchParams.get('removeActivity');
   const showDialog = Boolean(activityId);
