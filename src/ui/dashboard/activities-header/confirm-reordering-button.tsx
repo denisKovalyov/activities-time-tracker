@@ -2,16 +2,16 @@ import { Check } from '@phosphor-icons/react';
 import { useState } from 'react';
 
 import { Button } from '@/ui/common/button';
-import { useRouter } from '@/ui/hooks/use-router';
+import { useNavigation } from '@/ui/hooks/use-navigation';
 import { cn } from '@/lib/utils/common';
 
 export const ConfirmReorderingButton = () => {
-  const { router, pathname } = useRouter();
+  const { router, pathname } = useNavigation();
 
   const [animationCompleted, setAnimationCompleted] = useState(false);
 
   const handleAnimationEnd = () => setAnimationCompleted(true);
-  // The order is already saved on every drop (see useActivitiesList)
+  // The order is already saved on every drop (see useActivitiesOrder)
   const handleClick = () => router.push(pathname);
 
   return (

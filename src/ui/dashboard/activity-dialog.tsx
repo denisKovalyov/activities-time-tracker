@@ -2,7 +2,7 @@
 
 import { DialogWrapper } from '@/ui/common/dialog';
 import { ActivityForm } from '@/ui/dashboard/activity-form/activity-form';
-import { useRouter } from '@/ui/hooks/use-router';
+import { useNavigation } from '@/ui/hooks/use-navigation';
 import type { Activity } from '@/lib/types';
 
 const ADD_ACTIVITY_SUBHEADER =
@@ -10,7 +10,7 @@ const ADD_ACTIVITY_SUBHEADER =
 const EDIT_ACTIVITY_SUBHEADER = 'Edit Existing Activity';
 
 export const ActivityDialog = ({ activities }: { activities: Activity[] }) => {
-  const { router, pathname, searchParams } = useRouter();
+  const { router, pathname, searchParams } = useNavigation();
 
   const addActivity = searchParams.get('addActivity');
   const editActivityId = searchParams.get('editActivity');

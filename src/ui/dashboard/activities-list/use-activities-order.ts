@@ -3,18 +3,16 @@ import { useOptimistic, useState, useTransition } from 'react';
 import { reorderActivities } from '@/lib/actions/activities';
 import type { Activity } from '@/lib/types';
 import { getMoves } from '@/ui/dashboard/activities-list/reorder';
-import { useToast } from '@/ui/hooks/use-toast';
+import { toast } from '@/ui/hooks/use-toast';
 
-// While dragging, the list has the dragged order; after a drop, the new order
-// is shown optimistically until it's saved. Moves are computed against the
-// order from the server, so the next drag waits until the save finishes.
-export const useActivitiesList = (activities: Activity[]) => {
-  const [savingList, setSavingList] = useOptimistic(activities);
+// Shows the new activities order right away: while dragging and after a drop
+// until the server saves it
+export const useActivitiesOrder = (activities: Activity[]) => {
+  const [optimisticList, setOptimisticList] = useOptimistic(activities);
   const [draggedList, setDraggedList] = useState<Activity[] | null>(null);
   const [isSaving, startTransition] = useTransition();
-  const { toast } = useToast();
 
-  const activitiesList = draggedList ?? savingList;
+  const activitiesList = draggedList ?? optimisticList;
 
   const handleReorder = (reordered: Activity[]) => setDraggedList(reordered);
 
@@ -26,9 +24,11 @@ export const useActivitiesList = (activities: Activity[]) => {
       draggedList.map(({ id }) => id),
     );
     startTransition(async () => {
-      setSavingList(draggedList);
+      setOptimisticList(draggedList);
       if (!moves.length) return;
 
+      // Revalidates the activities, so the saved order comes back through the
+      // `activities` param and replaces the optimistic one
       const result = await reorderActivities(moves).catch(() => null);
       if (!result?.ok) {
         toast({

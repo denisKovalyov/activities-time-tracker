@@ -1,5 +1,3 @@
-'use client';
-
 // Inspired by react-hot-toast library
 import * as React from 'react';
 
@@ -182,7 +180,7 @@ function useToast() {
         listeners.splice(index, 1);
       }
     };
-  }, [state]);
+  }, []);
 
   return {
     ...state,

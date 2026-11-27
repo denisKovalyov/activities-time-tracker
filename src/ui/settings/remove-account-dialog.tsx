@@ -5,7 +5,7 @@ import { DialogWrapper } from '@/ui/common/dialog';
 import { Button } from '@/ui/common/button';
 import { deleteUserData } from '@/lib/actions/auth/delete-user-data';
 import { signOut } from '@/lib/actions/auth/sign-out';
-import { useToast } from '@/ui/hooks/use-toast';
+import { toast } from '@/ui/hooks/use-toast';
 
 export const RemoveAccountDialog = ({
   show,
@@ -16,7 +16,6 @@ export const RemoveAccountDialog = ({
 }) => {
   // Pending until the user is signed out
   const [isLoading, startTransition] = useTransition();
-  const { toast } = useToast();
 
   const handleConfirm = () =>
     startTransition(async () => {
