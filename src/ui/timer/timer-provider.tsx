@@ -74,8 +74,6 @@ export const TimerProvider = ({
           if (!result.ok) showError(result.message);
         } catch {
           // E.g. a network error: it's unknown whether the change was saved.
-          // Don't refresh while offline. RefreshWhenVisible refreshes once the
-          // connection comes back.
           if (navigator.onLine) router.refresh();
           showError(DEFAULT_ERROR_MESSAGE);
         }
